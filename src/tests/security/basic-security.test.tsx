@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import App from '@/App';
 
 describe('Basic Security Tests', () => {
@@ -57,11 +56,7 @@ describe('Basic Security Tests', () => {
 
   describe('Frontend Security', () => {
     it('should render without exposing sensitive data', () => {
-      const { container } = render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      );
+      const { container } = render(<App />);
 
       const htmlContent = container.innerHTML;
       
@@ -100,11 +95,7 @@ describe('Basic Security Tests', () => {
 
   describe('Security Headers', () => {
     it('should have security considerations in place', () => {
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      );
+      render(<App />);
 
       // Check for basic security measures
       // In a real app, this would check for actual headers

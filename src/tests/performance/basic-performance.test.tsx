@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import App from '@/App';
 
 describe('Basic Performance Tests', () => {
@@ -8,11 +7,7 @@ describe('Basic Performance Tests', () => {
     it('should load initial page within acceptable time', () => {
       const startTime = performance.now();
       
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      );
+      render(<App />);
 
       const loadTime = performance.now() - startTime;
       
@@ -48,11 +43,7 @@ describe('Basic Performance Tests', () => {
     it('should have basic memory usage expectations', () => {
       const initialMemory = (performance as any).memory?.usedJSHeapSize || 0;
       
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      );
+      render(<App />);
 
       // Basic memory check - if memory API is available
       if (initialMemory > 0) {
