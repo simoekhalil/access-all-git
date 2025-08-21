@@ -1,7 +1,10 @@
 import { beforeAll, afterAll, beforeEach, afterEach, vi, expect } from 'vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
+
+// Re-export for easier imports
+export { render, screen, fireEvent, waitFor };
 
 // Extend expect with jest-axe
 expect.extend(toHaveNoViolations);
