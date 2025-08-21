@@ -10,15 +10,18 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup/test-setup.ts'],
     coverage: {
+      enabled: true,
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
       exclude: [
         'node_modules/',
         'src/tests/',
         '**/*.d.ts',
         '**/*.config.*',
         'dist/',
-        'build/'
+        'build/',
+        'coverage/'
       ],
       thresholds: {
         global: {
