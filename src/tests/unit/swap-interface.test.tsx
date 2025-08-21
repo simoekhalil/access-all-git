@@ -130,6 +130,22 @@ describe('SwapInterface Component', () => {
       });
     });
 
+    it('should calculate from amount when to amount is entered', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      const toAmountInput = screen.getByLabelText('To');
+      fireEvent.change(toAmountInput, { target: { value: '2.5' } });
+
+      await waitFor(() => {
+        const fromAmountInput = screen.getByLabelText('From');
+        expect(fromAmountInput).toHaveValue('100.000000'); // 2.5 / 0.025 = 100
+      });
+    });
+
     it('should show exchange rate when amounts are present', async () => {
       render(
         <TestWrapper>

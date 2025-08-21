@@ -45,12 +45,28 @@ const SwapInterface = () => {
     }));
   };
 
-  const calculateToAmount = (fromAmount: string) => {
+  const getExchangeRate = (from: string, to: string) => {
+    // Mock exchange rates
+    const rates: Record<string, Record<string, number>> = {
+      GALA: { USDC: 0.025, ETH: 0.000015, TOWN: 0.1 },
+      USDC: { GALA: 40, ETH: 0.0006, TOWN: 4 },
+      ETH: { GALA: 66666.67, USDC: 1666.67, TOWN: 6666.67 },
+      TOWN: { GALA: 10, USDC: 0.25, ETH: 0.00015 },
+    };
+    return rates[from]?.[to] || 1;
+  };
+
+  const calculateToAmount = (fromAmount: string, fromToken: string, toToken: string) => {
     if (!fromAmount || isNaN(Number(fromAmount))) return '';
-    
-    // Mock exchange rate calculation
-    const rate = swap.fromToken === 'GALA' ? 0.025 : 40;
+    const rate = getExchangeRate(fromToken, toToken);
     const amount = Number(fromAmount) * rate;
+    return amount.toFixed(6);
+  };
+
+  const calculateFromAmount = (toAmount: string, fromToken: string, toToken: string) => {
+    if (!toAmount || isNaN(Number(toAmount))) return '';
+    const rate = getExchangeRate(fromToken, toToken);
+    const amount = Number(toAmount) / rate;
     return amount.toFixed(6);
   };
 
@@ -58,7 +74,15 @@ const SwapInterface = () => {
     setSwap(prev => ({
       ...prev,
       fromAmount: value,
-      toAmount: calculateToAmount(value),
+      toAmount: calculateToAmount(value, prev.fromToken, prev.toToken),
+    }));
+  };
+
+  const handleToAmountChange = (value: string) => {
+    setSwap(prev => ({
+      ...prev,
+      toAmount: value,
+      fromAmount: calculateFromAmount(value, prev.fromToken, prev.toToken),
     }));
   };
 
@@ -177,8 +201,7 @@ const SwapInterface = () => {
                 type="number"
                 placeholder="0.00"
                 value={swap.toAmount}
-                readOnly
-                className="bg-muted"
+                onChange={(e) => handleToAmountChange(e.target.value)}
               />
             </div>
             <Select
