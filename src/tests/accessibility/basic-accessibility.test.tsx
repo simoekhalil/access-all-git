@@ -1,10 +1,34 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import App from '@/App';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Routes, Route } from "react-router-dom";
+import Index from "@/pages/Index";
+import NotFound from "@/pages/NotFound";
+
+const queryClient = new QueryClient();
+
+const TestApp = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <MemoryRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </MemoryRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 describe('Basic Accessibility Tests', () => {
   it('should render with proper document structure', () => {
-    render(<App />);
+    render(<TestApp />);
     
     // Check for basic HTML structure
     const htmlElement = document.documentElement;
@@ -12,7 +36,7 @@ describe('Basic Accessibility Tests', () => {
   });
 
   it('should have language attribute', () => {
-    render(<App />);
+    render(<TestApp />);
     
     const htmlElement = document.documentElement;
     // HTML element should exist (lang attribute can be added later)

@@ -1,13 +1,37 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import App from '@/App';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Routes, Route } from "react-router-dom";
+import Index from "@/pages/Index";
+import NotFound from "@/pages/NotFound";
+
+const queryClient = new QueryClient();
+
+const TestApp = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <MemoryRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </MemoryRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 describe('Basic Performance Tests', () => {
   describe('Load Time Performance', () => {
     it('should load initial page within acceptable time', () => {
       const startTime = performance.now();
       
-      render(<App />);
+      render(<TestApp />);
 
       const loadTime = performance.now() - startTime;
       
@@ -43,7 +67,7 @@ describe('Basic Performance Tests', () => {
     it('should have basic memory usage expectations', () => {
       const initialMemory = (performance as any).memory?.usedJSHeapSize || 0;
       
-      render(<App />);
+      render(<TestApp />);
 
       // Basic memory check - if memory API is available
       if (initialMemory > 0) {
