@@ -1,6 +1,10 @@
-import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
+import { beforeAll, afterAll, beforeEach, afterEach, vi, expect } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { toHaveNoViolations } from 'jest-axe';
+
+// Extend expect with jest-axe
+expect.extend(toHaveNoViolations);
 
 // Mock Web3 and wallet connections
 global.ethereum = {
@@ -11,8 +15,31 @@ global.ethereum = {
 };
 
 // Mock window.location for routing tests
-delete (window as any).location;
-window.location = { ...window.location, assign: vi.fn() };
+Object.defineProperty(window, 'location', {
+  value: { ...window.location, assign: vi.fn() },
+  writable: true,
+});
+
+// Mock services
+vi.mock('@/services/swapService', () => ({
+  getQuote: vi.fn(),
+  executeSwap: vi.fn(),
+}));
+
+vi.mock('@/services/poolService', () => ({
+  getPools: vi.fn(),
+  addLiquidity: vi.fn(),
+  removeLiquidity: vi.fn(),
+}));
+
+// Mock components that don't exist yet
+vi.mock('@/components/SwapComponent', () => ({
+  default: () => 'SwapComponent'
+}));
+
+vi.mock('@/components/PoolComponent', () => ({
+  default: () => 'PoolComponent'
+}));
 
 // Setup and cleanup for each test
 beforeEach(() => {
