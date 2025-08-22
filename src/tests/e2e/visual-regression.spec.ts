@@ -50,19 +50,29 @@ test.describe('Visual Regression Tests', () => {
   test('should match swap interface states', async ({ page }) => {
     // Empty swap interface
     await expect(page.getByText('Swap Tokens')).toBeVisible();
-    await expect(page.locator('main')).toHaveScreenshot('swap-empty.png', { threshold: 0.3 });
+    await expect(page.locator('main')).toHaveScreenshot('swap-empty.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
 
     // With amounts entered
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
     
-    // Wait for calculation
+    // Wait for calculation and UI updates
     await expect(page.getByLabel('To')).toHaveValue('2.500000');
-    await expect(page.locator('main')).toHaveScreenshot('swap-with-amounts.png', { threshold: 0.3 });
+    await page.waitForTimeout(500);
+    await expect(page.locator('main')).toHaveScreenshot('swap-with-amounts.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
 
     // With exchange rate details visible
     await expect(page.getByText('Exchange Rate:')).toBeVisible();
-    await expect(page.locator('main')).toHaveScreenshot('swap-with-details.png', { threshold: 0.3 });
+    await expect(page.locator('main')).toHaveScreenshot('swap-with-details.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
   });
 
   test('should match token selection dropdowns', async ({ page }) => {
@@ -132,41 +142,63 @@ test.describe('Visual Regression Tests', () => {
   });
 
   test('should match responsive design on mobile', async ({ page }) => {
-    // Set mobile viewport
+    // Set mobile viewport and wait for layout
     await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    await page.waitForTimeout(500);
     
     // Mobile layout
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page).toHaveScreenshot('mobile-homepage.png', { threshold: 0.3 });
+    await expect(page).toHaveScreenshot('mobile-homepage.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
 
     // Mobile swap interface
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
+    await expect(page.getByLabel('To')).toHaveValue('2.500000');
     await page.waitForTimeout(500);
     
-    await expect(page).toHaveScreenshot('mobile-swap-interface.png', { threshold: 0.3 });
+    await expect(page).toHaveScreenshot('mobile-swap-interface.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
 
     // Mobile token dropdown
     const fromTokenSelect = page.locator('[role="combobox"]').first();
     await fromTokenSelect.click();
+    await page.waitForTimeout(300);
     
-    await expect(page).toHaveScreenshot('mobile-token-dropdown.png', { threshold: 0.3 });
+    await expect(page).toHaveScreenshot('mobile-token-dropdown.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
   });
 
   test('should match dark mode appearance', async ({ page }) => {
-    // Toggle to dark mode (assuming there's a theme toggle)
+    // Set dark color scheme and add dark class for comprehensive dark mode
+    await page.emulateMedia({ colorScheme: 'dark' });
     await page.evaluate(() => {
       document.documentElement.classList.add('dark');
     });
+    await page.waitForTimeout(500);
 
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page).toHaveScreenshot('dark-mode-homepage.png', { threshold: 0.3 });
+    await expect(page).toHaveScreenshot('dark-mode-homepage.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
 
-    // Dark mode swap interface
+    // Dark mode swap interface with interaction
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
+    await expect(page.getByLabel('To')).toHaveValue('2.500000');
     await page.waitForTimeout(500);
     
-    await expect(page).toHaveScreenshot('dark-mode-swap.png', { threshold: 0.3 });
+    await expect(page).toHaveScreenshot('dark-mode-swap.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
   });
 });
