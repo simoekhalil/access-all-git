@@ -133,13 +133,12 @@ test.describe('Complete Swap Workflow', () => {
     await expect(toAmountInput).toHaveValue('25.000000');
 
     // Click swap direction arrow
-    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
+    const swapArrow = page.getByTestId('swap-tokens-button');
     await swapArrow.click();
 
-    // Verify tokens swapped - wait for animation to complete and use better selectors
-    await page.waitForTimeout(1000);
-    await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
-    await expect(page.locator('[role="combobox"]').last()).toContainText('GALA');
+    // Verify tokens swapped using proper selectors
+    await expect(page.getByTestId('from-token-select')).toContainText('USDC');
+    await expect(page.getByTestId('to-token-select')).toContainText('GALA');
 
     // Verify amounts swapped
     await expect(page.getByLabel('From')).toHaveValue('25.000000');

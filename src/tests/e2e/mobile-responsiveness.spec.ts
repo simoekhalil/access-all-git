@@ -140,12 +140,12 @@ test.describe('Mobile Responsiveness', () => {
     await expect(page.getByLabel('To')).toHaveValue('2.500000');
 
     // Test token switching in landscape
-    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
+    const swapArrow = page.getByTestId('swap-tokens-button');
     await swapArrow.click();
     
-    await page.waitForTimeout(500);
-    await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
-    await expect(page.locator('[role="combobox"]').last()).toContainText('GALA');
+    // Wait for tokens to swap and verify
+    await expect(page.getByTestId('from-token-select')).toContainText('USDC');
+    await expect(page.getByTestId('to-token-select')).toContainText('GALA');
   });
 
   test('should handle text scaling appropriately', async ({ page }) => {

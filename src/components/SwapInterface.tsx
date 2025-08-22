@@ -162,7 +162,7 @@ const SwapInterface = () => {
               value={swap.fromToken}
               onValueChange={(value) => setSwap(prev => ({ ...prev, fromToken: value }))}
             >
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="w-24" data-testid="from-token-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -189,6 +189,8 @@ const SwapInterface = () => {
             size="sm"
             onClick={handleSwapTokens}
             className="rounded-full p-2"
+            data-testid="swap-tokens-button"
+            aria-label="Swap tokens"
           >
             <ArrowUpDown className="h-4 w-4" />
           </Button>
@@ -211,7 +213,7 @@ const SwapInterface = () => {
               value={swap.toToken}
               onValueChange={(value) => setSwap(prev => ({ ...prev, toToken: value }))}
             >
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="w-24" data-testid="to-token-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

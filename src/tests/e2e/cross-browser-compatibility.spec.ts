@@ -52,13 +52,12 @@ test.describe('Cross-Browser Compatibility', () => {
     await expect(page.locator('[role="combobox"]').first().getByText('ETH')).toBeVisible();
 
     // Test directional swap
-    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
+    const swapArrow = page.getByTestId('swap-tokens-button');
     await swapArrow.click();
 
-    // Verify swap worked - wait for animation to complete and use better selectors
-    await page.waitForTimeout(1000);
-    await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
-    await expect(page.locator('[role="combobox"]').last()).toContainText('ETH');
+    // Verify swap worked - wait for tokens to update  
+    await expect(page.getByTestId('from-token-select')).toContainText('USDC');
+    await expect(page.getByTestId('to-token-select')).toContainText('ETH');
   });
 
   test('should handle wallet simulation consistently', async ({ page, browserName }) => {
