@@ -87,7 +87,10 @@ const SwapInterface = () => {
   };
 
   const executeSwap = async () => {
-    if (!swap.fromAmount || !swap.toAmount || Number(swap.fromAmount) <= 0 || Number(swap.toAmount) <= 0) {
+    const fromAmountNum = Number(swap.fromAmount);
+    const toAmountNum = Number(swap.toAmount);
+
+    if (!swap.fromAmount || !swap.toAmount || fromAmountNum <= 0 || toAmountNum <= 0 || isNaN(fromAmountNum) || isNaN(toAmountNum)) {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid amount to swap.",
@@ -242,7 +245,15 @@ const SwapInterface = () => {
         {/* Swap Button */}
         <Button 
           onClick={executeSwap} 
-          disabled={!swap.fromAmount || !swap.toAmount || Number(swap.fromAmount) <= 0 || Number(swap.toAmount) <= 0 || swap.isLoading}
+          disabled={
+            !swap.fromAmount || 
+            !swap.toAmount || 
+            Number(swap.fromAmount) <= 0 || 
+            Number(swap.toAmount) <= 0 || 
+            isNaN(Number(swap.fromAmount)) || 
+            isNaN(Number(swap.toAmount)) || 
+            swap.isLoading
+          }
           className="w-full"
           size="lg"
         >

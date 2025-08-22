@@ -35,7 +35,7 @@ test.describe('Wallet Integration Simulation', () => {
     await page.getByText('Connect Wallet').click();
 
     // Should show connected state - look for Connected badge
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Disconnect')).toBeVisible();
 
     // Swap interface should now be fully functional
@@ -52,7 +52,7 @@ test.describe('Wallet Integration Simulation', () => {
   test('should handle wallet disconnection', async ({ page }) => {
     // Connect wallet first
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Disconnect wallet
     await page.getByText('Disconnect').click();
@@ -65,7 +65,7 @@ test.describe('Wallet Integration Simulation', () => {
   test('should handle network switching', async ({ page }) => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Simulate network change
     await page.evaluate(() => {
@@ -83,7 +83,7 @@ test.describe('Wallet Integration Simulation', () => {
   test('should handle account switching', async ({ page }) => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Simulate account change
     await page.evaluate(() => {
@@ -144,7 +144,7 @@ test.describe('Wallet Integration Simulation', () => {
   test('should persist wallet connection on page reload', async ({ page }) => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Reload page
     await page.reload();

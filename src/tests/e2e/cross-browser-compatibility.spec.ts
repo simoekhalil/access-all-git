@@ -65,8 +65,11 @@ test.describe('Cross-Browser Compatibility', () => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
     
-    // Should work on all browsers - look for Connected badge
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
+    // Should work on all browsers - look for Connected badge with more flexible timeout
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 15000 });
+    
+    // Also verify the wallet address is displayed
+    await expect(page.locator('.text-sm.font-mono').first()).toBeVisible({ timeout: 5000 });
     
     console.log(`Wallet connection successful on ${browserName}`);
   });

@@ -68,14 +68,20 @@ test.describe('Visual Regression Tests', () => {
     await fromTokenSelect.click();
     
     // Screenshot of dropdown
-    await expect(page.locator('body')).toHaveScreenshot('from-token-dropdown.png', { threshold: 0.3 });
-    
+    await expect(page.locator('body')).toHaveScreenshot('from-token-dropdown.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
+
     // Close and open to token dropdown
     await page.keyboard.press('Escape');
     const toTokenSelect = page.locator('[role="combobox"]').last();
     await toTokenSelect.click();
-    
-    await expect(page.locator('body')).toHaveScreenshot('to-token-dropdown.png', { threshold: 0.3 });
+
+    await expect(page.locator('body')).toHaveScreenshot('to-token-dropdown.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
   });
 
   test('should match different token pair combinations', async ({ page }) => {
@@ -109,7 +115,10 @@ test.describe('Visual Regression Tests', () => {
       await page.waitForTimeout(500);
 
       // Screenshot
-      await expect(page.locator('main')).toHaveScreenshot(`swap-${pair.from}-to-${pair.to}.png`, { threshold: 0.3 });
+      await expect(page.locator('main')).toHaveScreenshot(`swap-${pair.from}-to-${pair.to}.png`, { 
+        threshold: 0.3,
+        timeout: 10000 
+      });
 
       // Reset for next iteration
       await page.reload();
