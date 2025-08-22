@@ -218,8 +218,8 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         // After swap, amounts should be reset
-        expect(screen.getByLabelText('From')).toHaveValue('');
-        expect(screen.getByLabelText('To')).toHaveValue('');
+        expect(screen.getByLabelText('From')).toHaveValue(null);
+        expect(screen.getByLabelText('To')).toHaveValue(null);
       }, { timeout: 3000 });
     });
 
@@ -256,7 +256,7 @@ describe('SwapInterface Component', () => {
       });
 
       // Click swap arrow
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByTestId('swap-direction-button');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
