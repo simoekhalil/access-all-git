@@ -281,7 +281,7 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue(''); // Should remain empty for invalid input
+        expect(toAmountInput).toHaveValue(null); // Input remains null for invalid input
       });
     });
 
@@ -297,7 +297,7 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('0.000000');
+        expect(toAmountInput).toHaveValue(0); // Input shows 0 as number
       });
     });
   });

@@ -35,6 +35,9 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Mock scrollIntoView for radix-ui components
+Element.prototype.scrollIntoView = vi.fn();
+
 // Mock services
 vi.mock('@/services/swapService', () => ({
   getQuote: vi.fn(),

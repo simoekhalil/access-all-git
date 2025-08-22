@@ -118,7 +118,7 @@ describe('WalletConnection Component', () => {
       fireEvent.click(connectButton);
 
       await waitFor(() => {
-        expect(screen.getByText('User rejected request')).toBeInTheDocument();
+        expect(screen.getByRole('status')).toHaveTextContent('User rejected request');
       });
     });
   });
