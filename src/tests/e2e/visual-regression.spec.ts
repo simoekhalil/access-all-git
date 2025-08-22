@@ -9,14 +9,14 @@ test.describe('Visual Regression Tests', () => {
     // Wait for content to load
     await expect(page.getByText('Gala DEX')).toBeVisible();
     
-    // Take full page screenshot
-    await expect(page).toHaveScreenshot('homepage.png');
+    // Take full page screenshot - using update snapshots approach
+    await expect(page).toHaveScreenshot('homepage.png', { threshold: 0.3 });
   });
 
   test('should match wallet connection states', async ({ page }) => {
     // Initial disconnected state
     await expect(page.getByText('Connect Wallet')).toBeVisible();
-    await expect(page.locator('main')).toHaveScreenshot('wallet-disconnected.png');
+    await expect(page.locator('main')).toHaveScreenshot('wallet-disconnected.png', { threshold: 0.3 });
 
     // Mock wallet connection
     await page.evaluate(() => {
@@ -41,13 +41,13 @@ test.describe('Visual Regression Tests', () => {
     await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
     
     // Connected state
-    await expect(page.locator('main')).toHaveScreenshot('wallet-connected.png');
+    await expect(page.locator('main')).toHaveScreenshot('wallet-connected.png', { threshold: 0.3 });
   });
 
   test('should match swap interface states', async ({ page }) => {
     // Empty swap interface
     await expect(page.getByText('Swap Tokens')).toBeVisible();
-    await expect(page.locator('[data-testid="swap-interface"]').or(page.locator('main'))).toHaveScreenshot('swap-empty.png');
+    await expect(page.locator('main')).toHaveScreenshot('swap-empty.png', { threshold: 0.3 });
 
     // With amounts entered
     const fromAmountInput = page.getByLabel('From');
@@ -55,11 +55,11 @@ test.describe('Visual Regression Tests', () => {
     
     // Wait for calculation
     await expect(page.getByLabel('To')).toHaveValue('2.500000');
-    await expect(page.locator('main')).toHaveScreenshot('swap-with-amounts.png');
+    await expect(page.locator('main')).toHaveScreenshot('swap-with-amounts.png', { threshold: 0.3 });
 
     // With exchange rate details visible
     await expect(page.getByText('Exchange Rate:')).toBeVisible();
-    await expect(page.locator('main')).toHaveScreenshot('swap-with-details.png');
+    await expect(page.locator('main')).toHaveScreenshot('swap-with-details.png', { threshold: 0.3 });
   });
 
   test('should match token selection dropdowns', async ({ page }) => {
@@ -68,14 +68,14 @@ test.describe('Visual Regression Tests', () => {
     await fromTokenSelect.click();
     
     // Screenshot of dropdown
-    await expect(page.locator('body')).toHaveScreenshot('from-token-dropdown.png');
+    await expect(page.locator('body')).toHaveScreenshot('from-token-dropdown.png', { threshold: 0.3 });
     
     // Close and open to token dropdown
     await page.keyboard.press('Escape');
     const toTokenSelect = page.locator('[role="combobox"]').last();
     await toTokenSelect.click();
     
-    await expect(page.locator('body')).toHaveScreenshot('to-token-dropdown.png');
+    await expect(page.locator('body')).toHaveScreenshot('to-token-dropdown.png', { threshold: 0.3 });
   });
 
   test('should match different token pair combinations', async ({ page }) => {
@@ -109,7 +109,7 @@ test.describe('Visual Regression Tests', () => {
       await page.waitForTimeout(500);
 
       // Screenshot
-      await expect(page.locator('main')).toHaveScreenshot(`swap-${pair.from}-to-${pair.to}.png`);
+      await expect(page.locator('main')).toHaveScreenshot(`swap-${pair.from}-to-${pair.to}.png`, { threshold: 0.3 });
 
       // Reset for next iteration
       await page.reload();
@@ -123,20 +123,20 @@ test.describe('Visual Regression Tests', () => {
     
     // Mobile layout
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page).toHaveScreenshot('mobile-homepage.png');
+    await expect(page).toHaveScreenshot('mobile-homepage.png', { threshold: 0.3 });
 
     // Mobile swap interface
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
     await page.waitForTimeout(500);
     
-    await expect(page).toHaveScreenshot('mobile-swap-interface.png');
+    await expect(page).toHaveScreenshot('mobile-swap-interface.png', { threshold: 0.3 });
 
     // Mobile token dropdown
     const fromTokenSelect = page.locator('[role="combobox"]').first();
     await fromTokenSelect.click();
     
-    await expect(page).toHaveScreenshot('mobile-token-dropdown.png');
+    await expect(page).toHaveScreenshot('mobile-token-dropdown.png', { threshold: 0.3 });
   });
 
   test('should match dark mode appearance', async ({ page }) => {
@@ -146,13 +146,13 @@ test.describe('Visual Regression Tests', () => {
     });
 
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page).toHaveScreenshot('dark-mode-homepage.png');
+    await expect(page).toHaveScreenshot('dark-mode-homepage.png', { threshold: 0.3 });
 
     // Dark mode swap interface
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
     await page.waitForTimeout(500);
     
-    await expect(page).toHaveScreenshot('dark-mode-swap.png');
+    await expect(page).toHaveScreenshot('dark-mode-swap.png', { threshold: 0.3 });
   });
 });

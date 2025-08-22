@@ -37,9 +37,9 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.getByText('Swap Tokens')).toBeVisible();
     await expect(page.getByText('Trade your tokens instantly')).toBeVisible();
 
-    // Test token selection
-    await expect(page.locator('input[value="GALA"]')).toBeVisible();
-    await expect(page.locator('input[value="USDC"]')).toBeVisible();
+    // Test token selection - check select trigger values
+    await expect(page.locator('[role="combobox"]').first().getByText('GALA')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').last().getByText('USDC')).toBeVisible();
 
     // Enter swap amount
     const fromAmountInput = page.getByLabel('From');
@@ -72,8 +72,8 @@ test.describe('Complete Swap Workflow', () => {
   });
 
   test('should handle token switching via dropdown', async ({ page }) => {
-    // Initial state
-    await expect(page.locator('input[value="GALA"]')).toBeVisible();
+    // Initial state - check select trigger shows GALA
+    await expect(page.locator('[role="combobox"]').first().getByText('GALA')).toBeVisible();
     
     // Click from token dropdown
     const fromTokenSelect = page.locator('[role="combobox"]').first();
@@ -81,7 +81,7 @@ test.describe('Complete Swap Workflow', () => {
     
     // Select ETH
     await page.getByText('ETH', { exact: true }).click();
-    await expect(page.locator('input[value="ETH"]')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').first().getByText('ETH')).toBeVisible();
 
     // Click to token dropdown
     const toTokenSelect = page.locator('[role="combobox"]').last();
@@ -92,7 +92,7 @@ test.describe('Complete Swap Workflow', () => {
     
     // Select TOWN
     await page.getByText('TOWN', { exact: true }).click();
-    await expect(page.locator('input[value="TOWN"]')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').last().getByText('TOWN')).toBeVisible();
 
     // Test calculation with new pair
     const fromAmountInput = page.getByLabel('From');
@@ -116,8 +116,8 @@ test.describe('Complete Swap Workflow', () => {
     await swapArrow.click();
 
     // Verify tokens swapped
-    await expect(page.locator('input[value="USDC"]')).toBeVisible();
-    await expect(page.locator('input[value="GALA"]')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').first().getByText('USDC')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').last().getByText('GALA')).toBeVisible();
 
     // Verify amounts swapped
     await expect(page.getByLabel('From')).toHaveValue('25.000000');
