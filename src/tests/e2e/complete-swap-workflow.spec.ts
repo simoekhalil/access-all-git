@@ -84,8 +84,8 @@ test.describe('Complete Swap Workflow', () => {
     await swapButton.click();
     await expect(page.getByText('Swapping...')).toBeVisible();
 
-    // Verify success message appears
-    await expect(page.getByText('Swap Successful')).toBeVisible({ timeout: 5000 });
+    // Verify success message appears - use first match to avoid strict mode violation
+    await expect(page.getByText('Swap Successful').first()).toBeVisible({ timeout: 5000 });
 
     // Verify form reset
     await expect(fromAmountInput).toHaveValue('');
@@ -136,9 +136,10 @@ test.describe('Complete Swap Workflow', () => {
     const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.click();
 
-    // Verify tokens swapped
-    await expect(page.locator('[role="combobox"]').first().getByText('USDC')).toBeVisible();
-    await expect(page.locator('[role="combobox"]').last().getByText('GALA')).toBeVisible();
+    // Verify tokens swapped - wait for animation to complete
+    await page.waitForTimeout(500);
+    await expect(page.locator('[role="combobox"]').first().locator('span').getByText('USDC')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').last().locator('span').getByText('GALA')).toBeVisible();
 
     // Verify amounts swapped
     await expect(page.getByLabel('From')).toHaveValue('25.000000');

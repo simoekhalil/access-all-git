@@ -55,9 +55,10 @@ test.describe('Cross-Browser Compatibility', () => {
     const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.click();
 
-    // Verify swap worked
-    await expect(page.locator('[role="combobox"]').first().getByText('USDC')).toBeVisible();
-    await expect(page.locator('[role="combobox"]').last().getByText('ETH')).toBeVisible();
+    // Verify swap worked - wait for animation to complete
+    await page.waitForTimeout(500);
+    await expect(page.locator('[role="combobox"]').first().locator('span').getByText('USDC')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').last().locator('span').getByText('ETH')).toBeVisible();
   });
 
   test('should handle wallet simulation consistently', async ({ page, browserName }) => {
