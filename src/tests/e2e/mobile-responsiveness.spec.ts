@@ -19,7 +19,7 @@ test.describe('Mobile Responsiveness', () => {
       await expect(page.getByText('Swap Tokens')).toBeVisible();
 
       // Swap interface should fit in viewport
-      const swapCard = page.locator('text=Swap Tokens').locator('..');
+      const swapCard = page.getByText('Swap Tokens').locator('xpath=..');
       const cardBox = await swapCard.boundingBox();
       
       if (cardBox) {

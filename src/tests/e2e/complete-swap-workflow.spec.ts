@@ -56,7 +56,7 @@ test.describe('Complete Swap Workflow', () => {
 
     // Verify swap interface is visible
     await expect(page.getByText('Swap Tokens')).toBeVisible();
-    await expect(page.getByText('Trade your favorite Gala ecosystem tokens')).toBeVisible();
+    await expect(page.getByText('Trade your tokens instantly')).toBeVisible();
 
     // Test token selection - check select trigger values
     await expect(page.getByTestId('from-token-select')).toContainText('GALA');
