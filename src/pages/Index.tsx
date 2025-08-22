@@ -3,7 +3,7 @@ import SwapInterface from '@/components/SwapInterface';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4">
+    <main className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -39,7 +39,7 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

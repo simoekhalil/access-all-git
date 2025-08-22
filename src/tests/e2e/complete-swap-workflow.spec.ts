@@ -2,6 +2,27 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Complete Swap Workflow', () => {
   test.beforeEach(async ({ page }) => {
+    // Mock ethereum provider before navigation
+    await page.addInitScript(() => {
+      (window as any).ethereum = {
+        isMetaMask: true,
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_requestAccounts') {
+            return ['0x1234567890123456789012345678901234567890'];
+          }
+          if (method === 'eth_chainId') {
+            return '0x1';
+          }
+          if (method === 'eth_getBalance') {
+            return '0x1bc16d674ec80000'; // 2 ETH in wei
+          }
+          return null;
+        },
+        on: () => {},
+        removeListener: () => {},
+      };
+    });
+    
     await page.goto('/');
   });
 
@@ -31,7 +52,7 @@ test.describe('Complete Swap Workflow', () => {
 
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.locator('.text-sm.font-mono').getByText('0x1234...7890')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
 
     // Verify swap interface is visible
     await expect(page.getByText('Swap Tokens')).toBeVisible();

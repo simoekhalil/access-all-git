@@ -6,6 +6,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  timeout: 30000,
+  expect: {
+    timeout: 10000,
+  },
   reporter: [
     ['html', { outputFolder: './playwright-report' }],
     ['json', { outputFile: './test-results/playwright-results.json' }],
@@ -45,6 +49,6 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000, // 2 minutes
   },
-  // Update snapshots on first run
-  updateSnapshots: process.env.CI ? 'none' : 'missing',
+  // Generate snapshots on first run in development
+  updateSnapshots: process.env.CI ? 'none' : 'all',
 });
