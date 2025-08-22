@@ -35,7 +35,7 @@ test.describe('Wallet Integration Simulation', () => {
 
     // Initial state - wallet not connected
     await expect(page.getByText('Connect Wallet')).toBeVisible();
-    await expect(page.getByText('Please connect your wallet to start trading')).toBeVisible();
+    await expect(page.getByText('Connect your wallet to start trading')).toBeVisible();
 
     // Connect wallet
     await page.getByText('Connect Wallet').click();
@@ -212,8 +212,8 @@ test.describe('Wallet Integration Simulation', () => {
     // Should handle error gracefully and show error message
     await expect(page.getByText('Connect Wallet')).toBeVisible(); // Should still show connect button
     
-    // Check for error message (you might need to adjust based on your error handling)
-    await expect(page.locator('text=rejected').or(page.locator('text=error'))).toBeVisible({ timeout: 5000 });
+    // Check for error message
+    await expect(page.getByText('User rejected request').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('should handle missing MetaMask', async ({ page }) => {
@@ -227,7 +227,7 @@ test.describe('Wallet Integration Simulation', () => {
     await page.getByText('Connect Wallet').click();
 
     // Should show message about installing MetaMask
-    await expect(page.getByText('Please install MetaMask')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Please install MetaMask or another Web3 wallet').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('should persist wallet connection on page reload', async ({ page }) => {

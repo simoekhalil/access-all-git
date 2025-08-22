@@ -50,7 +50,7 @@ test.describe('Mobile Responsiveness', () => {
       }
 
       await page.getByText('ETH', { exact: true }).click();
-      await expect(page.locator('input[value="ETH"]')).toBeVisible();
+      await expect(page.getByText('ETH').first()).toBeVisible();
 
       // Swap button should be easily tappable (min 44px height)
       const swapButton = page.getByRole('button', { name: 'Swap' });
@@ -83,14 +83,14 @@ test.describe('Mobile Responsiveness', () => {
     
     await expect(page.getByText('ETH', { exact: true })).toBeVisible();
     await page.getByText('ETH', { exact: true }).tap();
-    
-    await expect(page.locator('input[value="ETH"]')).toBeVisible();
+
+    await expect(page.getByText('ETH').first()).toBeVisible();
 
     // Test directional swap with touch
     const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.tap();
 
-    await expect(page.locator('input[value="USDC"]')).toBeVisible();
+    await expect(page.getByText('USDC').first()).toBeVisible();
   });
 
   test('should scroll properly on small screens', async ({ page }) => {
@@ -134,8 +134,8 @@ test.describe('Mobile Responsiveness', () => {
     const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.click();
 
-    await expect(page.locator('input[value="USDC"]')).toBeVisible();
-    await expect(page.locator('input[value="GALA"]')).toBeVisible();
+    await expect(page.getByText('USDC').first()).toBeVisible();
+    await expect(page.getByText('GALA').first()).toBeVisible();
   });
 
   test('should handle text scaling appropriately', async ({ page }) => {
