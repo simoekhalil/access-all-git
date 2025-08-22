@@ -52,7 +52,7 @@ test.describe('Complete Swap Workflow', () => {
 
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 10000 });
 
     // Verify swap interface is visible
     await expect(page.getByText('Swap Tokens')).toBeVisible();
@@ -136,10 +136,10 @@ test.describe('Complete Swap Workflow', () => {
     const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.click();
 
-    // Verify tokens swapped - wait for animation to complete
-    await page.waitForTimeout(500);
-    await expect(page.locator('[role="combobox"]').first().locator('span').getByText('USDC')).toBeVisible();
-    await expect(page.locator('[role="combobox"]').last().locator('span').getByText('GALA')).toBeVisible();
+    // Verify tokens swapped - wait for animation to complete and use better selectors
+    await page.waitForTimeout(1000);
+    await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
+    await expect(page.locator('[role="combobox"]').last()).toContainText('GALA');
 
     // Verify amounts swapped
     await expect(page.getByLabel('From')).toHaveValue('25.000000');

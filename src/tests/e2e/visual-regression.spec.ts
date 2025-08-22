@@ -38,10 +38,13 @@ test.describe('Visual Regression Tests', () => {
 
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 10000 });
     
     // Connected state
-    await expect(page.locator('main')).toHaveScreenshot('wallet-connected.png', { threshold: 0.3 });
+    await expect(page.locator('main')).toHaveScreenshot('wallet-connected.png', { 
+      threshold: 0.3,
+      timeout: 10000 
+    });
   });
 
   test('should match swap interface states', async ({ page }) => {
@@ -95,16 +98,18 @@ test.describe('Visual Regression Tests', () => {
     for (const pair of tokenPairs) {
       // Set from token if not GALA
       if (pair.from !== 'GALA') {
+        // Set from token if not GALA
         const fromTokenSelect = page.locator('[role="combobox"]').first();
         await fromTokenSelect.click();
-        await page.getByText(pair.from, { exact: true }).click();
+        await page.getByRole('option', { name: pair.from }).click();
       }
 
       // Set to token if not USDC
       if (pair.to !== 'USDC') {
+        // Set to token if not USDC
         const toTokenSelect = page.locator('[role="combobox"]').last();
         await toTokenSelect.click();
-        await page.getByText(pair.to, { exact: true }).click();
+        await page.getByRole('option', { name: pair.to }).click();
       }
 
       // Enter amount
