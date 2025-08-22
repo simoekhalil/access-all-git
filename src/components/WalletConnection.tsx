@@ -69,30 +69,33 @@ const WalletConnection = () => {
       });
 
       if (accounts.length > 0) {
+        const address = accounts[0];
         setWallet(prev => ({
           ...prev,
           isConnected: true,
-          address: accounts[0],
+          address: address,
           isLoading: false,
         }));
 
-        await getBalance(accounts[0]);
+        // Get balance without awaiting to prevent blocking
+        getBalance(address);
 
         toast({
           title: "Wallet Connected",
-          description: `Connected to ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
+          description: `Connected to ${address.slice(0, 6)}...${address.slice(-4)}`,
         });
       }
     } catch (error: any) {
+      const errorMessage = error.message || error.toString() || 'Failed to connect wallet';
       setWallet(prev => ({
         ...prev,
         isLoading: false,
-        error: error.message || 'Failed to connect wallet',
+        error: errorMessage,
       }));
       
       toast({
         title: "Connection Failed",
-        description: error.message || 'Failed to connect wallet',
+        description: errorMessage,
         variant: "destructive",
       });
     }

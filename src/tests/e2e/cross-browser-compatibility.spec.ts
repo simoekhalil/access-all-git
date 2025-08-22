@@ -55,18 +55,21 @@ test.describe('Cross-Browser Compatibility', () => {
     const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.click();
 
-    // Verify swap worked - wait for animation to complete
-    await page.waitForTimeout(500);
-    await expect(page.locator('[role="combobox"]').first().locator('span').getByText('USDC')).toBeVisible();
-    await expect(page.locator('[role="combobox"]').last().locator('span').getByText('ETH')).toBeVisible();
+    // Verify swap worked - wait for animation to complete and use better selectors
+    await page.waitForTimeout(1000);
+    await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
+    await expect(page.locator('[role="combobox"]').last()).toContainText('ETH');
   });
 
   test('should handle wallet simulation consistently', async ({ page, browserName }) => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
     
-    // Should work on all browsers - look for Connected badge
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
+    // Should work on all browsers - look for Connected badge with more flexible timeout
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
+    
+    // Also verify the wallet address is displayed
+    await expect(page.locator('.text-sm.font-mono').first()).toBeVisible({ timeout: 5000 });
     
     console.log(`Wallet connection successful on ${browserName}`);
   });

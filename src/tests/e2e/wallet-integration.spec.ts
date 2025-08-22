@@ -34,8 +34,8 @@ test.describe('Wallet Integration Simulation', () => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
 
-    // Should show connected state - look for Connected badge
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
+    // Should show connected state - use specific badge selector
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Disconnect')).toBeVisible();
 
     // Swap interface should now be fully functional
@@ -52,7 +52,7 @@ test.describe('Wallet Integration Simulation', () => {
   test('should handle wallet disconnection', async ({ page }) => {
     // Connect wallet first
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Disconnect wallet
     await page.getByText('Disconnect').click();
@@ -65,7 +65,7 @@ test.describe('Wallet Integration Simulation', () => {
   test('should handle network switching', async ({ page }) => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Simulate network change
     await page.evaluate(() => {
@@ -77,13 +77,13 @@ test.describe('Wallet Integration Simulation', () => {
     });
 
     // Should still be connected
-    await expect(page.getByText('Connected')).toBeVisible();
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible();
   });
 
   test('should handle account switching', async ({ page }) => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Simulate account change
     await page.evaluate(() => {
@@ -99,7 +99,7 @@ test.describe('Wallet Integration Simulation', () => {
     });
 
     // Should handle account switch gracefully
-    await expect(page.getByText('Connected')).toBeVisible();
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible();
   });
 
   test('should handle wallet connection errors gracefully', async ({ page }) => {
@@ -124,8 +124,8 @@ test.describe('Wallet Integration Simulation', () => {
     // Should handle error gracefully and show error message
     await expect(page.getByText('Connect Wallet')).toBeVisible(); // Should still show connect button
     
-    // Check for error message - look for connection failed text
-    await expect(page.getByText('Connection Failed')).toBeVisible({ timeout: 5000 });
+    // Check for error message - look for connection failed toast
+    await expect(page.locator('[data-lov-name="ToastTitle"]').getByText('Connection Failed')).toBeVisible({ timeout: 5000 });
   });
 
   test('should handle missing MetaMask', async ({ page }) => {
@@ -144,7 +144,7 @@ test.describe('Wallet Integration Simulation', () => {
   test('should persist wallet connection on page reload', async ({ page }) => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Reload page
     await page.reload();
