@@ -77,7 +77,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match token selection dropdowns', async ({ page }) => {
     // Open from token dropdown
-    const fromTokenSelect = page.locator('[role="combobox"]').first();
+    const fromTokenSelect = page.getByTestId('from-token-select');
     await fromTokenSelect.click();
     
     // Screenshot of dropdown
@@ -88,7 +88,7 @@ test.describe('Visual Regression Tests', () => {
 
     // Close and open to token dropdown
     await page.keyboard.press('Escape');
-    const toTokenSelect = page.locator('[role="combobox"]').last();
+    const toTokenSelect = page.getByTestId('to-token-select');
     await toTokenSelect.click();
 
     await expect(page.locator('body')).toHaveScreenshot('to-token-dropdown.png', { 
@@ -109,7 +109,7 @@ test.describe('Visual Regression Tests', () => {
       // Set from token if not GALA
       if (pair.from !== 'GALA') {
         // Set from token if not GALA
-        const fromTokenSelect = page.locator('[role="combobox"]').first();
+        const fromTokenSelect = page.getByTestId('from-token-select');
         await fromTokenSelect.click();
         await page.getByRole('option', { name: pair.from }).click();
       }
@@ -117,7 +117,7 @@ test.describe('Visual Regression Tests', () => {
       // Set to token if not USDC
       if (pair.to !== 'USDC') {
         // Set to token if not USDC
-        const toTokenSelect = page.locator('[role="combobox"]').last();
+        const toTokenSelect = page.getByTestId('to-token-select');
         await toTokenSelect.click();
         await page.getByRole('option', { name: pair.to }).click();
       }
@@ -166,7 +166,7 @@ test.describe('Visual Regression Tests', () => {
     });
 
     // Mobile token dropdown
-    const fromTokenSelect = page.locator('[role="combobox"]').first();
+    const fromTokenSelect = page.getByTestId('from-token-select');
     await fromTokenSelect.click();
     await page.waitForTimeout(300);
     

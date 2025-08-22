@@ -35,7 +35,7 @@ test.describe('Mobile Responsiveness', () => {
       await expect(toAmountInput).toHaveValue('2.500000');
 
       // Token selectors should work on mobile
-      const fromTokenSelect = page.locator('[role="combobox"]').first();
+      const fromTokenSelect = page.getByTestId('from-token-select');
       await fromTokenSelect.click();
       
       // Dropdown should be visible and not overflow
@@ -81,7 +81,7 @@ test.describe('Mobile Responsiveness', () => {
     await fromAmountInput.fill('100');
 
     // Test dropdown interaction with touch
-    const fromTokenSelect = page.locator('[role="combobox"]').first();
+    const fromTokenSelect = page.getByTestId('from-token-select');
     await fromTokenSelect.click();
     
     await expect(page.getByText('ETH', { exact: true })).toBeVisible();
@@ -91,7 +91,7 @@ test.describe('Mobile Responsiveness', () => {
     await page.waitForTimeout(300);
     
     // Verify token selection worked
-    await expect(page.locator('[role="combobox"]').first().locator('span').getByText('ETH')).toBeVisible();
+    await expect(page.getByTestId('from-token-select')).toContainText('ETH');
 
     // Test directional swap with touch
     const swapArrow = page.getByTestId('swap-tokens-button');

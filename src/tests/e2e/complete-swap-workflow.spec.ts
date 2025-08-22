@@ -59,8 +59,8 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.getByText('Trade your tokens instantly')).toBeVisible();
 
     // Test token selection - check select trigger values
-    await expect(page.locator('[role="combobox"]').first().getByText('GALA')).toBeVisible();
-    await expect(page.locator('[role="combobox"]').last().getByText('USDC')).toBeVisible();
+    await expect(page.getByTestId('from-token-select')).toContainText('GALA');
+    await expect(page.getByTestId('to-token-select')).toContainText('USDC');
 
     // Enter swap amount
     const fromAmountInput = page.getByLabel('From');
@@ -94,18 +94,18 @@ test.describe('Complete Swap Workflow', () => {
 
   test('should handle token switching via dropdown', async ({ page }) => {
     // Initial state - check select trigger shows GALA
-    await expect(page.locator('[role="combobox"]').first().getByText('GALA')).toBeVisible();
+    await expect(page.getByTestId('from-token-select')).toContainText('GALA');
     
     // Click from token dropdown
-    const fromTokenSelect = page.locator('[role="combobox"]').first();
+    const fromTokenSelect = page.getByTestId('from-token-select');
     await fromTokenSelect.click();
     
     // Select ETH
     await page.getByText('ETH', { exact: true }).click();
-    await expect(page.locator('[role="combobox"]').first().getByText('ETH')).toBeVisible();
+    await expect(page.getByTestId('from-token-select')).toContainText('ETH');
 
     // Click to token dropdown
-    const toTokenSelect = page.locator('[role="combobox"]').last();
+    const toTokenSelect = page.getByTestId('to-token-select');
     await toTokenSelect.click();
     
     // Verify GALA is available (not filtered out)
@@ -113,7 +113,7 @@ test.describe('Complete Swap Workflow', () => {
     
     // Select TOWN
     await page.getByText('TOWN', { exact: true }).click();
-    await expect(page.locator('[role="combobox"]').last().getByText('TOWN')).toBeVisible();
+    await expect(page.getByTestId('to-token-select')).toContainText('TOWN');
 
     // Test calculation with new pair
     const fromAmountInput = page.getByLabel('From');
