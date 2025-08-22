@@ -14,6 +14,8 @@ interface WalletState {
 }
 
 const WalletConnection = () => {
+  console.log('WalletConnection component rendered');
+  
   const [wallet, setWallet] = useState<WalletState>({
     isConnected: false,
     address: null,

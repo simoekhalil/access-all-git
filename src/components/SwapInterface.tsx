@@ -33,9 +33,13 @@ const SwapInterface = () => {
     slippage: '0.5',
     isLoading: false,
   });
+  console.log('SwapInterface component rendered');
+  console.log('Current swap state:', swap);
+
   const { toast } = useToast();
 
   const handleSwapTokens = () => {
+    console.log('Swapping tokens, before:', swap.fromToken, swap.toToken);
     setSwap(prev => ({
       ...prev,
       fromToken: prev.toToken,
@@ -43,6 +47,7 @@ const SwapInterface = () => {
       fromAmount: prev.toAmount,
       toAmount: prev.fromAmount,
     }));
+    console.log('Swapping tokens completed');
   };
 
   const getExchangeRate = (from: string, to: string) => {
