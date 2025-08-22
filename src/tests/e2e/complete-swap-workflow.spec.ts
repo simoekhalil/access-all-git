@@ -1,93 +1,152 @@
 import { test, expect } from '@playwright/test';
-import { PageInteractions } from '../helpers/page-interactions';
-import { WaitStrategies } from '../helpers/wait-strategies';
-import { testSelectors } from '../helpers/test-selectors';
 
 test.describe('Complete Swap Workflow', () => {
-  let interactions: PageInteractions;
-  let waitStrategies: WaitStrategies;
-
   test.beforeEach(async ({ page }) => {
-    interactions = new PageInteractions(page);
-    waitStrategies = new WaitStrategies(page);
-    await interactions.setupPage();
+    // Mock ethereum provider before navigation
+    await page.addInitScript(() => {
+      (window as any).ethereum = {
+        isMetaMask: true,
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_requestAccounts') {
+            return ['0x1234567890123456789012345678901234567890'];
+          }
+          if (method === 'eth_chainId') {
+            return '0x1';
+          }
+          if (method === 'eth_getBalance') {
+            return '0x1bc16d674ec80000'; // 2 ETH in wei
+          }
+          return null;
+        },
+        on: () => {},
+        removeListener: () => {},
+      };
+    });
+    
+    await page.goto('/');
   });
 
   test('should complete full swap workflow with wallet connection', async ({ page }) => {
     // Check initial page load
-    await expect(page.getByText(testSelectors.heading)).toBeVisible();
-    await expect(page.getByText(testSelectors.connectWallet)).toBeVisible();
+    await expect(page.getByText('Gala DEX')).toBeVisible();
+    await expect(page.getByText('Connect Wallet')).toBeVisible();
     
+    // Mock wallet connection
+    await page.evaluate(() => {
+      // Mock MetaMask
+      (window as any).ethereum = {
+        isMetaMask: true,
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_requestAccounts') {
+            return ['0x1234567890123456789012345678901234567890'];
+          }
+          if (method === 'eth_chainId') {
+            return '0x1';
+          }
+          return null;
+        },
+        on: () => {},
+        removeListener: () => {},
+      };
+    });
+
     // Connect wallet
-    await interactions.connectWallet();
+    await page.getByText('Connect Wallet').click();
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
 
     // Verify swap interface is visible
-    await expect(page.getByText(testSelectors.swapTokens)).toBeVisible();
-    await expect(page.getByText(testSelectors.subheading)).toBeVisible();
+    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.getByText('Trade your tokens instantly')).toBeVisible();
 
     // Test token selection - check select trigger values
-    await expect(page.locator(testSelectors.fromTokenSelect)).toContainText('GALA');
-    await expect(page.locator(testSelectors.toTokenSelect)).toContainText('USDC');
+    await expect(page.locator('[role="combobox"]').first().getByText('GALA')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').last().getByText('USDC')).toBeVisible();
 
     // Enter swap amount
-    await interactions.fillSwapAmount('100');
+    const fromAmountInput = page.getByLabel('From');
+    await fromAmountInput.fill('100');
 
     // Verify calculation
-    await interactions.verifySwapCalculation('100', '2.500000');
+    const toAmountInput = page.getByLabel('To');
+    await expect(toAmountInput).toHaveValue('2.500000');
 
     // Verify exchange rate display
-    await interactions.verifyExchangeRate('GALA', 'USDC', '0.025000');
+    await expect(page.getByText('1 GALA = 0.025000 USDC')).toBeVisible();
 
-    // Test swap execution
+    // Verify slippage display
+    await expect(page.getByText('0.5%')).toBeVisible();
+
+    // Test swap button becomes enabled
     const swapButton = page.getByRole('button', { name: 'Swap' });
-    await expect(swapButton).toBeEnabled({ timeout: 5000 });
+    await expect(swapButton).toBeEnabled();
+
+    // Execute swap
+    await swapButton.click();
+    await expect(page.getByText('Swapping...')).toBeVisible();
+
+    // Verify success message appears - use first match to avoid strict mode violation
+    await expect(page.getByText('Swap Successful').first()).toBeVisible({ timeout: 5000 });
+
+    // Verify form reset
+    await expect(fromAmountInput).toHaveValue('');
+    await expect(toAmountInput).toHaveValue('');
   });
 
   test('should handle token switching via dropdown', async ({ page }) => {
     // Initial state - check select trigger shows GALA
-    await expect(page.locator(testSelectors.fromTokenSelect)).toContainText('GALA');
+    await expect(page.locator('[role="combobox"]').first().getByText('GALA')).toBeVisible();
     
-    // Select ETH as from token
-    await waitStrategies.retryAction(async () => {
-      await interactions.selectToken('from', 'ETH');
-      await expect(page.locator(testSelectors.fromTokenSelect)).toContainText('ETH');
-    });
+    // Click from token dropdown
+    const fromTokenSelect = page.locator('[role="combobox"]').first();
+    await fromTokenSelect.click();
+    
+    // Select ETH
+    await page.getByText('ETH', { exact: true }).click();
+    await expect(page.locator('[role="combobox"]').first().getByText('ETH')).toBeVisible();
 
-    // Select TOWN as to token
-    await waitStrategies.retryAction(async () => {
-      await interactions.selectToken('to', 'TOWN');
-      await expect(page.locator(testSelectors.toTokenSelect)).toContainText('TOWN');
-    });
+    // Click to token dropdown
+    const toTokenSelect = page.locator('[role="combobox"]').last();
+    await toTokenSelect.click();
+    
+    // Verify GALA is available (not filtered out)
+    await expect(page.getByText('GALA', { exact: true })).toBeVisible();
+    
+    // Select TOWN
+    await page.getByText('TOWN', { exact: true }).click();
+    await expect(page.locator('[role="combobox"]').last().getByText('TOWN')).toBeVisible();
 
     // Test calculation with new pair
-    await interactions.fillSwapAmount('1');
+    const fromAmountInput = page.getByLabel('From');
+    await fromAmountInput.fill('1');
     
-    const toAmountInput = page.getByLabel(testSelectors.toLabel);
-    await expect(toAmountInput).toHaveValue('6666.670000', { timeout: 10000 });
+    const toAmountInput = page.getByLabel('To');
+    await expect(toAmountInput).toHaveValue('6666.670000');
   });
 
   test('should handle directional swap correctly', async ({ page }) => {
     // Set initial amounts
-    await interactions.fillSwapAmount('1000');
+    const fromAmountInput = page.getByLabel('From');
+    await fromAmountInput.fill('1000');
     
     // Verify calculated amount
-    await interactions.verifySwapCalculation('1000', '25.000000');
+    const toAmountInput = page.getByLabel('To');
+    await expect(toAmountInput).toHaveValue('25.000000');
 
     // Click swap direction arrow
-    await waitStrategies.retryAction(async () => {
-      await interactions.swapTokens();
+    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
+    await swapArrow.click();
 
-      // Verify tokens swapped using proper selectors with timeout
-      await expect(page.locator(testSelectors.fromTokenSelect)).toContainText('USDC', { timeout: 10000 });
-      await expect(page.locator(testSelectors.toTokenSelect)).toContainText('GALA', { timeout: 10000 });
+    // Verify tokens swapped - wait for animation to complete
+    await page.waitForTimeout(500);
+    await expect(page.locator('[role="combobox"]').first().locator('span').getByText('USDC')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').last().locator('span').getByText('GALA')).toBeVisible();
 
-      // Verify amounts swapped
-      await expect(page.getByLabel(testSelectors.fromLabel)).toHaveValue('25.000000', { timeout: 10000 });
-      await expect(page.getByLabel(testSelectors.toLabel)).toHaveValue('1000.000000', { timeout: 10000 });
-    });
+    // Verify amounts swapped
+    await expect(page.getByLabel('From')).toHaveValue('25.000000');
+    await expect(page.getByLabel('To')).toHaveValue('1000.000000');
 
     // Verify new exchange rate
-    await interactions.verifyExchangeRate('USDC', 'GALA', '40.000000');
+    await expect(page.getByText('1 USDC = 40.000000 GALA')).toBeVisible();
   });
 
   test('should validate input and show appropriate errors', async ({ page }) => {
@@ -96,7 +155,7 @@ test.describe('Complete Swap Workflow', () => {
     await expect(swapButton).toBeDisabled();
 
     // Enter invalid amount (empty or zero)
-    const fromAmountInput = page.getByLabel(testSelectors.fromLabel);
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('0');
     
     // Should still be disabled
@@ -104,6 +163,28 @@ test.describe('Complete Swap Workflow', () => {
 
     // Enter valid amount
     await fromAmountInput.fill('100');
-    await expect(swapButton).toBeEnabled({ timeout: 5000 });
+    await expect(swapButton).toBeEnabled();
+
+    // Mock wallet connection for error test
+    await page.evaluate(() => {
+      (window as any).ethereum = {
+        isMetaMask: true,
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_requestAccounts') {
+            return ['0x1234567890123456789012345678901234567890'];
+          }
+          return null;
+        },
+        on: () => {},
+        removeListener: () => {},
+      };
+    });
+
+    await page.getByText('Connect Wallet').click();
+    await page.waitForTimeout(1000);
+
+    // Try swap without connecting wallet properly (simulate error)
+    await swapButton.click();
+    await expect(page.getByText('Swapping...')).toBeVisible();
   });
 });

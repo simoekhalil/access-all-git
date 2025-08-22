@@ -33,13 +33,9 @@ const SwapInterface = () => {
     slippage: '0.5',
     isLoading: false,
   });
-  console.log('SwapInterface component rendered');
-  console.log('Current swap state:', swap);
-
   const { toast } = useToast();
 
   const handleSwapTokens = () => {
-    console.log('Swapping tokens, before:', swap.fromToken, swap.toToken);
     setSwap(prev => ({
       ...prev,
       fromToken: prev.toToken,
@@ -47,7 +43,6 @@ const SwapInterface = () => {
       fromAmount: prev.toAmount,
       toAmount: prev.fromAmount,
     }));
-    console.log('Swapping tokens completed');
   };
 
   const getExchangeRate = (from: string, to: string) => {
@@ -92,10 +87,7 @@ const SwapInterface = () => {
   };
 
   const executeSwap = async () => {
-    const fromAmountNum = Number(swap.fromAmount);
-    const toAmountNum = Number(swap.toAmount);
-
-    if (!swap.fromAmount || !swap.toAmount || fromAmountNum <= 0 || toAmountNum <= 0 || isNaN(fromAmountNum) || isNaN(toAmountNum)) {
+    if (!swap.fromAmount || !swap.toAmount || Number(swap.fromAmount) <= 0 || Number(swap.toAmount) <= 0) {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid amount to swap.",
@@ -167,7 +159,7 @@ const SwapInterface = () => {
               value={swap.fromToken}
               onValueChange={(value) => setSwap(prev => ({ ...prev, fromToken: value }))}
             >
-              <SelectTrigger className="w-24" data-testid="from-token-select">
+              <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -194,8 +186,6 @@ const SwapInterface = () => {
             size="sm"
             onClick={handleSwapTokens}
             className="rounded-full p-2"
-            data-testid="swap-tokens-button"
-            aria-label="Swap tokens"
           >
             <ArrowUpDown className="h-4 w-4" />
           </Button>
@@ -218,7 +208,7 @@ const SwapInterface = () => {
               value={swap.toToken}
               onValueChange={(value) => setSwap(prev => ({ ...prev, toToken: value }))}
             >
-              <SelectTrigger className="w-24" data-testid="to-token-select">
+              <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -252,15 +242,7 @@ const SwapInterface = () => {
         {/* Swap Button */}
         <Button 
           onClick={executeSwap} 
-          disabled={
-            !swap.fromAmount || 
-            !swap.toAmount || 
-            Number(swap.fromAmount) <= 0 || 
-            Number(swap.toAmount) <= 0 || 
-            isNaN(Number(swap.fromAmount)) || 
-            isNaN(Number(swap.toAmount)) || 
-            swap.isLoading
-          }
+          disabled={!swap.fromAmount || !swap.toAmount || Number(swap.fromAmount) <= 0 || Number(swap.toAmount) <= 0 || swap.isLoading}
           className="w-full"
           size="lg"
         >

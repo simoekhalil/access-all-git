@@ -1,21 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { PageInteractions } from '../helpers/page-interactions';
-import { WaitStrategies } from '../helpers/wait-strategies';
-import { testSelectors } from '../helpers/test-selectors';
 
 test.describe('Visual Regression Tests', () => {
-  let interactions: PageInteractions;
-  let waitStrategies: WaitStrategies;
-
   test.beforeEach(async ({ page }) => {
-    interactions = new PageInteractions(page);
-    waitStrategies = new WaitStrategies(page);
-    await interactions.setupPage();
+    await page.goto('/');
   });
 
   test('should match homepage layout', async ({ page }) => {
     // Wait for content to load
-    await expect(page.getByText(testSelectors.heading)).toBeVisible();
+    await expect(page.getByText('Gala DEX')).toBeVisible();
     
     // Take full page screenshot - using update snapshots approach
     await expect(page).toHaveScreenshot('homepage.png', { threshold: 0.3 });
@@ -23,71 +15,67 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match wallet connection states', async ({ page }) => {
     // Initial disconnected state
-    await expect(page.getByText(testSelectors.connectWallet)).toBeVisible();
-    await expect(page.locator(testSelectors.mainContent)).toHaveScreenshot('wallet-disconnected.png', { threshold: 0.3 });
+    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.locator('main')).toHaveScreenshot('wallet-disconnected.png', { threshold: 0.3 });
+
+    // Mock wallet connection
+    await page.evaluate(() => {
+      (window as any).ethereum = {
+        isMetaMask: true,
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_requestAccounts') {
+            return ['0x1234567890123456789012345678901234567890'];
+          }
+          if (method === 'eth_chainId') {
+            return '0x1';
+          }
+          return null;
+        },
+        on: () => {},
+        removeListener: () => {},
+      };
+    });
 
     // Connect wallet
-    await interactions.connectWallet();
-    await expect(page.locator(testSelectors.connectedBadge).getByText('Connected')).toBeVisible({ timeout: 10000 });
+    await page.getByText('Connect Wallet').click();
+    await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
     
     // Connected state
-    await expect(page.locator(testSelectors.mainContent)).toHaveScreenshot('wallet-connected.png', { 
-      threshold: 0.3,
-      timeout: 10000 
-    });
+    await expect(page.locator('main')).toHaveScreenshot('wallet-connected.png', { threshold: 0.3 });
   });
 
   test('should match swap interface states', async ({ page }) => {
     // Empty swap interface
-    await expect(page.getByText(testSelectors.swapTokens)).toBeVisible();
-    await expect(page.locator(testSelectors.mainContent)).toHaveScreenshot('swap-empty.png', { 
-      threshold: 0.3,
-      timeout: 10000 
-    });
+    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.locator('main')).toHaveScreenshot('swap-empty.png', { threshold: 0.3 });
 
     // With amounts entered
-    await interactions.fillSwapAmount('100');
+    const fromAmountInput = page.getByLabel('From');
+    await fromAmountInput.fill('100');
     
-    // Wait for calculation and UI updates
-    await interactions.verifySwapCalculation('100', '2.500000');
-    await page.waitForTimeout(500);
-    await expect(page.locator(testSelectors.mainContent)).toHaveScreenshot('swap-with-amounts.png', { 
-      threshold: 0.3,
-      timeout: 10000 
-    });
+    // Wait for calculation
+    await expect(page.getByLabel('To')).toHaveValue('2.500000');
+    await expect(page.locator('main')).toHaveScreenshot('swap-with-amounts.png', { threshold: 0.3 });
 
     // With exchange rate details visible
     await expect(page.getByText('Exchange Rate:')).toBeVisible();
-    await expect(page.locator(testSelectors.mainContent)).toHaveScreenshot('swap-with-details.png', { 
-      threshold: 0.3,
-      timeout: 10000 
-    });
+    await expect(page.locator('main')).toHaveScreenshot('swap-with-details.png', { threshold: 0.3 });
   });
 
   test('should match token selection dropdowns', async ({ page }) => {
     // Open from token dropdown
-    await waitStrategies.retryAction(async () => {
-      const fromTokenSelect = page.locator(testSelectors.fromTokenSelect);
-      await fromTokenSelect.click();
-      
-      // Screenshot of dropdown
-      await expect(page.locator('body')).toHaveScreenshot('from-token-dropdown.png', { 
-        threshold: 0.3,
-        timeout: 10000 
-      });
-
-      // Close and open to token dropdown
-      await page.keyboard.press('Escape');
-      const toTokenSelect = page.locator(testSelectors.toTokenSelect);
-      await toTokenSelect.click();
-
-      await expect(page.locator('body')).toHaveScreenshot('to-token-dropdown.png', { 
-        threshold: 0.3,
-        timeout: 10000 
-      });
-      
-      await page.keyboard.press('Escape'); // Close for next test
-    });
+    const fromTokenSelect = page.locator('[role="combobox"]').first();
+    await fromTokenSelect.click();
+    
+    // Screenshot of dropdown
+    await expect(page.locator('body')).toHaveScreenshot('from-token-dropdown.png', { threshold: 0.3 });
+    
+    // Close and open to token dropdown
+    await page.keyboard.press('Escape');
+    const toTokenSelect = page.locator('[role="combobox"]').last();
+    await toTokenSelect.click();
+    
+    await expect(page.locator('body')).toHaveScreenshot('to-token-dropdown.png', { threshold: 0.3 });
   });
 
   test('should match different token pair combinations', async ({ page }) => {
@@ -101,91 +89,70 @@ test.describe('Visual Regression Tests', () => {
     for (const pair of tokenPairs) {
       // Set from token if not GALA
       if (pair.from !== 'GALA') {
-        await waitStrategies.retryAction(async () => {
-          await interactions.selectToken('from', pair.from);
-        });
+        const fromTokenSelect = page.locator('[role="combobox"]').first();
+        await fromTokenSelect.click();
+        await page.getByText(pair.from, { exact: true }).click();
       }
 
       // Set to token if not USDC
       if (pair.to !== 'USDC') {
-        await waitStrategies.retryAction(async () => {
-          await interactions.selectToken('to', pair.to);
-        });
+        const toTokenSelect = page.locator('[role="combobox"]').last();
+        await toTokenSelect.click();
+        await page.getByText(pair.to, { exact: true }).click();
       }
 
       // Enter amount
-      await interactions.fillSwapAmount(pair.amount);
+      const fromAmountInput = page.getByLabel('From');
+      await fromAmountInput.fill(pair.amount);
 
       // Wait for calculation
       await page.waitForTimeout(500);
 
       // Screenshot
-      await expect(page.locator(testSelectors.mainContent)).toHaveScreenshot(`swap-${pair.from}-to-${pair.to}.png`, { 
-        threshold: 0.3,
-        timeout: 10000 
-      });
+      await expect(page.locator('main')).toHaveScreenshot(`swap-${pair.from}-to-${pair.to}.png`, { threshold: 0.3 });
 
       // Reset for next iteration
       await page.reload();
-      await interactions.waitForPageLoad();
+      await expect(page.getByText('Gala DEX')).toBeVisible();
     }
   });
 
   test('should match responsive design on mobile', async ({ page }) => {
-    // Set mobile viewport and wait for layout
-    await interactions.setMobileViewport(375, 667);
-    await interactions.setupPage();
+    // Set mobile viewport
+    await page.setViewportSize({ width: 375, height: 667 });
     
     // Mobile layout
-    await expect(page.getByText(testSelectors.heading)).toBeVisible();
-    await expect(page).toHaveScreenshot('mobile-homepage.png', { 
-      threshold: 0.3,
-      timeout: 10000 
-    });
+    await expect(page.getByText('Gala DEX')).toBeVisible();
+    await expect(page).toHaveScreenshot('mobile-homepage.png', { threshold: 0.3 });
 
     // Mobile swap interface
-    await interactions.fillSwapAmount('100');
-    await interactions.verifySwapCalculation('100', '2.500000');
+    const fromAmountInput = page.getByLabel('From');
+    await fromAmountInput.fill('100');
     await page.waitForTimeout(500);
     
-    await expect(page).toHaveScreenshot('mobile-swap-interface.png', { 
-      threshold: 0.3,
-      timeout: 10000 
-    });
+    await expect(page).toHaveScreenshot('mobile-swap-interface.png', { threshold: 0.3 });
 
     // Mobile token dropdown
-    await waitStrategies.retryAction(async () => {
-      const fromTokenSelect = page.locator(testSelectors.fromTokenSelect);
-      await fromTokenSelect.click();
-      await page.waitForTimeout(300);
-      
-      await expect(page).toHaveScreenshot('mobile-token-dropdown.png', { 
-        threshold: 0.3,
-        timeout: 10000 
-      });
-      
-      await page.keyboard.press('Escape'); // Close dropdown
-    });
+    const fromTokenSelect = page.locator('[role="combobox"]').first();
+    await fromTokenSelect.click();
+    
+    await expect(page).toHaveScreenshot('mobile-token-dropdown.png', { threshold: 0.3 });
   });
 
   test('should match dark mode appearance', async ({ page }) => {
-    // Set dark mode
-    await interactions.enableDarkMode();
-
-    await expect(page.getByText(testSelectors.heading)).toBeVisible();
-    await expect(page).toHaveScreenshot('dark-mode-homepage.png', { 
-      threshold: 0.3,
-      timeout: 10000 
+    // Toggle to dark mode (assuming there's a theme toggle)
+    await page.evaluate(() => {
+      document.documentElement.classList.add('dark');
     });
 
-    // Dark mode swap interface with interaction
-    await interactions.fillSwapAmount('100');
-    await interactions.verifySwapCalculation('100', '2.500000');
+    await expect(page.getByText('Gala DEX')).toBeVisible();
+    await expect(page).toHaveScreenshot('dark-mode-homepage.png', { threshold: 0.3 });
+
+    // Dark mode swap interface
+    const fromAmountInput = page.getByLabel('From');
+    await fromAmountInput.fill('100');
     await page.waitForTimeout(500);
     
-    await expect(page).toHaveScreenshot('dark-mode-swap.png', { 
-      threshold: 0.3,
-      timeout: 10000 
-    });
+    await expect(page).toHaveScreenshot('dark-mode-swap.png', { threshold: 0.3 });
   });
 });

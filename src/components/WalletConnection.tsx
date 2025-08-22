@@ -14,8 +14,6 @@ interface WalletState {
 }
 
 const WalletConnection = () => {
-  console.log('WalletConnection component rendered');
-  
   const [wallet, setWallet] = useState<WalletState>({
     isConnected: false,
     address: null,
@@ -71,33 +69,30 @@ const WalletConnection = () => {
       });
 
       if (accounts.length > 0) {
-        const address = accounts[0];
         setWallet(prev => ({
           ...prev,
           isConnected: true,
-          address: address,
+          address: accounts[0],
           isLoading: false,
         }));
 
-        // Get balance without awaiting to prevent blocking
-        getBalance(address);
+        await getBalance(accounts[0]);
 
         toast({
           title: "Wallet Connected",
-          description: `Connected to ${address.slice(0, 6)}...${address.slice(-4)}`,
+          description: `Connected to ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
         });
       }
     } catch (error: any) {
-      const errorMessage = error.message || error.toString() || 'Failed to connect wallet';
       setWallet(prev => ({
         ...prev,
         isLoading: false,
-        error: errorMessage,
+        error: error.message || 'Failed to connect wallet',
       }));
       
       toast({
         title: "Connection Failed",
-        description: errorMessage,
+        description: error.message || 'Failed to connect wallet',
         variant: "destructive",
       });
     }

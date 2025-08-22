@@ -1,118 +1,158 @@
 import { test, expect } from '@playwright/test';
-import { PageInteractions } from '../helpers/page-interactions';
-import { WaitStrategies } from '../helpers/wait-strategies';
-import { testSelectors } from '../helpers/test-selectors';
 
 test.describe('Wallet Integration Simulation', () => {
-  let interactions: PageInteractions;
-  let waitStrategies: WaitStrategies;
-
   test.beforeEach(async ({ page }) => {
-    interactions = new PageInteractions(page);
-    waitStrategies = new WaitStrategies(page);
-    await interactions.setupPage();
+    // Mock ethereum provider before navigation
+    await page.addInitScript(() => {
+      (window as any).ethereum = {
+        isMetaMask: true,
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_requestAccounts') {
+            return ['0x1234567890123456789012345678901234567890'];
+          }
+          if (method === 'eth_chainId') {
+            return '0x1';
+          }
+          if (method === 'eth_getBalance') {
+            return '0x1bc16d674ec80000'; // 2 ETH in wei
+          }
+          return null;
+        },
+        on: () => {},
+        removeListener: () => {},
+      };
+    });
+    
+    await page.goto('/');
   });
 
   test('should handle MetaMask connection successfully', async ({ page }) => {
-    // Initial state should show Connect Wallet button
-    await expect(page.getByText(testSelectors.connectWallet)).toBeVisible();
-    
-    // Connect wallet
-    await interactions.connectWallet();
+    // Initial state - wallet not connected
+    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.getByText('Connect your wallet to start trading')).toBeVisible();
 
-    // Should show connected state - use specific badge selector
-    await expect(page.locator(testSelectors.connectedBadge).getByText('Connected')).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(testSelectors.disconnect)).toBeVisible();
+    // Connect wallet
+    await page.getByText('Connect Wallet').click();
+
+    // Should show connected state - look for Connected badge
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Disconnect')).toBeVisible();
 
     // Swap interface should now be fully functional
-    await interactions.fillSwapAmount('100');
-    await interactions.verifySwapCalculation('100', '2.500000');
+    const fromAmountInput = page.getByLabel('From');
+    await fromAmountInput.fill('100');
+    
+    const toAmountInput = page.getByLabel('To');
+    await expect(toAmountInput).toHaveValue('2.500000');
+
+    const swapButton = page.getByRole('button', { name: 'Swap' });
+    await expect(swapButton).toBeEnabled();
   });
 
   test('should handle wallet disconnection', async ({ page }) => {
     // Connect wallet first
-    await interactions.connectWallet();
-    await expect(page.locator(testSelectors.connectedBadge).getByText('Connected')).toBeVisible({ timeout: 15000 });
+    await page.getByText('Connect Wallet').click();
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
 
     // Disconnect wallet
-    await page.getByText(testSelectors.disconnect).click();
+    await page.getByText('Disconnect').click();
 
-    // Should return to disconnected state
-    await expect(page.getByText(testSelectors.connectWallet)).toBeVisible({ timeout: 5000 });
+    // Should return to initial state
+    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.getByText('Connect your wallet to start trading')).toBeVisible();
   });
 
   test('should handle network switching', async ({ page }) => {
     // Connect wallet
-    await interactions.connectWallet();
-    await expect(page.locator(testSelectors.connectedBadge).getByText('Connected')).toBeVisible({ timeout: 15000 });
+    await page.getByText('Connect Wallet').click();
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
 
     // Simulate network change
     await page.evaluate(() => {
-      const ethereum = (window as any).ethereum;
-      if (ethereum && ethereum.on) {
-        // Simulate chain change event
-        ethereum.on('chainChanged', () => {});
+      if ((window as any).ethereum && (window as any).ethereum.on) {
+        (window as any).ethereum.on('chainChanged', () => {
+          // Network changed - wallet should remain connected
+        });
       }
     });
 
     // Should still be connected
-    await expect(page.locator(testSelectors.connectedBadge).getByText('Connected')).toBeVisible();
+    await expect(page.getByText('Connected')).toBeVisible();
   });
 
   test('should handle account switching', async ({ page }) => {
     // Connect wallet
-    await interactions.connectWallet();
-    await expect(page.locator(testSelectors.connectedBadge).getByText('Connected')).toBeVisible({ timeout: 15000 });
+    await page.getByText('Connect Wallet').click();
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
 
     // Simulate account change
     await page.evaluate(() => {
-      const ethereum = (window as any).ethereum;
-      if (ethereum && ethereum.on) {
-        // Simulate accounts change event
-        ethereum.on('accountsChanged', () => {});
+      if ((window as any).ethereum && (window as any).ethereum.on) {
+        (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
+          if (accounts.length === 0) {
+            // Account disconnected
+          } else {
+            // Account changed
+          }
+        });
       }
     });
 
     // Should handle account switch gracefully
-    await expect(page.locator(testSelectors.connectedBadge).getByText('Connected')).toBeVisible();
+    await expect(page.getByText('Connected')).toBeVisible();
   });
 
   test('should handle wallet connection errors gracefully', async ({ page }) => {
-    // Try to connect wallet that rejects
-    await interactions.connectWallet(true); // shouldReject = true
+    // Override the mock to simulate rejection
+    await page.evaluate(() => {
+      (window as any).ethereum = {
+        isMetaMask: true,
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_requestAccounts') {
+            throw new Error('User rejected request');
+          }
+          return null;
+        },
+        on: () => {},
+        removeListener: () => {},
+      };
+    });
 
-    // Check for error message - look for connection failed toast
-    await expect(page.locator(testSelectors.toastTitle).getByText('Connection Failed')).toBeVisible({ timeout: 5000 });
+    // Try to connect wallet
+    await page.getByText('Connect Wallet').click();
+
+    // Should handle error gracefully and show error message
+    await expect(page.getByText('Connect Wallet')).toBeVisible(); // Should still show connect button
+    
+    // Check for error message - look for connection failed text
+    await expect(page.getByText('Connection Failed')).toBeVisible({ timeout: 5000 });
   });
 
   test('should handle missing MetaMask', async ({ page }) => {
-    // Remove ethereum object to simulate no wallet
+    // Remove ethereum provider
     await page.evaluate(() => {
       delete (window as any).ethereum;
     });
 
-    // Try to connect - should show appropriate message
-    await page.getByText(testSelectors.connectWallet).click();
+    // Try to connect wallet
+    await page.getByText('Connect Wallet').click();
 
-    // Should handle gracefully (exact behavior depends on implementation)
-    // At minimum, should not crash the application
-    await expect(page.getByText(testSelectors.connectWallet)).toBeVisible();
+    // Should show message about installing MetaMask
+    await expect(page.getByText('Please install MetaMask or another Web3 wallet').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('should persist wallet connection on page reload', async ({ page }) => {
     // Connect wallet
-    await interactions.connectWallet();
-    await expect(page.locator(testSelectors.connectedBadge).getByText('Connected')).toBeVisible({ timeout: 15000 });
+    await page.getByText('Connect Wallet').click();
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 5000 });
 
     // Reload page
     await page.reload();
-    await interactions.waitForPageLoad();
 
-    // Should automatically reconnect or show connect option
-    await waitStrategies.retryAction(async () => {
-      const isConnected = await page.locator(testSelectors.connectedBadge).getByText('Connected').isVisible();
-      const canConnect = await page.getByText(testSelectors.connectWallet).isVisible();
-      expect(isConnected || canConnect).toBeTruthy();
-    });
+    // Should auto-connect if wallet was previously connected
+    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    
+    // Note: In real implementation, this would check localStorage or cookies
+    // for persistent connection state
   });
 });
