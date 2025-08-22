@@ -51,8 +51,8 @@ test.describe('Cross-Browser Compatibility', () => {
 
     await expect(page.locator('[role="combobox"]').first().getByText('ETH')).toBeVisible();
 
-    // Test directional swap
-    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
+    // Test directional swap - using data-testid for reliability
+    const swapArrow = page.getByTestId('swap-direction-button');
     await swapArrow.click();
 
     // Verify swap worked - wait for animation to complete and use better selectors

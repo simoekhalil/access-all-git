@@ -184,12 +184,13 @@ const SwapInterface = () => {
 
         {/* Swap Arrow */}
         <div className="flex justify-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSwapTokens}
-            className="rounded-full p-2"
-          >
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSwapTokens}
+              className="rounded-full p-2"
+              data-testid="swap-direction-button"
+            >
             <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>

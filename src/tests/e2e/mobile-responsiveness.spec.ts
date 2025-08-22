@@ -93,8 +93,8 @@ test.describe('Mobile Responsiveness', () => {
     // Verify token selection worked
     await expect(page.locator('[role="combobox"]').first().locator('span').getByText('ETH')).toBeVisible();
 
-    // Test directional swap with touch
-    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
+    // Test directional swap with touch - using data-testid for reliability
+    const swapArrow = page.getByTestId('swap-direction-button');
     await swapArrow.click();
 
     await expect(page.getByText('USDC').first()).toBeVisible();
@@ -139,8 +139,8 @@ test.describe('Mobile Responsiveness', () => {
     await fromAmountInput.fill('100');
     await expect(page.getByLabel('To')).toHaveValue('2.500000');
 
-    // Test token switching in landscape
-    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
+    // Test token switching in landscape - using data-testid for reliability
+    const swapArrow = page.getByTestId('swap-direction-button');
     await swapArrow.click();
     
     await page.waitForTimeout(500);
