@@ -36,13 +36,44 @@ const SwapInterface = () => {
   const { toast } = useToast();
 
   const handleSwapTokens = () => {
-    setSwap(prev => ({
-      ...prev,
-      fromToken: prev.toToken,
-      toToken: prev.fromToken,
-      fromAmount: prev.toAmount,
-      toAmount: prev.fromAmount,
-    }));
+    setSwap(prev => {
+      const newState = {
+        ...prev,
+        fromToken: prev.toToken,
+        toToken: prev.fromToken,
+        fromAmount: prev.toAmount,
+        toAmount: prev.fromAmount,
+      };
+      
+      // Recalculate amounts with new token pair if there's a fromAmount
+      if (newState.fromAmount && !isNaN(Number(newState.fromAmount))) {
+        newState.toAmount = calculateToAmount(newState.fromAmount, newState.fromToken, newState.toToken);
+      }
+      
+      return newState;
+    });
+  };
+
+  const handleFromTokenChange = (value: string) => {
+    setSwap(prev => {
+      const newState = { ...prev, fromToken: value };
+      // Recalculate toAmount if fromAmount exists
+      if (prev.fromAmount && !isNaN(Number(prev.fromAmount))) {
+        newState.toAmount = calculateToAmount(prev.fromAmount, value, prev.toToken);
+      }
+      return newState;
+    });
+  };
+
+  const handleToTokenChange = (value: string) => {
+    setSwap(prev => {
+      const newState = { ...prev, toToken: value };
+      // Recalculate toAmount if fromAmount exists
+      if (prev.fromAmount && !isNaN(Number(prev.fromAmount))) {
+        newState.toAmount = calculateToAmount(prev.fromAmount, prev.fromToken, value);
+      }
+      return newState;
+    });
   };
 
   const getExchangeRate = (from: string, to: string) => {
@@ -160,7 +191,7 @@ const SwapInterface = () => {
             </div>
             <Select
               value={swap.fromToken}
-              onValueChange={(value) => setSwap(prev => ({ ...prev, fromToken: value }))}
+              onValueChange={handleFromTokenChange}
             >
               <SelectTrigger className="w-24">
                 <SelectValue />
@@ -210,7 +241,7 @@ const SwapInterface = () => {
             </div>
             <Select
               value={swap.toToken}
-              onValueChange={(value) => setSwap(prev => ({ ...prev, toToken: value }))}
+              onValueChange={handleToTokenChange}
             >
               <SelectTrigger className="w-24">
                 <SelectValue />

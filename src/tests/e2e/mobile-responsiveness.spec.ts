@@ -96,7 +96,8 @@ test.describe('Mobile Responsiveness', () => {
     // Test directional swap with touch - using data-testid for reliability
     const swapArrow = page.getByTestId('swap-direction-button');
     await swapArrow.click();
-
+    
+    await page.waitForTimeout(1500);
     await expect(page.getByText('USDC').first()).toBeVisible();
   });
 
@@ -139,11 +140,11 @@ test.describe('Mobile Responsiveness', () => {
     await fromAmountInput.fill('100');
     await expect(page.getByLabel('To')).toHaveValue('2.500000');
 
-    // Test token switching in landscape - using data-testid for reliability
+    // Test token switching in landscape - using data-testid for reliability  
     const swapArrow = page.getByTestId('swap-direction-button');
     await swapArrow.click();
     
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1500);
     await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
     await expect(page.locator('[role="combobox"]').last()).toContainText('GALA');
   });

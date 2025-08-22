@@ -136,12 +136,14 @@ test.describe('Complete Swap Workflow', () => {
     const swapArrow = page.getByTestId('swap-direction-button');
     await swapArrow.click();
 
-    // Verify tokens swapped - wait for animation to complete and use better selectors
-    await page.waitForTimeout(1000);
+    // Wait for state updates to complete
+    await page.waitForTimeout(1500);
+
+    // Verify tokens swapped
     await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
     await expect(page.locator('[role="combobox"]').last()).toContainText('GALA');
 
-    // Verify amounts swapped
+    // Verify amounts swapped and recalculated
     await expect(page.getByLabel('From')).toHaveValue('25.000000');
     await expect(page.getByLabel('To')).toHaveValue('1000.000000');
 

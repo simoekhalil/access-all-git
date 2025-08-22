@@ -55,8 +55,8 @@ test.describe('Cross-Browser Compatibility', () => {
     const swapArrow = page.getByTestId('swap-direction-button');
     await swapArrow.click();
 
-    // Verify swap worked - wait for animation to complete and use better selectors
-    await page.waitForTimeout(1000);
+    // Verify swap worked - wait for state updates to complete
+    await page.waitForTimeout(1500);
     await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
     await expect(page.locator('[role="combobox"]').last()).toContainText('ETH');
   });
