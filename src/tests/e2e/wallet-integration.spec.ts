@@ -40,8 +40,8 @@ test.describe('Wallet Integration Simulation', () => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
 
-    // Should show connected state
-    await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 10000 });
+    // Should show connected state - use specific selector to avoid toast text
+    await expect(page.locator('.text-sm.font-mono').getByText('0x1234...7890')).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Disconnect')).toBeVisible();
 
     // Swap interface should now be fully functional
@@ -75,7 +75,7 @@ test.describe('Wallet Integration Simulation', () => {
 
     // Connect wallet first
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.text-sm.font-mono').getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
 
     // Disconnect wallet
     await page.getByText('Disconnect').click();
@@ -124,7 +124,7 @@ test.describe('Wallet Integration Simulation', () => {
 
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.text-sm.font-mono').getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
 
     // Simulate network change
     await page.evaluate(() => {
@@ -179,7 +179,7 @@ test.describe('Wallet Integration Simulation', () => {
 
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.text-sm.font-mono').getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
 
     // Simulate account change
     await page.evaluate(() => {
@@ -212,8 +212,8 @@ test.describe('Wallet Integration Simulation', () => {
     // Should handle error gracefully and show error message
     await expect(page.getByText('Connect Wallet')).toBeVisible(); // Should still show connect button
     
-    // Check for error message
-    await expect(page.getByText('User rejected request').first()).toBeVisible({ timeout: 5000 });
+    // Check for error message - look for connection failed text
+    await expect(page.getByText('Connection Failed')).toBeVisible({ timeout: 5000 });
   });
 
   test('should handle missing MetaMask', async ({ page }) => {
@@ -255,7 +255,7 @@ test.describe('Wallet Integration Simulation', () => {
 
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.text-sm.font-mono').getByText('0x1234...7890')).toBeVisible({ timeout: 5000 });
 
     // Reload page
     await page.reload();

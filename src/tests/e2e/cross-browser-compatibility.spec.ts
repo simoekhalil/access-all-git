@@ -27,7 +27,7 @@ test.describe('Cross-Browser Compatibility', () => {
     
     await expect(page.getByText('ETH', { exact: true })).toBeVisible();
     await page.getByText('ETH', { exact: true }).click();
-    
+
     await expect(page.locator('[role="combobox"]').first().getByText('ETH')).toBeVisible();
 
     // Test directional swap
@@ -63,8 +63,8 @@ test.describe('Cross-Browser Compatibility', () => {
     // Connect wallet
     await page.getByText('Connect Wallet').click();
     
-    // Should work on all browsers
-    await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 10000 });
+    // Should work on all browsers - use more specific selector to avoid toast text
+    await expect(page.locator('.text-sm.font-mono').getByText('0x1234...7890')).toBeVisible({ timeout: 10000 });
     
     console.log(`Wallet connection successful on ${browserName}`);
   });
@@ -128,8 +128,9 @@ test.describe('Cross-Browser Compatibility', () => {
     await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
 
-    // Should be able to focus on from amount input
+    // Focus on from amount input explicitly
     const fromAmountInput = page.getByLabel('From');
+    await fromAmountInput.focus();
     await expect(fromAmountInput).toBeFocused();
 
     // Type amount

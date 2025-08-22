@@ -45,4 +45,6 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000, // 2 minutes
   },
+  // Update snapshots on first run
+  updateSnapshots: process.env.CI ? 'none' : 'missing',
 });

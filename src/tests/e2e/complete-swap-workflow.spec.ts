@@ -31,7 +31,7 @@ test.describe('Complete Swap Workflow', () => {
 
     // Connect wallet
     await page.getByText('Connect Wallet').click();
-    await expect(page.getByText('0x1234...7890')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.text-sm.font-mono').getByText('0x1234...7890')).toBeVisible({ timeout: 10000 });
 
     // Verify swap interface is visible
     await expect(page.getByText('Swap Tokens')).toBeVisible();
@@ -132,9 +132,9 @@ test.describe('Complete Swap Workflow', () => {
     const swapButton = page.getByRole('button', { name: 'Swap' });
     await expect(swapButton).toBeDisabled();
 
-    // Enter invalid amount
+    // Enter invalid amount (empty or zero)
     const fromAmountInput = page.getByLabel('From');
-    await fromAmountInput.fill('invalid');
+    await fromAmountInput.fill('0');
     
     // Should still be disabled
     await expect(swapButton).toBeDisabled();
