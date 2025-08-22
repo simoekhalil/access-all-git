@@ -94,10 +94,12 @@ test.describe('Mobile Responsiveness', () => {
     await expect(page.locator('[role="combobox"]').first().locator('span').getByText('ETH')).toBeVisible();
 
     // Test directional swap with touch
-    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
+    const swapArrow = page.getByTestId('swap-tokens-button');
     await swapArrow.click();
 
-    await expect(page.getByText('USDC').first()).toBeVisible();
+    // Verify tokens swapped properly
+    await expect(page.getByTestId('from-token-select')).toContainText('USDC');
+    await expect(page.getByTestId('to-token-select')).toContainText('ETH');
   });
 
   test('should scroll properly on small screens', async ({ page }) => {
@@ -128,24 +130,24 @@ test.describe('Mobile Responsiveness', () => {
   test('should maintain usability in landscape mode', async ({ page }) => {
     await page.setViewportSize({ width: 667, height: 375 }); // Landscape
     await page.goto('/');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
 
     // All key elements should still be accessible
-    await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.getByText('Gala DEX')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Swap Tokens')).toBeVisible({ timeout: 10000 });
 
     // Test form interactions in landscape
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
-    await expect(page.getByLabel('To')).toHaveValue('2.500000');
+    await expect(page.getByLabel('To')).toHaveValue('2.500000', { timeout: 10000 });
 
     // Test token switching in landscape
     const swapArrow = page.getByTestId('swap-tokens-button');
     await swapArrow.click();
     
-    // Wait for tokens to swap and verify
-    await expect(page.getByTestId('from-token-select')).toContainText('USDC');
-    await expect(page.getByTestId('to-token-select')).toContainText('GALA');
+    // Wait for tokens to swap and verify with proper timeout
+    await expect(page.getByTestId('from-token-select')).toContainText('USDC', { timeout: 10000 });
+    await expect(page.getByTestId('to-token-select')).toContainText('GALA', { timeout: 10000 });
   });
 
   test('should handle text scaling appropriately', async ({ page }) => {

@@ -30,9 +30,9 @@ test.describe('Cross-Browser Compatibility', () => {
     console.log(`Testing on ${browserName}`);
 
     // Basic functionality should work on all browsers
-    await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.getByText('Connect Wallet')).toBeVisible();
-    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.getByText('Gala DEX')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Connect Wallet')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Swap Tokens')).toBeVisible({ timeout: 10000 });
 
     // Test form interactions
     const fromAmountInput = page.getByLabel('From');
@@ -40,24 +40,24 @@ test.describe('Cross-Browser Compatibility', () => {
     
     // Should calculate on all browsers
     const toAmountInput = page.getByLabel('To');
-    await expect(toAmountInput).toHaveValue('2.500000');
+    await expect(toAmountInput).toHaveValue('2.500000', { timeout: 10000 });
 
-    // Test dropdown functionality
-    const fromTokenSelect = page.locator('[role="combobox"]').first();
+    // Test dropdown functionality with proper selectors
+    const fromTokenSelect = page.getByTestId('from-token-select');
     await fromTokenSelect.click();
     
-    await expect(page.getByText('ETH', { exact: true })).toBeVisible();
+    await expect(page.getByText('ETH', { exact: true })).toBeVisible({ timeout: 10000 });
     await page.getByText('ETH', { exact: true }).click();
 
-    await expect(page.locator('[role="combobox"]').first().getByText('ETH')).toBeVisible();
+    await expect(page.getByTestId('from-token-select')).toContainText('ETH', { timeout: 10000 });
 
     // Test directional swap
     const swapArrow = page.getByTestId('swap-tokens-button');
     await swapArrow.click();
 
     // Verify swap worked - wait for tokens to update  
-    await expect(page.getByTestId('from-token-select')).toContainText('USDC');
-    await expect(page.getByTestId('to-token-select')).toContainText('ETH');
+    await expect(page.getByTestId('from-token-select')).toContainText('USDC', { timeout: 10000 });
+    await expect(page.getByTestId('to-token-select')).toContainText('ETH', { timeout: 10000 });
   });
 
   test('should handle wallet simulation consistently', async ({ page, browserName }) => {

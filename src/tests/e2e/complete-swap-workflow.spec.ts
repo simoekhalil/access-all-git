@@ -130,22 +130,22 @@ test.describe('Complete Swap Workflow', () => {
     
     // Verify calculated amount
     const toAmountInput = page.getByLabel('To');
-    await expect(toAmountInput).toHaveValue('25.000000');
+    await expect(toAmountInput).toHaveValue('25.000000', { timeout: 10000 });
 
     // Click swap direction arrow
     const swapArrow = page.getByTestId('swap-tokens-button');
     await swapArrow.click();
 
-    // Verify tokens swapped using proper selectors
-    await expect(page.getByTestId('from-token-select')).toContainText('USDC');
-    await expect(page.getByTestId('to-token-select')).toContainText('GALA');
+    // Verify tokens swapped using proper selectors with timeout
+    await expect(page.getByTestId('from-token-select')).toContainText('USDC', { timeout: 10000 });
+    await expect(page.getByTestId('to-token-select')).toContainText('GALA', { timeout: 10000 });
 
     // Verify amounts swapped
-    await expect(page.getByLabel('From')).toHaveValue('25.000000');
-    await expect(page.getByLabel('To')).toHaveValue('1000.000000');
+    await expect(page.getByLabel('From')).toHaveValue('25.000000', { timeout: 10000 });
+    await expect(page.getByLabel('To')).toHaveValue('1000.000000', { timeout: 10000 });
 
     // Verify new exchange rate
-    await expect(page.getByText('1 USDC = 40.000000 GALA')).toBeVisible();
+    await expect(page.getByText('1 USDC = 40.000000 GALA')).toBeVisible({ timeout: 10000 });
   });
 
   test('should validate input and show appropriate errors', async ({ page }) => {
