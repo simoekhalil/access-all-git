@@ -2,8 +2,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Wallet Integration Simulation', () => {
   test.beforeEach(async ({ page }) => {
+    // Detect environment and set appropriate chain ID
+    const baseURL = page.url() || process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080';
+    const isStaging = baseURL.includes('dex-frontend-test1.defi.gala.com');
+    const chainId = isStaging ? '0x5' : '0x1'; // Goerli for staging, Mainnet for production
+    
     // Mock ethereum provider before navigation
-    await page.addInitScript(() => {
+    await page.addInitScript((chainId) => {
       (window as any).ethereum = {
         isMetaMask: true,
         request: async ({ method }: { method: string }) => {
@@ -11,7 +16,7 @@ test.describe('Wallet Integration Simulation', () => {
             return ['0x1234567890123456789012345678901234567890'];
           }
           if (method === 'eth_chainId') {
-            return '0x1';
+            return chainId;
           }
           if (method === 'eth_getBalance') {
             return '0x1bc16d674ec80000'; // 2 ETH in wei
@@ -21,7 +26,7 @@ test.describe('Wallet Integration Simulation', () => {
         on: () => {},
         removeListener: () => {},
       };
-    });
+    }, chainId);
     
     await page.goto('/');
   });
