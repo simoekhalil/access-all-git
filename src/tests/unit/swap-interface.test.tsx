@@ -37,8 +37,11 @@ describe('SwapInterface Component', () => {
 
       expect(screen.getByText('Swap Tokens')).toBeInTheDocument();
       expect(screen.getByText('Trade your tokens instantly')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('GALA')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('USDC')).toBeInTheDocument();
+      
+      const selects = screen.getAllByRole('combobox');
+      expect(selects[0]).toHaveTextContent('GALA'); // From token
+      expect(selects[1]).toHaveTextContent('USDC'); // To token
+      
       expect(screen.getByText('Swap')).toBeInTheDocument();
     });
 
@@ -71,7 +74,10 @@ describe('SwapInterface Component', () => {
         fireEvent.click(ethOption);
       });
 
-      expect(screen.getByDisplayValue('ETH')).toBeInTheDocument();
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        expect(selects[0]).toHaveTextContent('ETH'); // From token changed to ETH
+      });
     });
 
     it('should allow changing to token', async () => {
@@ -90,7 +96,10 @@ describe('SwapInterface Component', () => {
         fireEvent.click(townOption);
       });
 
-      expect(screen.getByDisplayValue('TOWN')).toBeInTheDocument();
+      await waitFor(() => {
+        const selects = screen.getAllByRole('combobox');
+        expect(selects[1]).toHaveTextContent('TOWN'); // To token changed to TOWN
+      });
     });
 
     it('should exclude selected from token in to token options', async () => {
@@ -251,8 +260,10 @@ describe('SwapInterface Component', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        expect(screen.getByDisplayValue('GALA')).toBeInTheDocument();
-        expect(screen.getByDisplayValue('USDC')).toBeInTheDocument();
+        // Check initial token selection
+        const selects = screen.getAllByRole('combobox');
+        expect(selects[0]).toHaveTextContent('GALA'); // From token
+        expect(selects[1]).toHaveTextContent('USDC'); // To token
       });
 
       // Click swap arrow
