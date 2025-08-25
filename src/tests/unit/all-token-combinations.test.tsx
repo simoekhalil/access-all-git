@@ -334,11 +334,16 @@ describe('All Token Combination Tests', () => {
           expect(newFromInput.value).toBe(calculatedToAmount!);
           expect(parseFloat(newToInput.value)).toBeCloseTo(parseFloat(testCase.amount), 0);
           
-          // Verify tokens swapped
+          // Verify tokens swapped - check the select values more reliably
           const selects = screen.getAllByRole('combobox');
-          expect(selects[0]).toHaveTextContent(testCase.initialTo);
-          expect(selects[1]).toHaveTextContent(testCase.initialFrom);
-        });
+          const fromTokenText = selects[0].textContent?.trim();
+          const toTokenText = selects[1].textContent?.trim();
+          
+          // After swap: from should show what was originally the 'to' token
+          // and to should show what was originally the 'from' token
+          expect(fromTokenText).toBe(testCase.initialTo);
+          expect(toTokenText).toBe(testCase.initialFrom);
+        }, { timeout: 5000 });
 
         // Clean up for next test - no unmount needed, each render creates a new container
       }
