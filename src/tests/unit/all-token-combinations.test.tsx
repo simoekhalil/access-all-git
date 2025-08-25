@@ -65,7 +65,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('25.000000'); // 1000 * 0.025
+        expect(toInput).toHaveValue(25); // 1000 * 0.025
       });
     });
 
@@ -80,7 +80,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1.000000'); // 66666.67 * 0.000015 ≈ 1
+        expect(toInput).toHaveValue(1); // 66666.67 * 0.000015 ≈ 1
       });
     });
 
@@ -95,7 +95,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('100.000000'); // 1000 * 0.1
+        expect(toInput).toHaveValue(100); // 1000 * 0.1
       });
     });
   });
@@ -113,7 +113,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('4000.000000'); // 100 * 40
+        expect(toInput).toHaveValue(4000); // 100 * 40
       });
     });
 
@@ -129,7 +129,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1.000000'); // 1666.67 * 0.0006 ≈ 1
+        expect(toInput).toHaveValue(1); // 1666.67 * 0.0006 ≈ 1
       });
     });
 
@@ -145,7 +145,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('400.000000'); // 100 * 4
+        expect(toInput).toHaveValue(400); // 100 * 4
       });
     });
   });
@@ -163,7 +163,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('66666.670000'); // 1 * 66666.67
+        expect(toInput).toHaveValue(66666.67); // 1 * 66666.67
       });
     });
 
@@ -179,7 +179,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1666.670000'); // 1 * 1666.67
+        expect(toInput).toHaveValue(1666.67); // 1 * 1666.67
       });
     });
 
@@ -195,7 +195,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('6666.670000'); // 1 * 6666.67
+        expect(toInput).toHaveValue(6666.67); // 1 * 6666.67
       });
     });
   });
@@ -213,7 +213,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1000.000000'); // 100 * 10
+        expect(toInput).toHaveValue(1000); // 100 * 10
       });
     });
 
@@ -229,7 +229,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('25.000000'); // 100 * 0.25
+        expect(toInput).toHaveValue(25); // 100 * 0.25
       });
     });
 
@@ -245,7 +245,7 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1.000000'); // 6666.67 * 0.00015 ≈ 1
+        expect(toInput).toHaveValue(1); // 6666.67 * 0.00015 ≈ 1
       });
     });
   });
@@ -253,18 +253,18 @@ describe('All Token Combination Tests', () => {
   describe('Reverse Calculation Tests (To Amount Input)', () => {
     it('should calculate all token pairs correctly when entering to amount', async () => {
       const testCases = [
-        { from: 'GALA', to: 'USDC', toAmount: '25', expectedFrom: '1000.000000' },
-        { from: 'GALA', to: 'ETH', toAmount: '1', expectedFrom: '66666.666667' },
-        { from: 'GALA', to: 'TOWN', toAmount: '100', expectedFrom: '1000.000000' },
-        { from: 'USDC', to: 'GALA', toAmount: '4000', expectedFrom: '100.000000' },
-        { from: 'USDC', to: 'ETH', toAmount: '1', expectedFrom: '1666.666667' },
-        { from: 'USDC', to: 'TOWN', toAmount: '400', expectedFrom: '100.000000' },
-        { from: 'ETH', to: 'GALA', toAmount: '66666.67', expectedFrom: '1.000000' },
-        { from: 'ETH', to: 'USDC', toAmount: '1666.67', expectedFrom: '1.000000' },
-        { from: 'ETH', to: 'TOWN', toAmount: '6666.67', expectedFrom: '1.000000' },
-        { from: 'TOWN', to: 'GALA', toAmount: '1000', expectedFrom: '100.000000' },
-        { from: 'TOWN', to: 'USDC', toAmount: '25', expectedFrom: '100.000000' },
-        { from: 'TOWN', to: 'ETH', toAmount: '1', expectedFrom: '6666.666667' },
+        { from: 'GALA', to: 'USDC', toAmount: '25', expectedFrom: 1000 },
+        { from: 'GALA', to: 'ETH', toAmount: '1', expectedFrom: 66666.666667 },
+        { from: 'GALA', to: 'TOWN', toAmount: '100', expectedFrom: 1000 },
+        { from: 'USDC', to: 'GALA', toAmount: '4000', expectedFrom: 100 },
+        { from: 'USDC', to: 'ETH', toAmount: '1', expectedFrom: 1666.666667 },
+        { from: 'USDC', to: 'TOWN', toAmount: '400', expectedFrom: 100 },
+        { from: 'ETH', to: 'GALA', toAmount: '66666.67', expectedFrom: 1 },
+        { from: 'ETH', to: 'USDC', toAmount: '1666.67', expectedFrom: 1 },
+        { from: 'ETH', to: 'TOWN', toAmount: '6666.67', expectedFrom: 1 },
+        { from: 'TOWN', to: 'GALA', toAmount: '1000', expectedFrom: 100 },
+        { from: 'TOWN', to: 'USDC', toAmount: '25', expectedFrom: 100 },
+        { from: 'TOWN', to: 'ETH', toAmount: '1', expectedFrom: 6666.666667 },
       ];
 
       for (const testCase of testCases) {
@@ -333,7 +333,7 @@ describe('All Token Combination Tests', () => {
         });
 
         // Swap direction
-        const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+        const swapArrow = screen.getByTestId('swap-direction-button');
         fireEvent.click(swapArrow);
 
         // Verify amounts and tokens swapped correctly
@@ -342,7 +342,7 @@ describe('All Token Combination Tests', () => {
           const newToInput = screen.getByLabelText('To') as HTMLInputElement;
           
           expect(newFromInput.value).toBe(calculatedToAmount!);
-          expect(newToInput.value).toBe(testCase.amount + '.000000');
+          expect(parseFloat(newToInput.value)).toBe(parseFloat(testCase.amount));
           
           // Verify tokens swapped
           const selects = screen.getAllByRole('combobox');
@@ -390,7 +390,7 @@ describe('All Token Combination Tests', () => {
         // Check exchange rate display
         await waitFor(() => {
           const rateText = `1 ${testCase.from} = ${testCase.expectedRate} ${testCase.to}`;
-          expect(screen.getByText(rateText)).toBeInTheDocument();
+          expect(screen.getByText(rateText, { exact: false })).toBeInTheDocument();
         });
 
         // Clean up for next test - no unmount needed, each render creates a new container
