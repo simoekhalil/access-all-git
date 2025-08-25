@@ -138,8 +138,8 @@ describe('SwapInterface Component', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue(2.5); // 100 * 0.025 = 2.5 (as number)
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toAmountInput.value)).toBeCloseTo(2.5); // 100 * 0.025 = 2.5
       });
     });
 
@@ -154,8 +154,8 @@ describe('SwapInterface Component', () => {
       fireEvent.change(toAmountInput, { target: { value: '2.5' } });
 
       await waitFor(() => {
-        const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue(100); // 2.5 / 0.025 = 100 (as number)
+        const fromAmountInput = screen.getByLabelText('From') as HTMLInputElement;
+        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(100); // 2.5 / 0.025 = 100
       });
     });
 
@@ -231,8 +231,8 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         // After swap, amounts should be reset
-        expect(screen.getByLabelText('From')).toHaveValue(null);
-        expect(screen.getByLabelText('To')).toHaveValue(null);
+        expect((screen.getByLabelText('From') as HTMLInputElement).value).toBe('');
+        expect((screen.getByLabelText('To') as HTMLInputElement).value).toBe('');
       }, { timeout: 3000 });
     });
 
@@ -295,8 +295,8 @@ describe('SwapInterface Component', () => {
       fireEvent.change(fromAmountInput, { target: { value: 'invalid' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue(null); // Input remains null for invalid input
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(toAmountInput.value).toBe(''); // Input remains empty for invalid input
       });
     });
 
@@ -311,8 +311,8 @@ describe('SwapInterface Component', () => {
       fireEvent.change(fromAmountInput, { target: { value: '0' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue(0); // Input shows 0 as number
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(toAmountInput.value).toBe('0.000000'); // Input shows calculated value
       });
     });
   });
