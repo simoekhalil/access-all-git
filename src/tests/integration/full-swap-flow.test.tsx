@@ -76,8 +76,8 @@ describe('Full Swap Flow Integration', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('2.500000');
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(toAmountInput.value).toBe('2.500000');
       });
 
       // Execute swap
@@ -88,8 +88,8 @@ describe('Full Swap Flow Integration', () => {
 
       await waitFor(() => {
         // Swap should complete and reset form
-        expect(screen.getByLabelText('From')).toHaveValue('');
-        expect(screen.getByLabelText('To')).toHaveValue('');
+        expect((screen.getByLabelText('From') as HTMLInputElement).value).toBe('');
+        expect((screen.getByLabelText('To') as HTMLInputElement).value).toBe('');
       }, { timeout: 3000 });
     });
 
