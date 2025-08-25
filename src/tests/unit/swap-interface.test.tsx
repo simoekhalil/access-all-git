@@ -113,11 +113,15 @@ describe('SwapInterface Component', () => {
       fireEvent.click(toTokenSelect);
 
       await waitFor(() => {
-        // GALA should not be available in to token since it's selected in from
-        expect(screen.queryByText('GALA')).not.toBeInTheDocument();
-        expect(screen.getByText('USDC')).toBeInTheDocument();
-        expect(screen.getByText('ETH')).toBeInTheDocument();
-        expect(screen.getByText('TOWN')).toBeInTheDocument();
+        // GALA should not be available in to token options since it's selected in from
+        const selectContent = screen.getByRole('listbox');
+        const galaOption = screen.queryByRole('option', { name: 'GALA' });
+        expect(galaOption).not.toBeInTheDocument();
+        
+        // Other tokens should be available
+        expect(screen.getByRole('option', { name: 'USDC' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'ETH' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'TOWN' })).toBeInTheDocument();
       });
     });
   });
@@ -135,7 +139,7 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('2.500000'); // 100 * 0.025 = 2.5
+        expect(toAmountInput).toHaveValue(2.5); // 100 * 0.025 = 2.5 (as number)
       });
     });
 
@@ -151,7 +155,7 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue('100.000000'); // 2.5 / 0.025 = 100
+        expect(fromAmountInput).toHaveValue(100); // 2.5 / 0.025 = 100 (as number)
       });
     });
 

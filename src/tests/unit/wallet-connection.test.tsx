@@ -118,7 +118,9 @@ describe('WalletConnection Component', () => {
       fireEvent.click(connectButton);
 
       await waitFor(() => {
-        expect(screen.getByText('User rejected request')).toBeInTheDocument();
+        // Check that the error message appears (should be multiple instances: component + toast)
+        const errorElements = screen.getAllByText('User rejected request');
+        expect(errorElements.length).toBeGreaterThan(0);
       });
     });
   });
