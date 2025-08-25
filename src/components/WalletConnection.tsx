@@ -47,9 +47,17 @@ const WalletConnection = () => {
     }
   };
 
+  const detectWalletType = () => {
+    if (window.ethereum?.isGala) return 'Gala Wallet';
+    if (window.ethereum?.isMetaMask) return 'MetaMask';
+    if (window.ethereum) return 'Web3 Wallet';
+    return null;
+  };
+
   const connectWallet = async () => {
-    if (!window.ethereum) {
-      const error = "Please install MetaMask or another Web3 wallet.";
+    const walletType = detectWalletType();
+    if (!walletType) {
+      const error = "Please install Gala Wallet, MetaMask, or another Web3 wallet.";
       setWallet(prev => ({ ...prev, error, isLoading: false }));
       toast({
         title: "Wallet Not Found",
@@ -105,7 +113,7 @@ const WalletConnection = () => {
         
         toast({
           title: "Wallet Connected",
-          description: `Connected to ${ENV.walletConfig.networkName}`,
+          description: `Connected ${walletType} to ${ENV.walletConfig.networkName}`,
         });
       }
     } catch (error: any) {
@@ -164,7 +172,7 @@ const WalletConnection = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Wallet className="h-5 w-5" />
-          Gala Wallet
+          {detectWalletType() || 'Wallet'}
           {ENV.isStaging && (
             <Badge variant="outline" className="text-xs bg-orange-100 text-orange-800 border-orange-300">
               {ENV.walletConfig.networkName}

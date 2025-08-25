@@ -4,5 +4,7 @@ interface Window {
     on: (event: string, callback: (...args: any[]) => void) => void;
     removeListener: (event: string, callback: (...args: any[]) => void) => void;
     isMetaMask?: boolean;
+    isGala?: boolean;
+    chainId?: string;
   };
 }
