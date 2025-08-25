@@ -1,27 +1,16 @@
 import WalletConnection from '@/components/WalletConnection';
 import SwapInterface from '@/components/SwapInterface';
-import EnvironmentIndicator from '@/components/EnvironmentIndicator';
-import { ENV } from '@/config/environment';
 
 const Index = () => {
   return (
     <main className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4">
-      <EnvironmentIndicator />
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             Gala DEX
-            {ENV.isStaging && (
-              <span className="block text-lg font-normal text-orange-600 mt-2">
-                Staging Environment
-              </span>
-            )}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            {ENV.isStaging ? 
-              "Test your trades with staging accounts and testnet tokens" :
-              "Trade your favorite Gala ecosystem tokens with lightning speed and minimal fees"
-            }
+            Trade your favorite Gala ecosystem tokens with lightning speed and minimal fees
           </p>
         </div>
 

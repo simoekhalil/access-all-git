@@ -193,17 +193,12 @@ describe('WalletConnection Component', () => {
       const connectButton = screen.getByText('Connect Wallet');
       fireEvent.click(connectButton);
 
-      // Wait for connection to complete first
-      await waitFor(() => {
-        expect(screen.getByText('0x1234...7890')).toBeInTheDocument();
-      });
-
-      // Then check that Connected badge is present and balance is not shown
       await waitFor(() => {
         expect(screen.getByText('Connected')).toBeInTheDocument();
-        // Balance should not be displayed on error (no ETH text should be found)
-        expect(screen.queryByText(/\d+\.\d+ ETH/)).not.toBeInTheDocument();
-      }, { timeout: 5000 });
+        expect(screen.getByText('0x1234...7890')).toBeInTheDocument();
+        // Balance should not be displayed on error
+        expect(screen.queryByText(/ETH/)).not.toBeInTheDocument();
+      });
     });
   });
 });

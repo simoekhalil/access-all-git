@@ -2,13 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Complete Swap Workflow', () => {
   test.beforeEach(async ({ page }) => {
-    // Detect environment and set appropriate chain ID
-    const baseURL = page.url() || process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080';
-    const isStaging = baseURL.includes('dex-frontend-test1.defi.gala.com');
-    const chainId = isStaging ? '0xaa36a7' : '0x1'; // Sepolia for staging, Mainnet for production
-    
     // Mock ethereum provider before navigation
-    await page.addInitScript((chainId) => {
+    await page.addInitScript(() => {
       (window as any).ethereum = {
         isMetaMask: true,
         request: async ({ method }: { method: string }) => {
@@ -16,7 +11,7 @@ test.describe('Complete Swap Workflow', () => {
             return ['0x1234567890123456789012345678901234567890'];
           }
           if (method === 'eth_chainId') {
-            return chainId;
+            return '0x1';
           }
           if (method === 'eth_getBalance') {
             return '0x1bc16d674ec80000'; // 2 ETH in wei
@@ -26,7 +21,7 @@ test.describe('Complete Swap Workflow', () => {
         on: () => {},
         removeListener: () => {},
       };
-    }, chainId);
+    });
     
     await page.goto('/');
   });
@@ -36,13 +31,8 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.getByText('Gala DEX')).toBeVisible();
     await expect(page.getByText('Connect Wallet')).toBeVisible();
     
-    // Detect environment for proper chain ID
-    const baseURL = page.url() || process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080';
-    const isStaging = baseURL.includes('dex-frontend-test1.defi.gala.com');
-    const chainId = isStaging ? '0xaa36a7' : '0x1';
-    
     // Mock wallet connection
-    await page.evaluate((chainId) => {
+    await page.evaluate(() => {
       // Mock MetaMask
       (window as any).ethereum = {
         isMetaMask: true,
@@ -51,14 +41,14 @@ test.describe('Complete Swap Workflow', () => {
             return ['0x1234567890123456789012345678901234567890'];
           }
           if (method === 'eth_chainId') {
-            return chainId;
+            return '0x1';
           }
           return null;
         },
         on: () => {},
         removeListener: () => {},
       };
-    }, chainId);
+    });
 
     // Connect wallet
     await page.getByText('Connect Wallet').click();
@@ -178,26 +168,19 @@ test.describe('Complete Swap Workflow', () => {
     await expect(swapButton).toBeEnabled();
 
     // Mock wallet connection for error test
-    const baseURL = page.url() || process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080';
-    const isStaging = baseURL.includes('dex-frontend-test1.defi.gala.com');
-    const chainId = isStaging ? '0xaa36a7' : '0x1';
-    
-    await page.evaluate((chainId) => {
+    await page.evaluate(() => {
       (window as any).ethereum = {
         isMetaMask: true,
         request: async ({ method }: { method: string }) => {
           if (method === 'eth_requestAccounts') {
             return ['0x1234567890123456789012345678901234567890'];
           }
-          if (method === 'eth_chainId') {
-            return chainId;
-          }
           return null;
         },
         on: () => {},
         removeListener: () => {},
       };
-    }, chainId);
+    });
 
     await page.getByText('Connect Wallet').click();
     await page.waitForTimeout(1000);
