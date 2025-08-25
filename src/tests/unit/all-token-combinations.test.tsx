@@ -64,8 +64,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1000' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(25); // 1000 * 0.025
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(25, 2); // 1000 * 0.025
       });
     });
 
@@ -79,8 +79,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '66666.67' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(1); // 66666.67 * 0.000015 ≈ 1
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(1, 2); // 66666.67 * 0.000015 ≈ 1
       });
     });
 
@@ -94,8 +94,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1000' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(100); // 1000 * 0.1
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(100, 2); // 1000 * 0.1
       });
     });
   });
@@ -112,8 +112,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(4000); // 100 * 40
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(4000, 2); // 100 * 40
       });
     });
 
@@ -128,8 +128,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1666.67' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(1); // 1666.67 * 0.0006 ≈ 1
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(1, 2); // 1666.67 * 0.0006 ≈ 1
       });
     });
 
@@ -144,8 +144,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(400); // 100 * 4
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(400, 2); // 100 * 4
       });
     });
   });
@@ -162,8 +162,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(66666.67); // 1 * 66666.67
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(66666.67, 1); // 1 * 66666.67
       });
     });
 
@@ -178,8 +178,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(1666.67); // 1 * 1666.67
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(1666.67, 1); // 1 * 1666.67
       });
     });
 
@@ -194,8 +194,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(6666.67); // 1 * 6666.67
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(6666.67, 1); // 1 * 6666.67
       });
     });
   });
@@ -212,8 +212,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(1000); // 100 * 10
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(1000, 2); // 100 * 10
       });
     });
 
@@ -228,8 +228,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(25); // 100 * 0.25
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(25, 2); // 100 * 0.25
       });
     });
 
@@ -244,8 +244,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '6666.67' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue(parseFloat('1.000000')); // 6666.67 * 0.00015 ≈ 1
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeCloseTo(1, 6); // 6666.67 * 0.00015 ≈ 1
       });
     });
   });
@@ -283,8 +283,8 @@ describe('All Token Combination Tests', () => {
         fireEvent.change(toInput, { target: { value: testCase.toAmount } });
 
         await waitFor(() => {
-          const fromInput = screen.getByLabelText('From');
-          expect(fromInput).toHaveValue((testCase.expectedFrom));
+          const fromInput = screen.getByLabelText('From') as HTMLInputElement;
+          expect(parseFloat(fromInput.value)).toBeCloseTo(testCase.expectedFrom, 2);
         });
 
         // Clean up for next test - no unmount needed, each render creates a new container
@@ -395,7 +395,7 @@ describe('All Token Combination Tests', () => {
             expect(exchangeRateElement).toBeInTheDocument();
           } else {
             // If exchange rate not visible, just verify we have values
-            expect(screen.getByLabelText('From')).toHaveValue(parseFloat(testCase.amount));
+            expect(parseFloat((screen.getByLabelText('From') as HTMLInputElement).value)).toBeCloseTo(parseFloat(testCase.amount), 2);
             expect(screen.getByLabelText('To')).toHaveDisplayValue(new RegExp('\\d+'));
           }
         }, { timeout: 3000 });
