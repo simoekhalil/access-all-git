@@ -108,7 +108,9 @@ describe('Full Swap Flow Integration', () => {
       fireEvent.click(connectButton);
 
       await waitFor(() => {
-        expect(screen.getByText('User rejected request')).toBeInTheDocument();
+        // Check that error message appears (can be in multiple places - component and toast)
+        const errorElements = screen.getAllByText('User rejected request');
+        expect(errorElements.length).toBeGreaterThan(0);
       });
 
       // Swap should still be available but user should see wallet is not connected
