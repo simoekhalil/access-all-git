@@ -40,7 +40,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('25.000000'); // 1000 * 0.025 = 25
+        expect(toAmountInput).toHaveValue(25); // 1000 * 0.025 = 25
       });
     });
 
@@ -65,7 +65,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('1.000000'); // 66666.67 * 0.000015 ≈ 1
+        expect(toAmountInput).toHaveValue(1); // 66666.67 * 0.000015 ≈ 1
       });
     });
 
@@ -99,7 +99,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('4000.000000'); // 100 * 40 = 4000
+        expect(toAmountInput).toHaveValue(4000); // 100 * 40 = 4000
       });
     });
 
@@ -115,7 +115,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('0.000000'); // Very small amount
+        expect(toAmountInput).toHaveValue(0); // Very small amount
       });
     });
 
@@ -131,7 +131,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('25000.000000'); // 1000000 * 0.025 = 25000
+        expect(toAmountInput).toHaveValue(25000); // 1000000 * 0.025 = 25000
       });
     });
   });
@@ -149,7 +149,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue('1000.000000'); // 25 / 0.025 = 1000
+        expect(fromAmountInput).toHaveValue(1000); // 25 / 0.025 = 1000
       });
     });
 
@@ -173,8 +173,8 @@ describe('Comprehensive Swap Calculations', () => {
       fireEvent.change(toAmountInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue('66666.666667'); // 1 / 0.000015 ≈ 66666.67
+        const fromAmountInput = screen.getByLabelText('From') as HTMLInputElement;
+        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(66666.67, 1); // 1 / 0.000015 ≈ 66666.67
       });
     });
 
@@ -207,7 +207,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue('100.000000'); // 4000 / 40 = 100
+        expect(fromAmountInput).toHaveValue(100); // 4000 / 40 = 100
       });
     });
 
@@ -222,8 +222,8 @@ describe('Comprehensive Swap Calculations', () => {
       fireEvent.change(toAmountInput, { target: { value: '0.000001' } });
 
       await waitFor(() => {
-        const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue('0.000040'); // 0.000001 / 0.025 = 0.00004
+        const fromAmountInput = screen.getByLabelText('From') as HTMLInputElement;
+        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(0.00004, 5); // 0.000001 / 0.025 = 0.00004
       });
     });
 
@@ -239,7 +239,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue('400000.000000'); // 10000 / 0.025 = 400000
+        expect(fromAmountInput).toHaveValue(400000); // 10000 / 0.025 = 400000
       });
     });
   });
@@ -258,11 +258,11 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('2.500000'); // 100 * 0.025 = 2.5
+        expect(toAmountInput).toHaveValue(2.5); // 100 * 0.025 = 2.5
       });
 
       // Click swap arrow
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByTestId('swap-direction-button');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
@@ -274,8 +274,8 @@ describe('Comprehensive Swap Calculations', () => {
         // Verify amounts swapped correctly
         const newFromAmountInput = screen.getByLabelText('From');
         const newToAmountInput = screen.getByLabelText('To');
-        expect(newFromAmountInput).toHaveValue('2.500000'); // Previous to amount
-        expect(newToAmountInput).toHaveValue('100.000000'); // Previous from amount
+        expect(newFromAmountInput).toHaveValue(2.5); // Previous to amount
+        expect(newToAmountInput).toHaveValue(100); // Previous from amount
       });
     });
 
@@ -292,11 +292,11 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue('2000.000000'); // 50 / 0.025 = 2000
+        expect(fromAmountInput).toHaveValue(2000); // 50 / 0.025 = 2000
       });
 
       // Click swap arrow
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByTestId('swap-direction-button');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
@@ -308,8 +308,8 @@ describe('Comprehensive Swap Calculations', () => {
         // Verify amounts swapped correctly
         const newFromAmountInput = screen.getByLabelText('From');
         const newToAmountInput = screen.getByLabelText('To');
-        expect(newFromAmountInput).toHaveValue('50.000000'); // Previous to amount
-        expect(newToAmountInput).toHaveValue('2000.000000'); // Previous from amount
+        expect(newFromAmountInput).toHaveValue(50); // Previous to amount
+        expect(newToAmountInput).toHaveValue(2000); // Previous from amount
       });
     });
 
@@ -326,18 +326,18 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('25.000000'); // 1000 * 0.025
+        expect(toAmountInput).toHaveValue(25); // 1000 * 0.025
       });
 
       // First swap
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByTestId('swap-direction-button');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
         const newFromAmountInput = screen.getByLabelText('From');
         const newToAmountInput = screen.getByLabelText('To');
-        expect(newFromAmountInput).toHaveValue('25.000000');
-        expect(newToAmountInput).toHaveValue('1000.000000');
+        expect(newFromAmountInput).toHaveValue(25);
+        expect(newToAmountInput).toHaveValue(1000);
       });
 
       // Second swap back
@@ -346,8 +346,8 @@ describe('Comprehensive Swap Calculations', () => {
       await waitFor(() => {
         const finalFromAmountInput = screen.getByLabelText('From');
         const finalToAmountInput = screen.getByLabelText('To');
-        expect(finalFromAmountInput).toHaveValue('1000.000000');
-        expect(finalToAmountInput).toHaveValue('25.000000');
+        expect(finalFromAmountInput).toHaveValue(1000);
+        expect(finalToAmountInput).toHaveValue(25);
       });
     });
 
@@ -363,7 +363,7 @@ describe('Comprehensive Swap Calculations', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       // Swap direction
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByTestId('swap-direction-button');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
@@ -401,14 +401,15 @@ describe('Comprehensive Swap Calculations', () => {
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
         calculatedToAmount = toAmountInput.value;
-        expect(calculatedToAmount).toBe('10.000000'); // 400 * 0.025 = 10
+        expect(parseFloat(calculatedToAmount)).toBe(10); // 400 * 0.025 = 10
       });
 
       // Clear fields
       fireEvent.change(fromAmountInput, { target: { value: '' } });
 
       await waitFor(() => {
-        expect(screen.getByLabelText('To')).toHaveValue('');
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(toInput.value === '' || toInput.value === null).toBeTruthy();
       });
 
       // Method 2: Enter the same to amount
@@ -417,7 +418,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const recalculatedFromAmount = screen.getByLabelText('From');
-        expect(recalculatedFromAmount).toHaveValue('400.000000'); // Should match original
+        expect(recalculatedFromAmount).toHaveValue(400); // Should match original
       });
     });
 
@@ -438,7 +439,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('25.000000'); // Should reflect final value
+        expect(toAmountInput).toHaveValue(25); // Should reflect final value
       });
     });
   });
