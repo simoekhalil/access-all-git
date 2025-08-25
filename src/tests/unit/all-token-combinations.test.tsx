@@ -39,10 +39,19 @@ describe('All Token Combination Tests', () => {
   const selectToken = async (tokenIndex: number, tokenSymbol: string) => {
     const tokenSelects = screen.getAllByRole('combobox');
     fireEvent.click(tokenSelects[tokenIndex]);
-    
+
     await waitFor(() => {
-      const option = screen.getByText(tokenSymbol);
-      fireEvent.click(option);
+      const options = screen.getAllByText(tokenSymbol);
+      // Find the option that's in the dropdown (has an id starting with radix-)
+      const dropdownOption = options.find(option => 
+        option.id && option.id.startsWith('radix-')
+      );
+      if (dropdownOption) {
+        fireEvent.click(dropdownOption);
+      } else {
+        // Fallback to the last option (usually the dropdown option)
+        fireEvent.click(options[options.length - 1]);
+      }
     });
   };
 

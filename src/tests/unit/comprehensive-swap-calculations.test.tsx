@@ -81,8 +81,11 @@ describe('Comprehensive Swap Calculations', () => {
       fireEvent.click(fromTokenSelect);
 
       await waitFor(() => {
-        const usdcOption = screen.getByText('USDC');
-        fireEvent.click(usdcOption);
+        const usdcOptions = screen.getAllByText('USDC');
+        const dropdownOption = usdcOptions.find(option => 
+          option.id && option.id.startsWith('radix-')
+        ) || usdcOptions[usdcOptions.length - 1];
+        fireEvent.click(dropdownOption);
       });
 
       // Change to token to GALA
@@ -90,8 +93,11 @@ describe('Comprehensive Swap Calculations', () => {
       fireEvent.click(toTokenSelect);
 
       await waitFor(() => {
-        const galaOption = screen.getByText('GALA');
-        fireEvent.click(galaOption);
+        const galaOptions = screen.getAllByText('GALA');
+        const dropdownOption = galaOptions.find(option => 
+          option.id && option.id.startsWith('radix-')
+        ) || galaOptions[galaOptions.length - 1];
+        fireEvent.click(dropdownOption);
       });
 
       const fromAmountInput = screen.getByLabelText('From');
@@ -190,16 +196,22 @@ describe('Comprehensive Swap Calculations', () => {
       fireEvent.click(fromTokenSelect);
 
       await waitFor(() => {
-        const usdcOption = screen.getByText('USDC');
-        fireEvent.click(usdcOption);
+        const usdcOptions = screen.getAllByText('USDC');
+        const dropdownOption = usdcOptions.find(option => 
+          option.id && option.id.startsWith('radix-')
+        ) || usdcOptions[usdcOptions.length - 1];
+        fireEvent.click(dropdownOption);
       });
 
       const toTokenSelect = screen.getAllByRole('combobox')[1];
       fireEvent.click(toTokenSelect);
 
       await waitFor(() => {
-        const galaOption = screen.getByText('GALA');
-        fireEvent.click(galaOption);
+        const galaOptions = screen.getAllByText('GALA');
+        const dropdownOption = galaOptions.find(option => 
+          option.id && option.id.startsWith('radix-')
+        ) || galaOptions[galaOptions.length - 1];
+        fireEvent.click(dropdownOption);
       });
 
       const toAmountInput = screen.getByLabelText('To');
