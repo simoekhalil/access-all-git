@@ -72,10 +72,10 @@ const environments: Record<string, Environment> = {
     isStaging: true,
     isDevelopment: false,
     walletConfig: {
-      networkId: '0x5', // Goerli testnet
-      networkName: 'Goerli Test Network',
-      rpcUrl: 'https://eth-goerli.g.alchemy.com/v2/demo',
-      blockExplorer: 'https://goerli.etherscan.io',
+      networkId: '0xaa36a7', // Sepolia testnet
+      networkName: 'Sepolia Test Network',
+      rpcUrl: 'https://eth-sepolia.g.alchemy.com/v2/demo',
+      blockExplorer: 'https://sepolia.etherscan.io',
     },
     contracts: {
       galaToken: '0x0000000000000000000000000000000000000002', // Staging GALA

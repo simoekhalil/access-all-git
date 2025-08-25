@@ -5,7 +5,7 @@ test.describe('Complete Swap Workflow', () => {
     // Detect environment and set appropriate chain ID
     const baseURL = page.url() || process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080';
     const isStaging = baseURL.includes('dex-frontend-test1.defi.gala.com');
-    const chainId = isStaging ? '0x5' : '0x1'; // Goerli for staging, Mainnet for production
+    const chainId = isStaging ? '0xaa36a7' : '0x1'; // Sepolia for staging, Mainnet for production
     
     // Mock ethereum provider before navigation
     await page.addInitScript((chainId) => {
@@ -39,7 +39,7 @@ test.describe('Complete Swap Workflow', () => {
     // Detect environment for proper chain ID
     const baseURL = page.url() || process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080';
     const isStaging = baseURL.includes('dex-frontend-test1.defi.gala.com');
-    const chainId = isStaging ? '0x5' : '0x1';
+    const chainId = isStaging ? '0xaa36a7' : '0x1';
     
     // Mock wallet connection
     await page.evaluate((chainId) => {
@@ -180,7 +180,7 @@ test.describe('Complete Swap Workflow', () => {
     // Mock wallet connection for error test
     const baseURL = page.url() || process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080';
     const isStaging = baseURL.includes('dex-frontend-test1.defi.gala.com');
-    const chainId = isStaging ? '0x5' : '0x1';
+    const chainId = isStaging ? '0xaa36a7' : '0x1';
     
     await page.evaluate((chainId) => {
       (window as any).ethereum = {
