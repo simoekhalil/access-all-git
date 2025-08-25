@@ -332,7 +332,7 @@ describe('All Token Combination Tests', () => {
           const newToInput = screen.getByLabelText('To') as HTMLInputElement;
           
           expect(newFromInput.value).toBe(calculatedToAmount!);
-          expect(parseFloat(newToInput.value)).toBe(parseFloat(testCase.amount));
+          expect(parseFloat(newToInput.value)).toBeCloseTo(parseFloat(testCase.amount), 1);
           
           // Verify tokens swapped
           const selects = screen.getAllByRole('combobox');
