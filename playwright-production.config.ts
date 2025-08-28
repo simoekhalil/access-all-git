@@ -50,5 +50,5 @@ export default defineConfig({
     timeout: 5 * 1000, // 5 seconds
   },
   // Set environment variable for test environment detection
-  globalSetup: require.resolve('./src/tests/setup/production-setup.ts'),
+  globalSetup: './src/tests/setup/production-setup.ts',
 });

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { spawn } = require('child_process');
+import { spawn } from 'child_process';
 
 const environment = process.argv[2];
 const headed = process.argv.includes('--headed');
