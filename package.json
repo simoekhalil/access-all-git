@@ -4,6 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test:staging": "playwright test --config playwright-staging.config.ts",
+    "test:staging:headed": "playwright test --config playwright-staging.config.ts --headed",
+    "test:production": "playwright test --config playwright-production.config.ts", 
+    "test:production:headed": "playwright test --config playwright-production.config.ts --headed"
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
