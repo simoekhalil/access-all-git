@@ -51,4 +51,6 @@ export default defineConfig({
   },
   // Generate snapshots on first run in development
   updateSnapshots: process.env.CI ? 'none' : 'all',
+  // Set environment variable for test environment detection
+  globalSetup: './src/tests/setup/local-setup.ts',
 });

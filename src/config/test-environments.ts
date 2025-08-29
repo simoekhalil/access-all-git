@@ -16,6 +16,22 @@ export interface TestEnvironment {
 }
 
 export const TEST_ENVIRONMENTS: Record<string, TestEnvironment> = {
+  local: {
+    name: 'Local',
+    baseUrl: 'http://localhost:8080',
+    chainId: '0x1', // Ethereum Mainnet (for mocking purposes)
+    walletAddresses: {
+      primary: '0x1234567890123456789012345678901234567890', // Local test wallet
+      secondary: '0x0987654321098765432109876543210987654321', // Secondary local wallet
+      balance: '0x1bc16d674ec80000', // 2 ETH in wei
+    },
+    tokens: {
+      GALA: { address: '0x15D4c048F83bd7e37d49eA4C83a07267Ec4203dA', decimals: 18 },
+      USDC: { address: '0xA0b86a33E6441fb4C7b3c1F1f0Ca3A09Da8c0d7E', decimals: 6 },
+      ETH: { address: '0x0000000000000000000000000000000000000000', decimals: 18 },
+      TOWN: { address: '0x3DD98C8A089dBCFF7e8FC8d4f532BD493501AB7F', decimals: 18 },
+    }
+  },
   staging: {
     name: 'Staging',
     baseUrl: 'https://dex-frontend-test1.defi.gala.com',
@@ -51,7 +67,8 @@ export const TEST_ENVIRONMENTS: Record<string, TestEnvironment> = {
 };
 
 export function getTestEnvironment(): TestEnvironment {
-  const envName = process.env.TEST_ENVIRONMENT || 'staging';
+  // Default to local environment for development, staging when explicitly set
+  const envName = process.env.TEST_ENVIRONMENT || 'local';
   const environment = TEST_ENVIRONMENTS[envName];
   
   if (!environment) {

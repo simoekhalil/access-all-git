@@ -22,11 +22,12 @@ test.describe('Cross-Browser Compatibility', () => {
     await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
 
     // Test form interactions
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('100');
+    await page.waitForTimeout(500); // Wait for calculation
     
     // Should calculate on all browsers
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.getByRole('spinbutton').last();
     await expect(toAmountInput).toHaveValue('2.500000');
 
     // Test dropdown functionality
@@ -73,11 +74,12 @@ test.describe('Cross-Browser Compatibility', () => {
     await expect(page.getByText('Gala DEX')).toBeVisible();
 
     // Fill form multiple times to test responsiveness
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     
     for (let i = 1; i <= 5; i++) {
       await fromAmountInput.fill(`${i * 100}`);
-      await expect(page.getByLabel('To')).toHaveValue(`${(i * 100 * 0.025).toFixed(6)}`);
+      await page.waitForTimeout(300); // Wait for calculation
+      await expect(page.getByRole('spinbutton').last()).toHaveValue(`${(i * 100 * 0.025).toFixed(6)}`);
     }
 
     const endTime = Date.now();
@@ -93,10 +95,11 @@ test.describe('Cross-Browser Compatibility', () => {
     console.log(`Testing edge cases on ${browserName}`);
 
     // Test very large numbers
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('999999999');
+    await page.waitForTimeout(500); // Wait for calculation
     
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.getByRole('spinbutton').last();
     await expect(toAmountInput).toHaveValue('24999999.975000');
 
     // Test very small numbers
@@ -119,7 +122,7 @@ test.describe('Cross-Browser Compatibility', () => {
     console.log(`Testing keyboard navigation on ${browserName}`);
 
     // Focus on from amount input explicitly
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.focus();
     await expect(fromAmountInput).toBeFocused();
 

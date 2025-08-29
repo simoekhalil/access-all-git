@@ -64,11 +64,12 @@ test.describe('Visual Regression Tests', () => {
     });
 
     // With amounts entered
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('100');
+    await page.waitForTimeout(500); // Wait for calculation
     
     // Wait for calculation and UI updates
-    await expect(page.getByLabel('To')).toHaveValue('2.500000');
+    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
     await page.waitForTimeout(500);
     await expect(page.locator('main')).toHaveScreenshot('swap-with-amounts.png', { 
       threshold: 0.3,
@@ -131,7 +132,7 @@ test.describe('Visual Regression Tests', () => {
       }
 
       // Enter amount
-      const fromAmountInput = page.getByLabel('From');
+      const fromAmountInput = page.getByRole('spinbutton').first();
       await fromAmountInput.fill(pair.amount);
 
       // Wait for calculation
@@ -166,9 +167,10 @@ test.describe('Visual Regression Tests', () => {
     });
 
     // Mobile swap interface
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('100');
-    await expect(page.getByLabel('To')).toHaveValue('2.500000');
+    await page.waitForTimeout(500); // Wait for calculation
+    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
     await page.waitForTimeout(500);
     
     await expect(page).toHaveScreenshot('mobile-swap-interface.png', { 
@@ -202,9 +204,10 @@ test.describe('Visual Regression Tests', () => {
     });
 
     // Dark mode swap interface with interaction
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('100');
-    await expect(page.getByLabel('To')).toHaveValue('2.500000');
+    await page.waitForTimeout(500); // Wait for calculation
+    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
     await page.waitForTimeout(500);
     
     await expect(page).toHaveScreenshot('dark-mode-swap.png', { 

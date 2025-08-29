@@ -26,10 +26,11 @@ test.describe('Wallet Integration Simulation', () => {
     await expect(page.getByText('Disconnect')).toBeVisible();
 
     // Swap interface should now be fully functional
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('100');
+    await page.waitForTimeout(500); // Wait for calculation
     
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.getByRole('spinbutton').last();
     await expect(toAmountInput).toHaveValue('2.500000');
 
     const swapButton = page.getByRole('button', { name: 'Swap' });

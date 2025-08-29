@@ -36,10 +36,11 @@ test.describe('Mobile Responsiveness', () => {
       }
 
       // Form inputs should be accessible
-      const fromAmountInput = page.getByLabel('From');
+      const fromAmountInput = page.getByRole('spinbutton').first();
       await fromAmountInput.fill('100');
+      await page.waitForTimeout(500); // Wait for calculation
       
-      const toAmountInput = page.getByLabel('To');
+      const toAmountInput = page.getByRole('spinbutton').last();
       await expect(toAmountInput).toHaveValue('2.500000');
 
       // Token selectors should work on mobile
@@ -90,7 +91,7 @@ test.describe('Mobile Responsiveness', () => {
     await page.getByRole('button', { name: /connect wallet/i }).first().click();
     
     // Test form interaction with touch
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.click();
     await fromAmountInput.fill('100');
 
@@ -162,9 +163,10 @@ test.describe('Mobile Responsiveness', () => {
     await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
 
     // Test form interactions in landscape
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('100');
-    await expect(page.getByLabel('To')).toHaveValue('2.500000');
+    await page.waitForTimeout(500); // Wait for calculation
+    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
 
     // Test token switching in landscape - using data-testid for reliability  
     const swapArrow = page.getByTestId('swap-direction-button');
@@ -199,8 +201,9 @@ test.describe('Mobile Responsiveness', () => {
     await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
 
     // Form should still be functional with larger text
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('100');
-    await expect(page.getByLabel('To')).toHaveValue('2.500000');
+    await page.waitForTimeout(500); // Wait for calculation
+    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
   });
 });

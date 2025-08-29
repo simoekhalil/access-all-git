@@ -42,7 +42,7 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 10000 });
 
     // Verify swap interface is visible
-    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
+    await expect(page.getByText('Swap Tokens')).toBeVisible();
     await expect(page.getByText('Trade your tokens instantly')).toBeVisible();
 
     // Test token selection - check select trigger values
@@ -50,11 +50,12 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.locator('[role="combobox"]').last().getByText('USDC')).toBeVisible();
 
     // Enter swap amount
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('100');
+    await page.waitForTimeout(500); // Wait for calculation
 
     // Verify calculation
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.getByRole('spinbutton').last();
     await expect(toAmountInput).toHaveValue('2.500000');
 
     // Verify exchange rate display
@@ -103,20 +104,22 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.locator('[role="combobox"]').last().getByText('TOWN')).toBeVisible();
 
     // Test calculation with new pair
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('1');
+    await page.waitForTimeout(500); // Wait for calculation
     
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.getByRole('spinbutton').last();
     await expect(toAmountInput).toHaveValue('6666.670000');
   });
 
   test('should handle directional swap correctly', async ({ page }) => {
     // Set initial amounts
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('1000');
+    await page.waitForTimeout(500); // Wait for calculation
     
     // Verify calculated amount
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.getByRole('spinbutton').last();
     await expect(toAmountInput).toHaveValue('25.000000');
 
     // Click swap direction arrow - using data-testid for reliability
@@ -131,8 +134,8 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.locator('[role="combobox"]').last()).toContainText('GALA');
 
     // Verify amounts swapped and recalculated
-    await expect(page.getByLabel('From')).toHaveValue('25.000000');
-    await expect(page.getByLabel('To')).toHaveValue('1000.000000');
+    await expect(page.getByRole('spinbutton').first()).toHaveValue('25.000000');
+    await expect(page.getByRole('spinbutton').last()).toHaveValue('1000.000000');
 
     // Verify new exchange rate
     await expect(page.getByText('1 USDC = 40.000000 GALA')).toBeVisible();
@@ -144,7 +147,7 @@ test.describe('Complete Swap Workflow', () => {
     await expect(swapButton).toBeDisabled();
 
     // Enter invalid amount (empty or zero)
-    const fromAmountInput = page.getByLabel('From');
+    const fromAmountInput = page.getByRole('spinbutton').first();
     await fromAmountInput.fill('0');
     
     // Should still be disabled
