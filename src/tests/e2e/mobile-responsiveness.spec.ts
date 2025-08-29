@@ -13,9 +13,9 @@ test.describe('Mobile Responsiveness', () => {
       await page.setViewportSize({ width: device.width, height: device.height });
       await page.goto('/');
 
-      // Basic elements should be visible and properly sized
-      await expect(page.getByText('Gala DEX')).toBeVisible();
-      await expect(page.getByText('Connect Wallet')).toBeVisible();
+    // Basic elements should be visible and properly sized
+    await expect(page.getByText('Gala DEX')).toBeVisible();
+    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
       await expect(page.getByText('Swap Tokens')).toBeVisible();
 
       // Swap interface should fit in viewport
@@ -73,7 +73,7 @@ test.describe('Mobile Responsiveness', () => {
     await expect(page.getByText('Gala DEX')).toBeVisible();
 
     // Test touch tap on elements - use click instead of tap for better compatibility
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
     
     // Test form interaction with touch
     const fromAmountInput = page.getByLabel('From');
@@ -133,7 +133,7 @@ test.describe('Mobile Responsiveness', () => {
 
     // All key elements should still be accessible
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
 
     // Test form interactions in landscape
     const fromAmountInput = page.getByLabel('From');
@@ -163,8 +163,8 @@ test.describe('Mobile Responsiveness', () => {
 
     // Elements should still be accessible and readable
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.getByText('Swap Tokens')).toBeVisible();
-    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
+    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
 
     // Form should still be functional with larger text
     const fromAmountInput = page.getByLabel('From');

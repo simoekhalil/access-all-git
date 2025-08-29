@@ -29,7 +29,7 @@ test.describe('Complete Swap Workflow', () => {
   test('should complete full swap workflow with wallet connection', async ({ page }) => {
     // Check initial page load
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
     
     // Mock wallet connection
     await page.evaluate(() => {
@@ -51,11 +51,11 @@ test.describe('Complete Swap Workflow', () => {
     });
 
     // Connect wallet
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
     await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 10000 });
 
     // Verify swap interface is visible
-    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
     await expect(page.getByText('Trade your tokens instantly')).toBeVisible();
 
     // Test token selection - check select trigger values
@@ -182,7 +182,7 @@ test.describe('Complete Swap Workflow', () => {
       };
     });
 
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
     await page.waitForTimeout(1000);
 
     // Try swap without connecting wallet properly (simulate error)

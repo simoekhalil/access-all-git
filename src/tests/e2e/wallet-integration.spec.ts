@@ -28,11 +28,11 @@ test.describe('Wallet Integration Simulation', () => {
 
   test('should handle MetaMask connection successfully', async ({ page }) => {
     // Initial state - wallet not connected
-    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
     await expect(page.getByText('Connect your wallet to start trading')).toBeVisible();
 
     // Connect wallet
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
 
     // Should show connected state - use specific badge selector
     await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
@@ -51,20 +51,20 @@ test.describe('Wallet Integration Simulation', () => {
 
   test('should handle wallet disconnection', async ({ page }) => {
     // Connect wallet first
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
     await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Disconnect wallet
     await page.getByText('Disconnect').click();
 
     // Should return to initial state
-    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
     await expect(page.getByText('Connect your wallet to start trading')).toBeVisible();
   });
 
   test('should handle network switching', async ({ page }) => {
     // Connect wallet
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
     await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Simulate network change
@@ -82,7 +82,7 @@ test.describe('Wallet Integration Simulation', () => {
 
   test('should handle account switching', async ({ page }) => {
     // Connect wallet
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
     await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Simulate account change
@@ -119,10 +119,10 @@ test.describe('Wallet Integration Simulation', () => {
     });
 
     // Try to connect wallet
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
 
     // Should handle error gracefully and show error message
-    await expect(page.getByText('Connect Wallet')).toBeVisible(); // Should still show connect button
+    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible(); // Should still show connect button
     
     // Check for error message - look for connection failed toast
     await expect(page.locator('[data-lov-name="ToastTitle"]').getByText('Connection Failed')).toBeVisible({ timeout: 5000 });
@@ -135,7 +135,7 @@ test.describe('Wallet Integration Simulation', () => {
     });
 
     // Try to connect wallet
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
 
     // Should show message about installing MetaMask
     await expect(page.getByText('Please install MetaMask or another Web3 wallet').first()).toBeVisible({ timeout: 5000 });
@@ -143,14 +143,14 @@ test.describe('Wallet Integration Simulation', () => {
 
   test('should persist wallet connection on page reload', async ({ page }) => {
     // Connect wallet
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
     await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
 
     // Reload page
     await page.reload();
 
     // Should auto-connect if wallet was previously connected
-    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
     
     // Note: In real implementation, this would check localStorage or cookies
     // for persistent connection state

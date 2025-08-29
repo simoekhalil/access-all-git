@@ -15,7 +15,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match wallet connection states', async ({ page }) => {
     // Initial disconnected state
-    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
     await expect(page.locator('main')).toHaveScreenshot('wallet-disconnected.png', { threshold: 0.3 });
 
     // Mock wallet connection
@@ -49,7 +49,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match swap interface states', async ({ page }) => {
     // Empty swap interface
-    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
     await expect(page.locator('main')).toHaveScreenshot('swap-empty.png', { 
       threshold: 0.3,
       timeout: 10000 

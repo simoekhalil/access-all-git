@@ -31,8 +31,8 @@ test.describe('Cross-Browser Compatibility', () => {
 
     // Basic functionality should work on all browsers
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.getByText('Connect Wallet')).toBeVisible();
-    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
+    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
 
     // Test form interactions
     const fromAmountInput = page.getByLabel('From');
@@ -63,7 +63,7 @@ test.describe('Cross-Browser Compatibility', () => {
 
   test('should handle wallet simulation consistently', async ({ page, browserName }) => {
     // Connect wallet
-    await page.getByText('Connect Wallet').click();
+    await page.getByRole('button', { name: /connect wallet/i }).first().click();
     
     // Should work on all browsers - look for Connected badge with more flexible timeout
     await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
