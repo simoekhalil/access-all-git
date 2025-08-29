@@ -1,8 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { handlePrivacyConsent } from '../helpers/privacy-consent';
+import { setupWalletMock } from '../helpers/wallet-mock';
 
 test.describe('Visual Regression Tests', () => {
   test.beforeEach(async ({ page }) => {
+    // Setup environment-aware wallet mock
+    await setupWalletMock(page);
+    
     await page.goto('/');
     
     // Handle privacy/cookie consent banners

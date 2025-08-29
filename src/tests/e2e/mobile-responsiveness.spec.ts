@@ -1,5 +1,6 @@
 import { test, expect, devices } from '@playwright/test';
 import { handlePrivacyConsent } from '../helpers/privacy-consent';
+import { setupWalletMock } from '../helpers/wallet-mock';
 
 test.describe('Mobile Responsiveness', () => {
   const mobileDevices = [
@@ -11,6 +12,9 @@ test.describe('Mobile Responsiveness', () => {
 
   mobileDevices.forEach(device => {
     test(`should be responsive on ${device.name}`, async ({ page }) => {
+      // Setup environment-aware wallet mock
+      await setupWalletMock(page);
+      
       await page.setViewportSize({ width: device.width, height: device.height });
       await page.goto('/');
       
@@ -70,6 +74,9 @@ test.describe('Mobile Responsiveness', () => {
   });
 
   test('should handle touch interactions properly', async ({ page }) => {
+    // Setup environment-aware wallet mock
+    await setupWalletMock(page);
+    
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
     
@@ -109,6 +116,9 @@ test.describe('Mobile Responsiveness', () => {
   });
 
   test('should scroll properly on small screens', async ({ page }) => {
+    // Setup environment-aware wallet mock
+    await setupWalletMock(page);
+    
     await page.setViewportSize({ width: 320, height: 568 }); // Very small screen
     await page.goto('/');
     
@@ -137,6 +147,9 @@ test.describe('Mobile Responsiveness', () => {
   });
 
   test('should maintain usability in landscape mode', async ({ page }) => {
+    // Setup environment-aware wallet mock
+    await setupWalletMock(page);
+    
     await page.setViewportSize({ width: 667, height: 375 }); // Landscape
     await page.goto('/');
     
@@ -163,6 +176,9 @@ test.describe('Mobile Responsiveness', () => {
   });
 
   test('should handle text scaling appropriately', async ({ page }) => {
+    // Setup environment-aware wallet mock
+    await setupWalletMock(page);
+    
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
     

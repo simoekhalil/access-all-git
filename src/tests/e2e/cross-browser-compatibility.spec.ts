@@ -1,28 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { handlePrivacyConsent } from '../helpers/privacy-consent';
+import { setupWalletMock } from '../helpers/wallet-mock';
 
 test.describe('Cross-Browser Compatibility', () => {
   test.beforeEach(async ({ page }) => {
-    // Mock ethereum provider before navigation
-    await page.addInitScript(() => {
-      (window as any).ethereum = {
-        isMetaMask: true,
-        request: async ({ method }: { method: string }) => {
-          if (method === 'eth_requestAccounts') {
-            return ['0x1234567890123456789012345678901234567890'];
-          }
-          if (method === 'eth_chainId') {
-            return '0x1';
-          }
-          if (method === 'eth_getBalance') {
-            return '0x1bc16d674ec80000'; // 2 ETH in wei
-          }
-          return null;
-        },
-        on: () => {},
-        removeListener: () => {},
-      };
-    });
+    // Setup environment-aware wallet mock
+    await setupWalletMock(page);
     
     await page.goto('/');
     
