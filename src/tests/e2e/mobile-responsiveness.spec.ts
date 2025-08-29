@@ -1,4 +1,54 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, devices } from '@playwright/test';
+
+// Helper function to handle privacy consent banners
+async function handlePrivacyConsent(page: any) {
+  try {
+    // Wait a bit for banners to load
+    await page.waitForTimeout(2000);
+    
+    // Common privacy banner selectors - try multiple patterns
+    const privacySelectors = [
+      'button:has-text("Accept")',
+      'button:has-text("Accept All")',
+      'button:has-text("Allow All")', 
+      'button:has-text("I Accept")',
+      'button:has-text("Agree")',
+      'button:has-text("OK")',
+      'button:has-text("Continue")',
+      '[data-testid*="accept"]',
+      '[id*="accept"]',
+      '[class*="accept"]',
+      '[aria-label*="accept" i]',
+      'button[title*="accept" i]',
+      // Cookie specific
+      'button:has-text("Accept Cookies")',
+      'button:has-text("Allow Cookies")',
+      '[data-testid*="cookie"]',
+      '[id*="cookie"]',
+      // Close/dismiss buttons
+      'button:has-text("×")',
+      'button:has-text("✕")',
+      '[aria-label*="close" i]',
+      '[aria-label*="dismiss" i]'
+    ];
+    
+    for (const selector of privacySelectors) {
+      try {
+        const element = page.locator(selector).first();
+        if (await element.isVisible({ timeout: 1000 })) {
+          await element.click();
+          console.log(`Clicked privacy consent: ${selector}`);
+          await page.waitForTimeout(1000);
+          break;
+        }
+      } catch (e) {
+        // Continue to next selector
+      }
+    }
+  } catch (error) {
+    console.log('No privacy consent banner found or already dismissed');
+  }
+}
 
 test.describe('Mobile Responsiveness', () => {
   const mobileDevices = [
@@ -12,6 +62,9 @@ test.describe('Mobile Responsiveness', () => {
     test(`should be responsive on ${device.name}`, async ({ page }) => {
       await page.setViewportSize({ width: device.width, height: device.height });
       await page.goto('/');
+      
+      // Handle privacy/cookie consent banners
+      await handlePrivacyConsent(page);
 
     // Basic elements should be visible and properly sized
     await expect(page.getByText('Gala DEX')).toBeVisible();
@@ -69,6 +122,9 @@ test.describe('Mobile Responsiveness', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
     
+    // Handle privacy/cookie consent banners
+    await handlePrivacyConsent(page);
+    
     // Wait for page to load completely
     await expect(page.getByText('Gala DEX')).toBeVisible();
 
@@ -104,6 +160,9 @@ test.describe('Mobile Responsiveness', () => {
   test('should scroll properly on small screens', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 }); // Very small screen
     await page.goto('/');
+    
+    // Handle privacy/cookie consent banners
+    await handlePrivacyConsent(page);
     await page.waitForTimeout(500);
 
     // Page should be scrollable if content exceeds viewport
@@ -129,6 +188,9 @@ test.describe('Mobile Responsiveness', () => {
   test('should maintain usability in landscape mode', async ({ page }) => {
     await page.setViewportSize({ width: 667, height: 375 }); // Landscape
     await page.goto('/');
+    
+    // Handle privacy/cookie consent banners
+    await handlePrivacyConsent(page);
     await page.waitForTimeout(500);
 
     // All key elements should still be accessible
@@ -152,6 +214,9 @@ test.describe('Mobile Responsiveness', () => {
   test('should handle text scaling appropriately', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
+    
+    // Handle privacy/cookie consent banners
+    await handlePrivacyConsent(page);
     
     // Simulate increased text size (accessibility feature)
     await page.addInitScript(() => {
