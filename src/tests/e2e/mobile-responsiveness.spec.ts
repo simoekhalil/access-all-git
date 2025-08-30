@@ -1,6 +1,4 @@
-import { test, expect, devices } from '@playwright/test';
-import { handlePrivacyConsent } from '../helpers/privacy-consent';
-import { setupWalletMock } from '../helpers/wallet-mock';
+import { test, expect } from '@playwright/test';
 
 test.describe('Mobile Responsiveness', () => {
   const mobileDevices = [
@@ -12,18 +10,12 @@ test.describe('Mobile Responsiveness', () => {
 
   mobileDevices.forEach(device => {
     test(`should be responsive on ${device.name}`, async ({ page }) => {
-      // Setup environment-aware wallet mock
-      await setupWalletMock(page);
-      
       await page.setViewportSize({ width: device.width, height: device.height });
       await page.goto('/');
-      
-      // Handle privacy/cookie consent banners
-      await handlePrivacyConsent(page);
 
-    // Basic elements should be visible and properly sized
-    await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
+      // Basic elements should be visible and properly sized
+      await expect(page.getByText('Gala DEX')).toBeVisible();
+      await expect(page.getByText('Connect Wallet')).toBeVisible();
       await expect(page.getByText('Swap Tokens')).toBeVisible();
 
       // Swap interface should fit in viewport
@@ -36,11 +28,10 @@ test.describe('Mobile Responsiveness', () => {
       }
 
       // Form inputs should be accessible
-      const fromAmountInput = page.getByRole('spinbutton').first();
+      const fromAmountInput = page.getByLabel('From');
       await fromAmountInput.fill('100');
-      await page.waitForTimeout(500); // Wait for calculation
       
-      const toAmountInput = page.getByRole('spinbutton').last();
+      const toAmountInput = page.getByLabel('To');
       await expect(toAmountInput).toHaveValue('2.500000');
 
       // Token selectors should work on mobile
@@ -75,23 +66,17 @@ test.describe('Mobile Responsiveness', () => {
   });
 
   test('should handle touch interactions properly', async ({ page }) => {
-    // Setup environment-aware wallet mock
-    await setupWalletMock(page);
-    
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
-    
-    // Handle privacy/cookie consent banners
-    await handlePrivacyConsent(page);
     
     // Wait for page to load completely
     await expect(page.getByText('Gala DEX')).toBeVisible();
 
     // Test touch tap on elements - use click instead of tap for better compatibility
-    await page.getByRole('button', { name: /connect wallet/i }).first().click();
+    await page.getByText('Connect Wallet').click();
     
     // Test form interaction with touch
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.click();
     await fromAmountInput.fill('100');
 
@@ -108,23 +93,16 @@ test.describe('Mobile Responsiveness', () => {
     // Verify token selection worked
     await expect(page.locator('[role="combobox"]').first().locator('span').getByText('ETH')).toBeVisible();
 
-    // Test directional swap with touch - using data-testid for reliability
-    const swapArrow = page.getByTestId('swap-direction-button');
+    // Test directional swap with touch
+    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.click();
-    
-    await page.waitForTimeout(1500);
+
     await expect(page.getByText('USDC').first()).toBeVisible();
   });
 
   test('should scroll properly on small screens', async ({ page }) => {
-    // Setup environment-aware wallet mock
-    await setupWalletMock(page);
-    
     await page.setViewportSize({ width: 320, height: 568 }); // Very small screen
     await page.goto('/');
-    
-    // Handle privacy/cookie consent banners
-    await handlePrivacyConsent(page);
     await page.waitForTimeout(500);
 
     // Page should be scrollable if content exceeds viewport
@@ -148,44 +126,31 @@ test.describe('Mobile Responsiveness', () => {
   });
 
   test('should maintain usability in landscape mode', async ({ page }) => {
-    // Setup environment-aware wallet mock
-    await setupWalletMock(page);
-    
     await page.setViewportSize({ width: 667, height: 375 }); // Landscape
     await page.goto('/');
-    
-    // Handle privacy/cookie consent banners
-    await handlePrivacyConsent(page);
     await page.waitForTimeout(500);
 
     // All key elements should still be accessible
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
+    await expect(page.getByText('Swap Tokens')).toBeVisible();
 
     // Test form interactions in landscape
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
-    await page.waitForTimeout(500); // Wait for calculation
-    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
+    await expect(page.getByLabel('To')).toHaveValue('2.500000');
 
-    // Test token switching in landscape - using data-testid for reliability  
-    const swapArrow = page.getByTestId('swap-direction-button');
+    // Test token switching in landscape
+    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.click();
     
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(500);
     await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
     await expect(page.locator('[role="combobox"]').last()).toContainText('GALA');
   });
 
   test('should handle text scaling appropriately', async ({ page }) => {
-    // Setup environment-aware wallet mock
-    await setupWalletMock(page);
-    
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
-    
-    // Handle privacy/cookie consent banners
-    await handlePrivacyConsent(page);
     
     // Simulate increased text size (accessibility feature)
     await page.addInitScript(() => {
@@ -197,13 +162,12 @@ test.describe('Mobile Responsiveness', () => {
 
     // Elements should still be accessible and readable
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
-    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
+    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.getByText('Connect Wallet')).toBeVisible();
 
     // Form should still be functional with larger text
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
-    await page.waitForTimeout(500); // Wait for calculation
-    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
+    await expect(page.getByLabel('To')).toHaveValue('2.500000');
   });
 });

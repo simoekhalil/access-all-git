@@ -36,44 +36,13 @@ const SwapInterface = () => {
   const { toast } = useToast();
 
   const handleSwapTokens = () => {
-    setSwap(prev => {
-      const newState = {
-        ...prev,
-        fromToken: prev.toToken,
-        toToken: prev.fromToken,
-        fromAmount: prev.toAmount,
-        toAmount: prev.fromAmount,
-      };
-      
-      // Recalculate amounts with new token pair if there's a fromAmount
-      if (newState.fromAmount && !isNaN(Number(newState.fromAmount))) {
-        newState.toAmount = calculateToAmount(newState.fromAmount, newState.fromToken, newState.toToken);
-      }
-      
-      return newState;
-    });
-  };
-
-  const handleFromTokenChange = (value: string) => {
-    setSwap(prev => {
-      const newState = { ...prev, fromToken: value };
-      // Recalculate toAmount if fromAmount exists
-      if (prev.fromAmount && !isNaN(Number(prev.fromAmount))) {
-        newState.toAmount = calculateToAmount(prev.fromAmount, value, prev.toToken);
-      }
-      return newState;
-    });
-  };
-
-  const handleToTokenChange = (value: string) => {
-    setSwap(prev => {
-      const newState = { ...prev, toToken: value };
-      // Recalculate toAmount if fromAmount exists
-      if (prev.fromAmount && !isNaN(Number(prev.fromAmount))) {
-        newState.toAmount = calculateToAmount(prev.fromAmount, prev.fromToken, value);
-      }
-      return newState;
-    });
+    setSwap(prev => ({
+      ...prev,
+      fromToken: prev.toToken,
+      toToken: prev.fromToken,
+      fromAmount: prev.toAmount,
+      toAmount: prev.fromAmount,
+    }));
   };
 
   const getExchangeRate = (from: string, to: string) => {
@@ -170,15 +139,15 @@ const SwapInterface = () => {
             <CardTitle>Swap Tokens</CardTitle>
             <CardDescription>Trade your tokens instantly</CardDescription>
           </div>
-          <Button variant="ghost" size="sm" aria-label="Swap settings">
+          <Button variant="ghost" size="sm">
             <Settings className="h-4 w-4" />
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* From Token */}
-        <div className="space-y-2" role="group" aria-labelledby="from-token-label">
-          <Label htmlFor="from-amount" id="from-token-label">From</Label>
+        <div className="space-y-2">
+          <Label htmlFor="from-amount">From</Label>
           <div className="flex gap-2">
             <div className="flex-1">
               <Input
@@ -187,15 +156,11 @@ const SwapInterface = () => {
                 placeholder="0.00"
                 value={swap.fromAmount}
                 onChange={(e) => handleFromAmountChange(e.target.value)}
-                aria-describedby="from-balance"
-                min="0"
-                step="0.000001"
               />
             </div>
             <Select
               value={swap.fromToken}
-              onValueChange={handleFromTokenChange}
-              aria-label="Select from token"
+              onValueChange={(value) => setSwap(prev => ({ ...prev, fromToken: value }))}
             >
               <SelectTrigger className="w-24">
                 <SelectValue />
@@ -210,13 +175,8 @@ const SwapInterface = () => {
             </Select>
           </div>
           <div className="flex justify-between text-sm text-muted-foreground">
-            <span id="from-balance">Balance: {getTokenBalance(swap.fromToken)}</span>
-            <Button 
-              variant="link" 
-              className="h-auto p-0 text-xs"
-              onClick={() => handleFromAmountChange(getTokenBalance(swap.fromToken))}
-              aria-label={`Use maximum balance of ${getTokenBalance(swap.fromToken)} ${swap.fromToken}`}
-            >
+            <span>Balance: {getTokenBalance(swap.fromToken)}</span>
+            <Button variant="link" className="h-auto p-0 text-xs">
               MAX
             </Button>
           </div>
@@ -228,17 +188,15 @@ const SwapInterface = () => {
             variant="ghost"
             size="sm"
             onClick={handleSwapTokens}
-            className="rounded-full p-2 hover-scale"
-            data-testid="swap-direction-button"
-            aria-label={`Swap direction: ${swap.fromToken} to ${swap.toToken}`}
+            className="rounded-full p-2"
           >
             <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>
 
         {/* To Token */}
-        <div className="space-y-2" role="group" aria-labelledby="to-token-label">
-          <Label htmlFor="to-amount" id="to-token-label">To</Label>
+        <div className="space-y-2">
+          <Label htmlFor="to-amount">To</Label>
           <div className="flex gap-2">
             <div className="flex-1">
               <Input
@@ -247,15 +205,11 @@ const SwapInterface = () => {
                 placeholder="0.00"
                 value={swap.toAmount}
                 onChange={(e) => handleToAmountChange(e.target.value)}
-                aria-describedby="to-balance"
-                min="0"
-                step="0.000001"
               />
             </div>
             <Select
               value={swap.toToken}
-              onValueChange={handleToTokenChange}
-              aria-label="Select to token"
+              onValueChange={(value) => setSwap(prev => ({ ...prev, toToken: value }))}
             >
               <SelectTrigger className="w-24">
                 <SelectValue />
@@ -270,13 +224,13 @@ const SwapInterface = () => {
             </Select>
           </div>
           <div className="text-sm text-muted-foreground">
-            <span id="to-balance">Balance: {getTokenBalance(swap.toToken)}</span>
+            Balance: {getTokenBalance(swap.toToken)}
           </div>
         </div>
 
         {/* Swap Details */}
         {swap.fromAmount && swap.toAmount && (
-          <div className="space-y-2 p-3 bg-muted/50 rounded-lg card-elevated" role="region" aria-label="Swap details">
+          <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
             <div className="flex justify-between text-sm">
               <span>Exchange Rate:</span>
               <span>1 {swap.fromToken} = {(Number(swap.toAmount) / Number(swap.fromAmount)).toFixed(6)} {swap.toToken}</span>
@@ -300,18 +254,10 @@ const SwapInterface = () => {
             isNaN(Number(swap.toAmount)) || 
             swap.isLoading
           }
-          className="w-full btn-gradient"
+          className="w-full"
           size="lg"
-          aria-describedby={swap.isLoading ? "swap-loading" : undefined}
         >
-          {swap.isLoading ? (
-            <>
-              <span className="loading-shimmer inline-block w-4 h-4 rounded mr-2" />
-              <span id="swap-loading">Swapping...</span>
-            </>
-          ) : (
-            'Swap'
-          )}
+          {swap.isLoading ? 'Swapping...' : 'Swap'}
         </Button>
       </CardContent>
     </Card>

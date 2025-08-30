@@ -90,7 +90,7 @@ describe('Advanced Performance Tests', () => {
       fireEvent.change(input, { target: { value: '100' } });
       
       await waitFor(() => {
-        expect((screen.getByDisplayValue('100') as HTMLInputElement)).toBeInTheDocument();
+        expect(screen.getByDisplayValue('100')).toBeInTheDocument();
       });
 
       const interactionTime = performance.now() - startTime;
@@ -105,7 +105,7 @@ describe('Advanced Performance Tests', () => {
         </TestWrapper>
       );
 
-      const swapButton = screen.getByTestId('swap-direction-button');
+      const swapButton = screen.getByRole('button', { name: /ArrowUpDown/i });
       const startTime = performance.now();
       
       fireEvent.click(swapButton);
@@ -117,7 +117,7 @@ describe('Advanced Performance Tests', () => {
       });
 
       const swapTime = performance.now() - startTime;
-      expect(swapTime).toBeLessThan(100); // More realistic expectation for test environment
+      expect(swapTime).toBeLessThan(30);
       console.log(`Token swap time: ${swapTime.toFixed(2)}ms`);
     });
   });
@@ -229,7 +229,7 @@ describe('Advanced Performance Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        expect((screen.getByDisplayValue('2.500000') as HTMLInputElement)).toBeInTheDocument();
+        expect(screen.getByDisplayValue('2.500000')).toBeInTheDocument();
       });
 
       const swapButton = screen.getByText('Swap');
@@ -284,7 +284,7 @@ describe('Advanced Performance Tests', () => {
       fireEvent.change(input, { target: { value: '100' } });
 
       await waitFor(() => {
-        expect((screen.getByDisplayValue('100') as HTMLInputElement)).toBeInTheDocument();
+        expect(screen.getByDisplayValue('100')).toBeInTheDocument();
       });
 
       // Should not cause excessive re-renders
@@ -327,9 +327,8 @@ describe('Advanced Performance Tests', () => {
       const connectButton = screen.getByText('Connect Wallet');
       fireEvent.click(connectButton);
 
-      // Should show loading state or connect state
-      const isLoading = screen.queryByText('Connecting...') || screen.queryByText('Connect Wallet');
-      expect(isLoading).toBeTruthy();
+      // Should show loading state immediately
+      expect(screen.getByText('Connecting...')).toBeInTheDocument();
 
       await waitFor(() => {
         expect(screen.getByText('Connected')).toBeInTheDocument();

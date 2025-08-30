@@ -32,7 +32,7 @@ const WalletConnection = () => {
     if (typeof window !== 'undefined' && window.ethereum) {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts && accounts.length > 0) {
+        if (accounts.length > 0) {
           setWallet(prev => ({
             ...prev,
             isConnected: true,
@@ -68,7 +68,7 @@ const WalletConnection = () => {
         method: 'eth_requestAccounts',
       });
 
-      if (accounts && accounts.length > 0) {
+      if (accounts.length > 0) {
         const address = accounts[0];
         setWallet(prev => ({
           ...prev,

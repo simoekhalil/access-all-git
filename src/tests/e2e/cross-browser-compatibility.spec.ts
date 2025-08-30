@@ -1,16 +1,29 @@
 import { test, expect } from '@playwright/test';
-import { handlePrivacyConsent } from '../helpers/privacy-consent';
-import { setupWalletMock } from '../helpers/wallet-mock';
 
 test.describe('Cross-Browser Compatibility', () => {
   test.beforeEach(async ({ page }) => {
-    // Setup environment-aware wallet mock
-    await setupWalletMock(page);
+    // Mock ethereum provider before navigation
+    await page.addInitScript(() => {
+      (window as any).ethereum = {
+        isMetaMask: true,
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_requestAccounts') {
+            return ['0x1234567890123456789012345678901234567890'];
+          }
+          if (method === 'eth_chainId') {
+            return '0x1';
+          }
+          if (method === 'eth_getBalance') {
+            return '0x1bc16d674ec80000'; // 2 ETH in wei
+          }
+          return null;
+        },
+        on: () => {},
+        removeListener: () => {},
+      };
+    });
     
     await page.goto('/');
-    
-    // Handle privacy/cookie consent banners
-    await handlePrivacyConsent(page);
   });
 
   test('should work correctly across all browsers', async ({ page, browserName }) => {
@@ -18,16 +31,15 @@ test.describe('Cross-Browser Compatibility', () => {
 
     // Basic functionality should work on all browsers
     await expect(page.getByText('Gala DEX')).toBeVisible();
-    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
-    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
+    await expect(page.getByText('Connect Wallet')).toBeVisible();
+    await expect(page.getByText('Swap Tokens')).toBeVisible();
 
     // Test form interactions
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
-    await page.waitForTimeout(500); // Wait for calculation
     
     // Should calculate on all browsers
-    const toAmountInput = page.getByRole('spinbutton').last();
+    const toAmountInput = page.getByLabel('To');
     await expect(toAmountInput).toHaveValue('2.500000');
 
     // Test dropdown functionality
@@ -39,19 +51,19 @@ test.describe('Cross-Browser Compatibility', () => {
 
     await expect(page.locator('[role="combobox"]').first().getByText('ETH')).toBeVisible();
 
-    // Test directional swap - using data-testid for reliability
-    const swapArrow = page.getByTestId('swap-direction-button');
+    // Test directional swap
+    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.click();
 
-    // Verify swap worked - wait for state updates to complete
-    await page.waitForTimeout(1500);
+    // Verify swap worked - wait for animation to complete and use better selectors
+    await page.waitForTimeout(1000);
     await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
     await expect(page.locator('[role="combobox"]').last()).toContainText('ETH');
   });
 
   test('should handle wallet simulation consistently', async ({ page, browserName }) => {
     // Connect wallet
-    await page.getByRole('button', { name: /connect wallet/i }).first().click();
+    await page.getByText('Connect Wallet').click();
     
     // Should work on all browsers - look for Connected badge with more flexible timeout
     await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 15000 });
@@ -68,18 +80,14 @@ test.describe('Cross-Browser Compatibility', () => {
 
     // Load page and perform typical user actions
     await page.goto('/');
-    
-    // Handle privacy/cookie consent banners
-    await handlePrivacyConsent(page);
     await expect(page.getByText('Gala DEX')).toBeVisible();
 
     // Fill form multiple times to test responsiveness
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     
     for (let i = 1; i <= 5; i++) {
       await fromAmountInput.fill(`${i * 100}`);
-      await page.waitForTimeout(300); // Wait for calculation
-      await expect(page.getByRole('spinbutton').last()).toHaveValue(`${(i * 100 * 0.025).toFixed(6)}`);
+      await expect(page.getByLabel('To')).toHaveValue(`${(i * 100 * 0.025).toFixed(6)}`);
     }
 
     const endTime = Date.now();
@@ -95,11 +103,10 @@ test.describe('Cross-Browser Compatibility', () => {
     console.log(`Testing edge cases on ${browserName}`);
 
     // Test very large numbers
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('999999999');
-    await page.waitForTimeout(500); // Wait for calculation
     
-    const toAmountInput = page.getByRole('spinbutton').last();
+    const toAmountInput = page.getByLabel('To');
     await expect(toAmountInput).toHaveValue('24999999.975000');
 
     // Test very small numbers
@@ -122,7 +129,7 @@ test.describe('Cross-Browser Compatibility', () => {
     console.log(`Testing keyboard navigation on ${browserName}`);
 
     // Focus on from amount input explicitly
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.focus();
     await expect(fromAmountInput).toBeFocused();
 

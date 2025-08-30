@@ -1,34 +1,35 @@
 import { test, expect } from '@playwright/test';
-import { handlePrivacyConsent } from '../helpers/privacy-consent';
-import { setupWalletMock } from '../helpers/wallet-mock';
-import { waitForWalletConnection, clickWalletConnectButton, validateSwapInterface, handleProductionErrors } from '../helpers/production-compatibility';
 
 test.describe('Complete Swap Workflow', () => {
   test.beforeEach(async ({ page }) => {
-    // Setup environment-aware wallet mock
-    await setupWalletMock(page);
+    // Mock ethereum provider before navigation
+    await page.addInitScript(() => {
+      (window as any).ethereum = {
+        isMetaMask: true,
+        request: async ({ method }: { method: string }) => {
+          if (method === 'eth_requestAccounts') {
+            return ['0x1234567890123456789012345678901234567890'];
+          }
+          if (method === 'eth_chainId') {
+            return '0x1';
+          }
+          if (method === 'eth_getBalance') {
+            return '0x1bc16d674ec80000'; // 2 ETH in wei
+          }
+          return null;
+        },
+        on: () => {},
+        removeListener: () => {},
+      };
+    });
     
     await page.goto('/');
-    
-    // Handle privacy/cookie consent banners
-    await handlePrivacyConsent(page);
   });
 
   test('should complete full swap workflow with wallet connection', async ({ page }) => {
-    // Check for production errors first
-    if (await handleProductionErrors(page)) {
-      test.skip();
-      return;
-    }
-
     // Check initial page load
-    await expect(page.getByText('Gala DEX').or(page.getByText('Gala').first()).or(page.locator('h1').first())).toBeVisible();
-    
-    // Look for connect wallet button with multiple selectors
-    const connectButtonVisible = await page.getByRole('button', { name: /connect wallet/i }).first().isVisible({ timeout: 5000 }).catch(() => false);
-    if (connectButtonVisible) {
-      await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
-    }
+    await expect(page.getByText('Gala DEX')).toBeVisible();
+    await expect(page.getByText('Connect Wallet')).toBeVisible();
     
     // Mock wallet connection
     await page.evaluate(() => {
@@ -49,66 +50,46 @@ test.describe('Complete Swap Workflow', () => {
       };
     });
 
-    // Connect wallet with production compatibility
-    try {
-      await clickWalletConnectButton(page);
-    } catch (error) {
-      console.log('Using fallback wallet connect approach');
-      await page.getByRole('button', { name: /connect wallet/i }).first().click({ force: true });
-    }
-    
-    // Wait for wallet connection with production compatibility
-    const connected = await waitForWalletConnection(page);
-    if (!connected) {
-      test.skip();
-      return;
-    }
+    // Connect wallet
+    await page.getByText('Connect Wallet').click();
+    await expect(page.locator('[data-lov-name="Badge"]').getByText('Connected')).toBeVisible({ timeout: 10000 });
 
-    // Verify swap interface is visible with production compatibility
-    const hasSwapInterface = await validateSwapInterface(page);
-    if (hasSwapInterface) {
-      // Try multiple text patterns for swap interface
-      await expect(
-        page.getByText('Swap Tokens')
-          .or(page.getByText('Swap'))
-          .or(page.locator('h1, h2, h3').filter({ hasText: /swap/i }))
-      ).toBeVisible({ timeout: 10000 });
-    }
+    // Verify swap interface is visible
+    await expect(page.getByText('Swap Tokens')).toBeVisible();
+    await expect(page.getByText('Trade your tokens instantly')).toBeVisible();
 
-    // Test token selection if interface is found
-    if (hasSwapInterface) {
-      // Check for combobox elements (token selectors)
-      const hasComboboxes = await page.locator('[role="combobox"]').count() >= 2;
-      if (hasComboboxes) {
-        await expect(page.locator('[role="combobox"]').first()).toBeVisible();
-        await expect(page.locator('[role="combobox"]').last()).toBeVisible();
-      }
+    // Test token selection - check select trigger values
+    await expect(page.locator('[role="combobox"]').first().getByText('GALA')).toBeVisible();
+    await expect(page.locator('[role="combobox"]').last().getByText('USDC')).toBeVisible();
 
-      // Test amount inputs if they exist
-      const spinButtons = await page.locator('input[type="number"]').count();
-      if (spinButtons >= 2) {
-        // Enter swap amount
-        const fromAmountInput = page.locator('input[type="number"]').first();
-        await fromAmountInput.fill('100');
-        await page.waitForTimeout(500); // Wait for calculation
+    // Enter swap amount
+    const fromAmountInput = page.getByLabel('From');
+    await fromAmountInput.fill('100');
 
-        // Verify calculation if second input exists
-        const toAmountInput = page.locator('input[type="number"]').last();
-        // Don't enforce specific values on production as they may differ
-        const hasValue = await toAmountInput.inputValue();
-        if (hasValue && hasValue !== '' && hasValue !== '0') {
-          console.log(`✅ Calculation working, got: ${hasValue}`);
-        }
-      }
+    // Verify calculation
+    const toAmountInput = page.getByLabel('To');
+    await expect(toAmountInput).toHaveValue('2.500000');
 
-      // Look for swap button
-      const swapButton = page.getByRole('button', { name: /swap/i }).first();
-      const swapButtonExists = await swapButton.isVisible({ timeout: 2000 }).catch(() => false);
-      if (swapButtonExists) {
-        // Don't execute swap on production, just verify button exists
-        console.log('✅ Swap button found and accessible');
-      }
-    }
+    // Verify exchange rate display
+    await expect(page.getByText('1 GALA = 0.025000 USDC')).toBeVisible();
+
+    // Verify slippage display
+    await expect(page.getByText('0.5%')).toBeVisible();
+
+    // Test swap button becomes enabled
+    const swapButton = page.getByRole('button', { name: 'Swap' });
+    await expect(swapButton).toBeEnabled();
+
+    // Execute swap
+    await swapButton.click();
+    await expect(page.getByText('Swapping...')).toBeVisible();
+
+    // Verify success message appears - use first match to avoid strict mode violation
+    await expect(page.getByText('Swap Successful').first()).toBeVisible({ timeout: 5000 });
+
+    // Verify form reset
+    await expect(fromAmountInput).toHaveValue('');
+    await expect(toAmountInput).toHaveValue('');
   });
 
   test('should handle token switching via dropdown', async ({ page }) => {
@@ -135,38 +116,34 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.locator('[role="combobox"]').last().getByText('TOWN')).toBeVisible();
 
     // Test calculation with new pair
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('1');
-    await page.waitForTimeout(500); // Wait for calculation
     
-    const toAmountInput = page.getByRole('spinbutton').last();
+    const toAmountInput = page.getByLabel('To');
     await expect(toAmountInput).toHaveValue('6666.670000');
   });
 
   test('should handle directional swap correctly', async ({ page }) => {
     // Set initial amounts
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('1000');
-    await page.waitForTimeout(500); // Wait for calculation
     
     // Verify calculated amount
-    const toAmountInput = page.getByRole('spinbutton').last();
+    const toAmountInput = page.getByLabel('To');
     await expect(toAmountInput).toHaveValue('25.000000');
 
-    // Click swap direction arrow - using data-testid for reliability
-    const swapArrow = page.getByTestId('swap-direction-button');
+    // Click swap direction arrow
+    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
     await swapArrow.click();
 
-    // Wait for state updates to complete
-    await page.waitForTimeout(1500);
-
-    // Verify tokens swapped
+    // Verify tokens swapped - wait for animation to complete and use better selectors
+    await page.waitForTimeout(1000);
     await expect(page.locator('[role="combobox"]').first()).toContainText('USDC');
     await expect(page.locator('[role="combobox"]').last()).toContainText('GALA');
 
-    // Verify amounts swapped and recalculated
-    await expect(page.getByRole('spinbutton').first()).toHaveValue('25.000000');
-    await expect(page.getByRole('spinbutton').last()).toHaveValue('1000.000000');
+    // Verify amounts swapped
+    await expect(page.getByLabel('From')).toHaveValue('25.000000');
+    await expect(page.getByLabel('To')).toHaveValue('1000.000000');
 
     // Verify new exchange rate
     await expect(page.getByText('1 USDC = 40.000000 GALA')).toBeVisible();
@@ -178,7 +155,7 @@ test.describe('Complete Swap Workflow', () => {
     await expect(swapButton).toBeDisabled();
 
     // Enter invalid amount (empty or zero)
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('0');
     
     // Should still be disabled
@@ -203,7 +180,7 @@ test.describe('Complete Swap Workflow', () => {
       };
     });
 
-    await page.getByRole('button', { name: /connect wallet/i }).first().click();
+    await page.getByText('Connect Wallet').click();
     await page.waitForTimeout(1000);
 
     // Try swap without connecting wallet properly (simulate error)

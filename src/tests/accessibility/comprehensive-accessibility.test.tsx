@@ -56,11 +56,10 @@ describe('Comprehensive Accessibility Tests', () => {
       expect(h1).toHaveTextContent('Gala DEX');
 
       const h3Elements = container.querySelectorAll('h3');
-      expect(h3Elements.length).toBeGreaterThan(0);
-      // Check for main feature headings
-      expect(container).toHaveTextContent('Lightning Fast');
-      expect(container).toHaveTextContent('Low Fees');
-      expect(container).toHaveTextContent('Secure');
+      expect(h3Elements).toHaveLength(3);
+      expect(h3Elements[0]).toHaveTextContent('Lightning Fast');
+      expect(h3Elements[1]).toHaveTextContent('Low Fees');
+      expect(h3Elements[2]).toHaveTextContent('Secure');
     });
 
     it('should have descriptive text content', () => {
@@ -95,13 +94,10 @@ describe('Comprehensive Accessibility Tests', () => {
         </TestWrapper>
       );
 
-      // Check for button with proper text - may be in main button or error state
-      const buttons = container.querySelectorAll('button');
-      expect(buttons.length).toBeGreaterThan(0);
-      const hasConnectWalletText = Array.from(buttons).some(button => 
-        button.textContent?.includes('Connect Wallet')
-      );
-      expect(hasConnectWalletText).toBeTruthy();
+      // Check for button with proper text
+      const connectButton = container.querySelector('button');
+      expect(connectButton).toHaveTextContent('Connect Wallet');
+      expect(connectButton).toHaveAttribute('type', 'button');
     });
 
     it('should have proper focus management', () => {
@@ -173,12 +169,7 @@ describe('Comprehensive Accessibility Tests', () => {
         </TestWrapper>
       );
 
-      // Check for swap button - it should be disabled initially
-      const buttons = container.querySelectorAll('button');
-      const swapButton = Array.from(buttons).find(button => 
-        button.textContent?.includes('Swap')
-      );
-      expect(swapButton).toBeInTheDocument();
+      const swapButton = container.querySelector('button[type="button"]');
       expect(swapButton).toHaveAttribute('disabled');
     });
   });
@@ -254,16 +245,8 @@ describe('Comprehensive Accessibility Tests', () => {
 
       const buttons = container.querySelectorAll('button');
       buttons.forEach(button => {
-        // Some buttons might have icons only but have aria-label or data-testid
-        const hasText = button.textContent?.trim();
-        const hasAriaLabel = button.getAttribute('aria-label');
-        const hasTestId = button.getAttribute('data-testid');
-        const hasTitle = button.getAttribute('title');
-        const isIconButton = button.querySelector('svg') && !hasText;
-        
-        // Icon buttons are acceptable if they have aria-label, title, or data-testid
-        const isAccessible = hasText || hasAriaLabel || hasTestId || hasTitle || isIconButton;
-        expect(isAccessible).toBeTruthy();
+        expect(button.textContent?.trim()).toBeTruthy();
+        expect(button.textContent?.trim()).not.toBe('');
       });
     });
   });

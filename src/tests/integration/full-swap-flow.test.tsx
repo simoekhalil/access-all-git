@@ -76,8 +76,8 @@ describe('Full Swap Flow Integration', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(toAmountInput.value).toBe('2.500000');
+        const toAmountInput = screen.getByLabelText('To');
+        expect(toAmountInput).toHaveValue('2.500000');
       });
 
       // Execute swap
@@ -88,8 +88,8 @@ describe('Full Swap Flow Integration', () => {
 
       await waitFor(() => {
         // Swap should complete and reset form
-        expect((screen.getByLabelText('From') as HTMLInputElement).value).toBe('');
-        expect((screen.getByLabelText('To') as HTMLInputElement).value).toBe('');
+        expect(screen.getByLabelText('From')).toHaveValue('');
+        expect(screen.getByLabelText('To')).toHaveValue('');
       }, { timeout: 3000 });
     });
 
@@ -108,9 +108,7 @@ describe('Full Swap Flow Integration', () => {
       fireEvent.click(connectButton);
 
       await waitFor(() => {
-        // Check that error message appears (can be in multiple places - component and toast)
-        const errorElements = screen.getAllByText('User rejected request');
-        expect(errorElements.length).toBeGreaterThan(0);
+        expect(screen.getByText('User rejected request')).toBeInTheDocument();
       });
 
       // Swap should still be available but user should see wallet is not connected

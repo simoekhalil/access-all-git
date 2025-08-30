@@ -2,7 +2,6 @@ import { beforeAll, afterAll, beforeEach, afterEach, vi, expect } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
-import React from 'react';
 
 // Extend expect with jest-axe
 expect.extend(toHaveNoViolations);
@@ -41,23 +40,23 @@ Element.prototype.scrollIntoView = vi.fn();
 
 // Mock services
 vi.mock('@/services/swapService', () => ({
-  getQuote: vi.fn().mockResolvedValue({ rate: 0.025, amount: '2.500000' }),
-  executeSwap: vi.fn().mockResolvedValue({ success: true, txHash: '0x123...' }),
+  getQuote: vi.fn(),
+  executeSwap: vi.fn(),
 }));
 
 vi.mock('@/services/poolService', () => ({
-  getPools: vi.fn().mockResolvedValue([]),
-  addLiquidity: vi.fn().mockResolvedValue({ success: true }),
-  removeLiquidity: vi.fn().mockResolvedValue({ success: true }),
+  getPools: vi.fn(),
+  addLiquidity: vi.fn(),
+  removeLiquidity: vi.fn(),
 }));
 
 // Mock components that don't exist yet
 vi.mock('@/components/SwapComponent', () => ({
-  default: () => React.createElement('div', { 'data-testid': 'swap-component' }, 'SwapComponent')
+  default: () => 'SwapComponent'
 }));
 
 vi.mock('@/components/PoolComponent', () => ({
-  default: () => React.createElement('div', { 'data-testid': 'pool-component' }, 'PoolComponent')
+  default: () => 'PoolComponent'
 }));
 
 // Setup and cleanup for each test

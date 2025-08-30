@@ -39,19 +39,10 @@ describe('All Token Combination Tests', () => {
   const selectToken = async (tokenIndex: number, tokenSymbol: string) => {
     const tokenSelects = screen.getAllByRole('combobox');
     fireEvent.click(tokenSelects[tokenIndex]);
-
+    
     await waitFor(() => {
-      const options = screen.getAllByText(tokenSymbol);
-      // Find the option that's in the dropdown (has an id starting with radix-)
-      const dropdownOption = options.find(option => 
-        option.id && option.id.startsWith('radix-')
-      );
-      if (dropdownOption) {
-        fireEvent.click(dropdownOption);
-      } else {
-        // Fallback to the last option (usually the dropdown option)
-        fireEvent.click(options[options.length - 1]);
-      }
+      const option = screen.getByText(tokenSymbol);
+      fireEvent.click(option);
     });
   };
 
@@ -64,8 +55,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1000' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(25, 2); // 1000 * 0.025
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('25.000000'); // 1000 * 0.025
       });
     });
 
@@ -79,8 +70,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '66666.67' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(1, 2); // 66666.67 * 0.000015 ≈ 1
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('1.000000'); // 66666.67 * 0.000015 ≈ 1
       });
     });
 
@@ -94,8 +85,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1000' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(100, 2); // 1000 * 0.1
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('100.000000'); // 1000 * 0.1
       });
     });
   });
@@ -112,8 +103,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(4000, 2); // 100 * 40
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('4000.000000'); // 100 * 40
       });
     });
 
@@ -128,8 +119,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1666.67' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(1, 2); // 1666.67 * 0.0006 ≈ 1
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('1.000000'); // 1666.67 * 0.0006 ≈ 1
       });
     });
 
@@ -144,8 +135,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(400, 2); // 100 * 4
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('400.000000'); // 100 * 4
       });
     });
   });
@@ -162,8 +153,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(66666.67, 1); // 1 * 66666.67
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('66666.670000'); // 1 * 66666.67
       });
     });
 
@@ -178,8 +169,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(1666.67, 1); // 1 * 1666.67
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('1666.670000'); // 1 * 1666.67
       });
     });
 
@@ -194,8 +185,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(6666.67, 1); // 1 * 6666.67
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('6666.670000'); // 1 * 6666.67
       });
     });
   });
@@ -212,8 +203,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(1000, 2); // 100 * 10
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('1000.000000'); // 100 * 10
       });
     });
 
@@ -228,8 +219,8 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(25, 2); // 100 * 0.25
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('25.000000'); // 100 * 0.25
       });
     });
 
@@ -244,42 +235,53 @@ describe('All Token Combination Tests', () => {
       fireEvent.change(fromInput, { target: { value: '6666.67' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toInput.value)).toBeCloseTo(1, 6); // 6666.67 * 0.00015 ≈ 1
+        const toInput = screen.getByLabelText('To');
+        expect(toInput).toHaveValue('1.000000'); // 6666.67 * 0.00015 ≈ 1
       });
     });
   });
 
-    describe('Reverse Calculation Tests (To Amount Input)', () => {
-      it('should calculate from GALA to USDC correctly when entering to amount', async () => {
+  describe('Reverse Calculation Tests (To Amount Input)', () => {
+    it('should calculate all token pairs correctly when entering to amount', async () => {
+      const testCases = [
+        { from: 'GALA', to: 'USDC', toAmount: '25', expectedFrom: '1000.000000' },
+        { from: 'GALA', to: 'ETH', toAmount: '1', expectedFrom: '66666.666667' },
+        { from: 'GALA', to: 'TOWN', toAmount: '100', expectedFrom: '1000.000000' },
+        { from: 'USDC', to: 'GALA', toAmount: '4000', expectedFrom: '100.000000' },
+        { from: 'USDC', to: 'ETH', toAmount: '1', expectedFrom: '1666.666667' },
+        { from: 'USDC', to: 'TOWN', toAmount: '400', expectedFrom: '100.000000' },
+        { from: 'ETH', to: 'GALA', toAmount: '66666.67', expectedFrom: '1.000000' },
+        { from: 'ETH', to: 'USDC', toAmount: '1666.67', expectedFrom: '1.000000' },
+        { from: 'ETH', to: 'TOWN', toAmount: '6666.67', expectedFrom: '1.000000' },
+        { from: 'TOWN', to: 'GALA', toAmount: '1000', expectedFrom: '100.000000' },
+        { from: 'TOWN', to: 'USDC', toAmount: '25', expectedFrom: '100.000000' },
+        { from: 'TOWN', to: 'ETH', toAmount: '1', expectedFrom: '6666.666667' },
+      ];
+
+      for (const testCase of testCases) {
         render(<TestWrapper><SwapInterface /></TestWrapper>);
         
-        // Default is GALA to USDC
+        // Set up token pair
+        if (testCase.from !== 'GALA') {
+          await selectToken(0, testCase.from);
+        }
+        if (testCase.to !== 'USDC') {
+          await selectToken(1, testCase.to);
+        }
+
+        // Enter to amount
         const toInput = screen.getByLabelText('To');
-        fireEvent.change(toInput, { target: { value: '25' } });
+        fireEvent.change(toInput, { target: { value: testCase.toAmount } });
 
         await waitFor(() => {
-          const fromInput = screen.getByLabelText('From') as HTMLInputElement;
-          expect(parseFloat(fromInput.value)).toBeCloseTo(1000, 1); // 25 / 0.025 = 1000
+          const fromInput = screen.getByLabelText('From');
+          expect(fromInput).toHaveValue(testCase.expectedFrom);
         });
-      });
 
-      it('should calculate from USDC to GALA correctly when entering to amount', async () => {
-        render(<TestWrapper><SwapInterface /></TestWrapper>);
-        
-        // Change from USDC to GALA
-        await selectToken(0, 'USDC');
-        await selectToken(1, 'GALA');
-
-        const toInput = screen.getByLabelText('To');
-        fireEvent.change(toInput, { target: { value: '4000' } });
-
-        await waitFor(() => {
-          const fromInput = screen.getByLabelText('From') as HTMLInputElement;
-          expect(parseFloat(fromInput.value)).toBeCloseTo(100, 1); // 4000 / 40 = 100
-        });
-      });
+        // Clean up for next test - no unmount needed, each render creates a new container
+      }
     });
+  });
 
   describe('Directional Swap Tests for All Token Pairs', () => {
     it('should maintain accuracy when swapping direction for all token combinations', async () => {
@@ -322,8 +324,7 @@ describe('All Token Combination Tests', () => {
         });
 
         // Swap direction
-        const swapArrows = screen.getAllByTestId('swap-direction-button');
-        const swapArrow = swapArrows[0]; // Use first one if multiple exist
+        const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
         fireEvent.click(swapArrow);
 
         // Verify amounts and tokens swapped correctly
@@ -331,23 +332,14 @@ describe('All Token Combination Tests', () => {
           const newFromInput = screen.getByLabelText('From') as HTMLInputElement;
           const newToInput = screen.getByLabelText('To') as HTMLInputElement;
           
-          // Check amounts are correctly swapped
           expect(newFromInput.value).toBe(calculatedToAmount!);
-          expect(parseFloat(newToInput.value)).toBeCloseTo(parseFloat(testCase.amount), 0);
-        }, { timeout: 5000 });
-        
-        // Verify tokens swapped (separate waitFor for better debugging)
-        await waitFor(() => {
+          expect(newToInput.value).toBe(testCase.amount + '.000000');
+          
+          // Verify tokens swapped
           const selects = screen.getAllByRole('combobox');
-          
-          // Get current token selections
-          const currentFromToken = selects[0].querySelector('span')?.textContent?.trim();
-          const currentToToken = selects[1].querySelector('span')?.textContent?.trim();
-          
-          // Verify the swap occurred
-          expect(currentFromToken).toBe(testCase.initialTo);
-          expect(currentToToken).toBe(testCase.initialFrom);
-        }, { timeout: 5000 });
+          expect(selects[0]).toHaveTextContent(testCase.initialTo);
+          expect(selects[1]).toHaveTextContent(testCase.initialFrom);
+        });
 
         // Clean up for next test - no unmount needed, each render creates a new container
       }
@@ -386,18 +378,11 @@ describe('All Token Combination Tests', () => {
         const fromInput = screen.getByLabelText('From');
         fireEvent.change(fromInput, { target: { value: testCase.amount } });
 
-        // Check exchange rate display (only appears when both amounts are entered)
+        // Check exchange rate display
         await waitFor(() => {
-          // Try to find any exchange rate text that contains the token symbols
-          const exchangeRateElement = screen.queryByText(new RegExp(`1 ${testCase.from}.*${testCase.to}`));
-          if (exchangeRateElement) {
-            expect(exchangeRateElement).toBeInTheDocument();
-          } else {
-            // If exchange rate not visible, just verify we have values
-            expect(parseFloat((screen.getByLabelText('From') as HTMLInputElement).value)).toBeCloseTo(parseFloat(testCase.amount), 2);
-            expect(screen.getByLabelText('To')).toHaveDisplayValue(new RegExp('\\d+'));
-          }
-        }, { timeout: 3000 });
+          const rateText = `1 ${testCase.from} = ${testCase.expectedRate} ${testCase.to}`;
+          expect(screen.getByText(rateText)).toBeInTheDocument();
+        });
 
         // Clean up for next test - no unmount needed, each render creates a new container
       }

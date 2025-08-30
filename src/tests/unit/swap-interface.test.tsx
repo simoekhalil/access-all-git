@@ -37,11 +37,8 @@ describe('SwapInterface Component', () => {
 
       expect(screen.getByText('Swap Tokens')).toBeInTheDocument();
       expect(screen.getByText('Trade your tokens instantly')).toBeInTheDocument();
-      
-      const selects = screen.getAllByRole('combobox');
-      expect(selects[0]).toHaveTextContent('GALA'); // From token
-      expect(selects[1]).toHaveTextContent('USDC'); // To token
-      
+      expect(screen.getByDisplayValue('GALA')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('USDC')).toBeInTheDocument();
       expect(screen.getByText('Swap')).toBeInTheDocument();
     });
 
@@ -74,10 +71,7 @@ describe('SwapInterface Component', () => {
         fireEvent.click(ethOption);
       });
 
-      await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
-        expect(selects[0]).toHaveTextContent('ETH'); // From token changed to ETH
-      });
+      expect(screen.getByDisplayValue('ETH')).toBeInTheDocument();
     });
 
     it('should allow changing to token', async () => {
@@ -96,10 +90,7 @@ describe('SwapInterface Component', () => {
         fireEvent.click(townOption);
       });
 
-      await waitFor(() => {
-        const selects = screen.getAllByRole('combobox');
-        expect(selects[1]).toHaveTextContent('TOWN'); // To token changed to TOWN
-      });
+      expect(screen.getByDisplayValue('TOWN')).toBeInTheDocument();
     });
 
     it('should exclude selected from token in to token options', async () => {
@@ -113,15 +104,11 @@ describe('SwapInterface Component', () => {
       fireEvent.click(toTokenSelect);
 
       await waitFor(() => {
-        // GALA should not be available in to token options since it's selected in from
-        const selectContent = screen.getByRole('listbox');
-        const galaOption = screen.queryByRole('option', { name: 'GALA' });
-        expect(galaOption).not.toBeInTheDocument();
-        
-        // Other tokens should be available
-        expect(screen.getByRole('option', { name: 'USDC' })).toBeInTheDocument();
-        expect(screen.getByRole('option', { name: 'ETH' })).toBeInTheDocument();
-        expect(screen.getByRole('option', { name: 'TOWN' })).toBeInTheDocument();
+        // GALA should not be available in to token since it's selected in from
+        expect(screen.queryByText('GALA')).not.toBeInTheDocument();
+        expect(screen.getByText('USDC')).toBeInTheDocument();
+        expect(screen.getByText('ETH')).toBeInTheDocument();
+        expect(screen.getByText('TOWN')).toBeInTheDocument();
       });
     });
   });
@@ -138,8 +125,8 @@ describe('SwapInterface Component', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(parseFloat(toAmountInput.value)).toBeCloseTo(2.5); // 100 * 0.025 = 2.5
+        const toAmountInput = screen.getByLabelText('To');
+        expect(toAmountInput).toHaveValue('2.500000'); // 100 * 0.025 = 2.5
       });
     });
 
@@ -154,8 +141,8 @@ describe('SwapInterface Component', () => {
       fireEvent.change(toAmountInput, { target: { value: '2.5' } });
 
       await waitFor(() => {
-        const fromAmountInput = screen.getByLabelText('From') as HTMLInputElement;
-        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(100); // 2.5 / 0.025 = 100
+        const fromAmountInput = screen.getByLabelText('From');
+        expect(fromAmountInput).toHaveValue('100.000000'); // 2.5 / 0.025 = 100
       });
     });
 
@@ -231,8 +218,8 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         // After swap, amounts should be reset
-        expect((screen.getByLabelText('From') as HTMLInputElement).value).toBe('');
-        expect((screen.getByLabelText('To') as HTMLInputElement).value).toBe('');
+        expect(screen.getByLabelText('From')).toHaveValue('');
+        expect(screen.getByLabelText('To')).toHaveValue('');
       }, { timeout: 3000 });
     });
 
@@ -264,14 +251,12 @@ describe('SwapInterface Component', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        // Check initial token selection
-        const selects = screen.getAllByRole('combobox');
-        expect(selects[0]).toHaveTextContent('GALA'); // From token
-        expect(selects[1]).toHaveTextContent('USDC'); // To token
+        expect(screen.getByDisplayValue('GALA')).toBeInTheDocument();
+        expect(screen.getByDisplayValue('USDC')).toBeInTheDocument();
       });
 
       // Click swap arrow
-      const swapArrow = screen.getByTestId('swap-direction-button');
+      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
@@ -295,8 +280,8 @@ describe('SwapInterface Component', () => {
       fireEvent.change(fromAmountInput, { target: { value: 'invalid' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(toAmountInput.value).toBe(''); // Input remains empty for invalid input
+        const toAmountInput = screen.getByLabelText('To');
+        expect(toAmountInput).toHaveValue(null); // Input remains null for invalid input
       });
     });
 
@@ -311,8 +296,8 @@ describe('SwapInterface Component', () => {
       fireEvent.change(fromAmountInput, { target: { value: '0' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
-        expect(toAmountInput.value).toBe('0.000000'); // Input shows calculated value
+        const toAmountInput = screen.getByLabelText('To');
+        expect(toAmountInput).toHaveValue(0); // Input shows 0 as number
       });
     });
   });

@@ -1,16 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { handlePrivacyConsent } from '../helpers/privacy-consent';
-import { setupWalletMock } from '../helpers/wallet-mock';
 
 test.describe('Visual Regression Tests', () => {
   test.beforeEach(async ({ page }) => {
-    // Setup environment-aware wallet mock
-    await setupWalletMock(page);
-    
     await page.goto('/');
-    
-    // Handle privacy/cookie consent banners
-    await handlePrivacyConsent(page);
   });
 
   test('should match homepage layout', async ({ page }) => {
@@ -23,7 +15,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match wallet connection states', async ({ page }) => {
     // Initial disconnected state
-    await expect(page.getByRole('button', { name: /connect wallet/i }).first()).toBeVisible();
+    await expect(page.getByText('Connect Wallet')).toBeVisible();
     await expect(page.locator('main')).toHaveScreenshot('wallet-disconnected.png', { threshold: 0.3 });
 
     // Mock wallet connection
@@ -57,19 +49,18 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match swap interface states', async ({ page }) => {
     // Empty swap interface
-    await expect(page.locator('h1, h2, h3').filter({ hasText: /swap/i }).or(page.getByText('Swap Tokens'))).toBeVisible();
+    await expect(page.getByText('Swap Tokens')).toBeVisible();
     await expect(page.locator('main')).toHaveScreenshot('swap-empty.png', { 
       threshold: 0.3,
       timeout: 10000 
     });
 
     // With amounts entered
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
-    await page.waitForTimeout(500); // Wait for calculation
     
     // Wait for calculation and UI updates
-    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
+    await expect(page.getByLabel('To')).toHaveValue('2.500000');
     await page.waitForTimeout(500);
     await expect(page.locator('main')).toHaveScreenshot('swap-with-amounts.png', { 
       threshold: 0.3,
@@ -132,7 +123,7 @@ test.describe('Visual Regression Tests', () => {
       }
 
       // Enter amount
-      const fromAmountInput = page.getByRole('spinbutton').first();
+      const fromAmountInput = page.getByLabel('From');
       await fromAmountInput.fill(pair.amount);
 
       // Wait for calculation
@@ -154,9 +145,6 @@ test.describe('Visual Regression Tests', () => {
     // Set mobile viewport and wait for layout
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
-    
-    // Handle privacy/cookie consent banners
-    await handlePrivacyConsent(page);
     await page.waitForTimeout(500);
     
     // Mobile layout
@@ -167,10 +155,9 @@ test.describe('Visual Regression Tests', () => {
     });
 
     // Mobile swap interface
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
-    await page.waitForTimeout(500); // Wait for calculation
-    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
+    await expect(page.getByLabel('To')).toHaveValue('2.500000');
     await page.waitForTimeout(500);
     
     await expect(page).toHaveScreenshot('mobile-swap-interface.png', { 
@@ -204,10 +191,9 @@ test.describe('Visual Regression Tests', () => {
     });
 
     // Dark mode swap interface with interaction
-    const fromAmountInput = page.getByRole('spinbutton').first();
+    const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
-    await page.waitForTimeout(500); // Wait for calculation
-    await expect(page.getByRole('spinbutton').last()).toHaveValue('2.500000');
+    await expect(page.getByLabel('To')).toHaveValue('2.500000');
     await page.waitForTimeout(500);
     
     await expect(page).toHaveScreenshot('dark-mode-swap.png', { 
