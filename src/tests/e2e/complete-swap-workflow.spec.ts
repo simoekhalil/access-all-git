@@ -133,7 +133,7 @@ test.describe('Complete Swap Workflow', () => {
     await expect(toAmountInput).toHaveValue('25.000000');
 
     // Click swap direction arrow
-    const swapArrow = page.getByRole('button').filter({ has: page.locator('svg') }).first();
+    const swapArrow = page.getByTestId('swap-tokens-button');
     await swapArrow.click();
 
     // Verify tokens swapped - wait for animation to complete and use better selectors
