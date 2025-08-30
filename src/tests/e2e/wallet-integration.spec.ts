@@ -42,10 +42,10 @@ test.describe('Wallet Integration Simulation', () => {
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
     
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.locator('input#to-amount');
     await expect(toAmountInput).toHaveValue('2.500000');
 
-    const swapButton = page.getByRole('button', { name: 'Swap' });
+    const swapButton = page.locator('button:has-text("Swap"):not([data-testid])');
     await expect(swapButton).toBeEnabled();
   });
 

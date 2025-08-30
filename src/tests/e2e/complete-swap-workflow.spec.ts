@@ -67,7 +67,7 @@ test.describe('Complete Swap Workflow', () => {
     await fromAmountInput.fill('100');
 
     // Verify calculation
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.locator('input#to-amount');
     await expect(toAmountInput).toHaveValue('2.500000');
 
     // Verify exchange rate display
@@ -77,7 +77,7 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.getByText('0.5%')).toBeVisible();
 
     // Test swap button becomes enabled
-    const swapButton = page.getByRole('button', { name: 'Swap' });
+    const swapButton = page.locator('button:has-text("Swap"):not([data-testid])');
     await expect(swapButton).toBeEnabled();
 
     // Execute swap
@@ -119,7 +119,7 @@ test.describe('Complete Swap Workflow', () => {
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('1');
     
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.locator('input#to-amount');
     await expect(toAmountInput).toHaveValue('6666.670000');
   });
 
@@ -129,7 +129,7 @@ test.describe('Complete Swap Workflow', () => {
     await fromAmountInput.fill('1000');
     
     // Verify calculated amount
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.locator('input#to-amount');
     await expect(toAmountInput).toHaveValue('25.000000');
 
     // Click swap direction arrow
@@ -142,8 +142,8 @@ test.describe('Complete Swap Workflow', () => {
     await expect(page.locator('[role="combobox"]').last()).toContainText('GALA');
 
     // Verify amounts swapped
-    await expect(page.getByLabel('From')).toHaveValue('25.000000');
-    await expect(page.getByLabel('To')).toHaveValue('1000.000000');
+    await expect(page.locator('input#from-amount')).toHaveValue('25.000000');
+    await expect(page.locator('input#to-amount')).toHaveValue('1000.000000');
 
     // Verify new exchange rate
     await expect(page.getByText('1 USDC = 40.000000 GALA')).toBeVisible();
@@ -151,7 +151,7 @@ test.describe('Complete Swap Workflow', () => {
 
   test('should validate input and show appropriate errors', async ({ page }) => {
     // Try to swap without amount
-    const swapButton = page.getByRole('button', { name: 'Swap' });
+    const swapButton = page.locator('button:has-text("Swap"):not([data-testid])');
     await expect(swapButton).toBeDisabled();
 
     // Enter invalid amount (empty or zero)

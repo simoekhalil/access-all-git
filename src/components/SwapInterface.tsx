@@ -189,7 +189,7 @@ const SwapInterface = () => {
             size="sm"
             onClick={handleSwapTokens}
             className="rounded-full p-2"
-            aria-label="Swap tokens"
+            aria-label="Switch token order"
             data-testid="swap-tokens-button"
           >
             <ArrowUpDown className="h-4 w-4" />

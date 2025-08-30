@@ -39,7 +39,7 @@ test.describe('Cross-Browser Compatibility', () => {
     await fromAmountInput.fill('100');
     
     // Should calculate on all browsers
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.locator('input#to-amount');
     await expect(toAmountInput).toHaveValue('2.500000');
 
     // Test dropdown functionality
@@ -87,7 +87,7 @@ test.describe('Cross-Browser Compatibility', () => {
     
     for (let i = 1; i <= 5; i++) {
       await fromAmountInput.fill(`${i * 100}`);
-      await expect(page.getByLabel('To')).toHaveValue(`${(i * 100 * 0.025).toFixed(6)}`);
+      await expect(page.locator('input#to-amount')).toHaveValue(`${(i * 100 * 0.025).toFixed(6)}`);
     }
 
     const endTime = Date.now();
@@ -106,12 +106,12 @@ test.describe('Cross-Browser Compatibility', () => {
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('999999999');
     
-    const toAmountInput = page.getByLabel('To');
+    const toAmountInput = page.locator('input#to-amount');
     await expect(toAmountInput).toHaveValue('24999999.975000');
 
     // Test very small numbers
     await fromAmountInput.fill('0.000001');
-    await expect(toAmountInput).toHaveValue('0.000000');
+    await expect(page.locator('input#to-amount')).toHaveValue('0.000000');
 
     // Test rapid input changes
     for (let i = 0; i < 10; i++) {
@@ -120,7 +120,7 @@ test.describe('Cross-Browser Compatibility', () => {
 
     // Should still be functional
     await fromAmountInput.fill('100');
-    await expect(toAmountInput).toHaveValue('2.500000');
+    await expect(page.locator('input#to-amount')).toHaveValue('2.500000');
 
     console.log(`Edge case testing passed on ${browserName}`);
   });

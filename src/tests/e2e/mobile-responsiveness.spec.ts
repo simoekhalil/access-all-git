@@ -31,7 +31,7 @@ test.describe('Mobile Responsiveness', () => {
       const fromAmountInput = page.getByLabel('From');
       await fromAmountInput.fill('100');
       
-      const toAmountInput = page.getByLabel('To');
+      const toAmountInput = page.locator('input#to-amount');
       await expect(toAmountInput).toHaveValue('2.500000');
 
       // Token selectors should work on mobile
@@ -53,7 +53,7 @@ test.describe('Mobile Responsiveness', () => {
       await expect(page.getByText('ETH').first()).toBeVisible();
 
       // Swap button should be easily tappable (min 44px height)
-      const swapButton = page.getByRole('button', { name: 'Swap' });
+      const swapButton = page.locator('button:has-text("Swap"):not([data-testid])');
       const buttonBox = await swapButton.boundingBox();
       
       if (buttonBox) {
@@ -115,7 +115,7 @@ test.describe('Mobile Responsiveness', () => {
       await page.waitForTimeout(300);
       
       // Should be able to interact with elements at bottom
-      const swapButton = page.getByRole('button', { name: 'Swap' });
+      const swapButton = page.locator('button:has-text("Swap"):not([data-testid])');
       await expect(swapButton).toBeVisible();
 
       // Scroll back to top
@@ -137,7 +137,7 @@ test.describe('Mobile Responsiveness', () => {
     // Test form interactions in landscape
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
-    await expect(page.getByLabel('To')).toHaveValue('2.500000');
+    await expect(page.locator('input#to-amount')).toHaveValue('2.500000');
 
     // Test token switching in landscape
     const swapArrow = page.getByTestId('swap-tokens-button');
@@ -168,6 +168,6 @@ test.describe('Mobile Responsiveness', () => {
     // Form should still be functional with larger text
     const fromAmountInput = page.getByLabel('From');
     await fromAmountInput.fill('100');
-    await expect(page.getByLabel('To')).toHaveValue('2.500000');
+    await expect(page.locator('input#to-amount')).toHaveValue('2.500000');
   });
 });
