@@ -118,7 +118,8 @@ describe('WalletConnection Component', () => {
       fireEvent.click(connectButton);
 
       await waitFor(() => {
-        // Check for toast message by text content instead of role to avoid multiple elements
+        // Check for error toast in the list container to be more specific
+        expect(screen.getByText('Connection Failed')).toBeInTheDocument();
         expect(screen.getByText('User rejected request')).toBeInTheDocument();
       });
     });
