@@ -118,7 +118,8 @@ describe('WalletConnection Component', () => {
       fireEvent.click(connectButton);
 
       await waitFor(() => {
-        expect(screen.getByRole('status')).toHaveTextContent('User rejected request');
+        // Check for toast message by text content instead of role to avoid multiple elements
+        expect(screen.getByText('User rejected request')).toBeInTheDocument();
       });
     });
   });

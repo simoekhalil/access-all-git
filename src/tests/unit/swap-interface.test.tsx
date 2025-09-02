@@ -50,7 +50,7 @@ describe('SwapInterface Component', () => {
       );
 
       expect(screen.getByText('Balance: 1,000.00')).toBeInTheDocument(); // GALA balance
-      expect(screen.getByText('Balance: 500.00')).toBeInTheDocument(); // USDC balance
+      expect(screen.getByText('Balance: 1,500.00')).toBeInTheDocument(); // USDC balance
     });
   });
 
@@ -67,11 +67,11 @@ describe('SwapInterface Component', () => {
       fireEvent.click(fromTokenSelect);
 
       await waitFor(() => {
-        const ethOption = screen.getByText('ETH');
-        fireEvent.click(ethOption);
+        const wethOption = screen.getByText('WETH');
+        fireEvent.click(wethOption);
       });
 
-      expect(screen.getByDisplayValue('ETH')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('WETH')).toBeInTheDocument();
     });
 
     it('should allow changing to token', async () => {
@@ -86,11 +86,11 @@ describe('SwapInterface Component', () => {
       fireEvent.click(toTokenSelect);
 
       await waitFor(() => {
-        const townOption = screen.getByText('TOWN');
-        fireEvent.click(townOption);
+        const usdtOption = screen.getByText('USDT');
+        fireEvent.click(usdtOption);
       });
 
-      expect(screen.getByDisplayValue('TOWN')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('USDT')).toBeInTheDocument();
     });
 
     it('should exclude selected from token in to token options', async () => {
@@ -107,8 +107,8 @@ describe('SwapInterface Component', () => {
         // GALA should not be available in to token since it's selected in from
         expect(screen.queryByText('GALA')).not.toBeInTheDocument();
         expect(screen.getByText('USDC')).toBeInTheDocument();
-        expect(screen.getByText('ETH')).toBeInTheDocument();
-        expect(screen.getByText('TOWN')).toBeInTheDocument();
+        expect(screen.getByText('WETH')).toBeInTheDocument();
+        expect(screen.getByText('USDT')).toBeInTheDocument();
       });
     });
   });
@@ -217,9 +217,9 @@ describe('SwapInterface Component', () => {
       expect(screen.getByText('Swapping...')).toBeInTheDocument();
 
       await waitFor(() => {
-        // After swap, amounts should be reset
-        expect(screen.getByLabelText('From')).toHaveValue('');
-        expect(screen.getByLabelText('To')).toHaveValue('');
+        // After swap, amounts should be reset (number inputs return null when empty)
+        expect(screen.getByLabelText('From')).toHaveValue(null);
+        expect(screen.getByLabelText('To')).toHaveValue(null);
       }, { timeout: 3000 });
     });
 
@@ -256,7 +256,7 @@ describe('SwapInterface Component', () => {
       });
 
       // Click swap arrow
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByLabelText('Switch token order');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
