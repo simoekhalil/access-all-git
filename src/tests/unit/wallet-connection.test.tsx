@@ -33,6 +33,7 @@ const mockEthereum = {
 describe('WalletConnection Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    queryClient.clear(); // Clear React Query cache between tests
     // Reset window.ethereum
     Object.defineProperty(window, 'ethereum', {
       value: mockEthereum,

@@ -6,14 +6,14 @@ import { Toaster } from '@/components/ui/toaster';
 import SwapInterface from '@/components/SwapInterface';
 
 // Test wrapper component
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+});
 
+const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -59,6 +59,7 @@ const TEST_AMOUNTS = {
 
 describe('GalaSwap Token Pairs - Price Impact Tests', () => {
   beforeEach(() => {
+    queryClient.clear(); // Clear React Query cache between tests
     render(
       <TestWrapper>
         <SwapInterface />
@@ -69,73 +70,61 @@ describe('GalaSwap Token Pairs - Price Impact Tests', () => {
   describe('Individual Token Pair Testing', () => {
     CURRENT_GALA_SWAP_PAIRS.forEach((pair) => {
       describe(`${pair.from} → ${pair.to} (${pair.description})`, () => {
-        test('should calculate price impact for small trade amounts', async () => {
-          try {
-            const fromAmountInput = screen.getByLabelText('From');
-            fireEvent.change(fromAmountInput, { target: { value: TEST_AMOUNTS.small } });
+        test.skipIf(!(['GALA', 'USDC', 'USDT', 'WBTC', 'WETH', 'WEN', '$GMUSIC', 'FILM', 'WXRP'].includes(pair.from)))('should calculate price impact for small trade amounts', async () => {
+          const fromAmountInput = screen.getByLabelText('From');
+          fireEvent.change(fromAmountInput, { target: { value: TEST_AMOUNTS.small } });
 
-            await waitFor(() => {
-              const priceImpactBadge = screen.queryByTestId('price-impact-badge');
-              if (priceImpactBadge) {
-                expect(priceImpactBadge).toBeInTheDocument();
-                
-                const impactText = priceImpactBadge.textContent || '';
-                const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
-                
-                // Small trades should have minimal impact
-                expect(impactValue).toBeLessThan(5);
-                expect(impactValue).toBeGreaterThanOrEqual(0);
-              }
-            }, { timeout: 3000 });
-          } catch (error) {
-            console.log(`Skipping ${pair.from}→${pair.to}: Token not available in current implementation`);
-          }
+          await waitFor(() => {
+            const priceImpactBadge = screen.queryByTestId('price-impact-badge');
+            if (priceImpactBadge) {
+              expect(priceImpactBadge).toBeInTheDocument();
+              
+              const impactText = priceImpactBadge.textContent || '';
+              const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
+              
+              // Small trades should have minimal impact
+              expect(impactValue).toBeLessThan(5);
+              expect(impactValue).toBeGreaterThanOrEqual(0);
+            }
+          }, { timeout: 3000 });
         });
 
-        test('should calculate price impact for medium trade amounts', async () => {
-          try {
-            const fromAmountInput = screen.getByLabelText('From');
-            fireEvent.change(fromAmountInput, { target: { value: TEST_AMOUNTS.medium } });
+        test.skipIf(!(['GALA', 'USDC', 'USDT', 'WBTC', 'WETH', 'WEN', '$GMUSIC', 'FILM', 'WXRP'].includes(pair.from)))('should calculate price impact for medium trade amounts', async () => {
+          const fromAmountInput = screen.getByLabelText('From');
+          fireEvent.change(fromAmountInput, { target: { value: TEST_AMOUNTS.medium } });
 
-            await waitFor(() => {
-              const priceImpactBadge = screen.queryByTestId('price-impact-badge');
-              if (priceImpactBadge) {
-                expect(priceImpactBadge).toBeInTheDocument();
-                
-                const impactText = priceImpactBadge.textContent || '';
-                const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
-                
-                // Medium trades should have moderate impact
-                expect(impactValue).toBeGreaterThanOrEqual(0);
-                expect(impactValue).toBeLessThan(20);
-              }
-            }, { timeout: 3000 });
-          } catch (error) {
-            console.log(`Skipping ${pair.from}→${pair.to}: Token not available in mock`);
-          }
+          await waitFor(() => {
+            const priceImpactBadge = screen.queryByTestId('price-impact-badge');
+            if (priceImpactBadge) {
+              expect(priceImpactBadge).toBeInTheDocument();
+              
+              const impactText = priceImpactBadge.textContent || '';
+              const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
+              
+              // Medium trades should have moderate impact
+              expect(impactValue).toBeGreaterThanOrEqual(0);
+              expect(impactValue).toBeLessThan(20);
+            }
+          }, { timeout: 3000 });
         });
 
-        test('should calculate price impact for large trade amounts', async () => {
-          try {
-            const fromAmountInput = screen.getByLabelText('From');
-            fireEvent.change(fromAmountInput, { target: { value: TEST_AMOUNTS.large } });
+        test.skipIf(!(['GALA', 'USDC', 'USDT', 'WBTC', 'WETH', 'WEN', '$GMUSIC', 'FILM', 'WXRP'].includes(pair.from)))('should calculate price impact for large trade amounts', async () => {
+          const fromAmountInput = screen.getByLabelText('From');
+          fireEvent.change(fromAmountInput, { target: { value: TEST_AMOUNTS.large } });
 
-            await waitFor(() => {
-              const priceImpactBadge = screen.queryByTestId('price-impact-badge');
-              if (priceImpactBadge) {
-                expect(priceImpactBadge).toBeInTheDocument();
-                
-                const impactText = priceImpactBadge.textContent || '';
-                const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
-                
-                // Large trades should have significant impact
-                expect(impactValue).toBeGreaterThan(5);
-                expect(impactValue).toBeLessThan(100); // Reasonable upper bound
-              }
-            }, { timeout: 3000 });
-          } catch (error) {
-            console.log(`Skipping ${pair.from}→${pair.to}: Token not available in mock`);
-          }
+          await waitFor(() => {
+            const priceImpactBadge = screen.queryByTestId('price-impact-badge');
+            if (priceImpactBadge) {
+              expect(priceImpactBadge).toBeInTheDocument();
+              
+              const impactText = priceImpactBadge.textContent || '';
+              const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
+              
+              // Large trades should have significant impact
+              expect(impactValue).toBeGreaterThan(5);
+              expect(impactValue).toBeLessThan(100); // Reasonable upper bound
+            }
+          }, { timeout: 3000 });
         });
       });
     });
@@ -222,45 +211,31 @@ describe('GalaSwap Token Pairs - Price Impact Tests', () => {
 
   describe('Cross-Token Pair Consistency', () => {
     test('should have consistent price impact model across all current pairs', async () => {
-      const impacts: Array<{ pair: string; impact: number }> = [];
       const testAmount = '1000';
 
-      // Test top 5 pairs by TVL
+      // Test top 5 pairs by TVL with conditional skipping
       const topPairs = CURRENT_GALA_SWAP_PAIRS.slice(0, 5);
+      
+      // Skip if no supported tokens
+      if (!topPairs.some(pair => ['GALA', 'USDC', 'USDT', 'WBTC', 'WETH', 'WEN', '$GMUSIC', 'FILM', 'WXRP'].includes(pair.from))) {
+        return;
+      }
 
-      for (const pair of topPairs) {
-        try {
-          const fromAmountInput = screen.getByLabelText('From');
-          fireEvent.change(fromAmountInput, { target: { value: testAmount } });
-
-          await waitFor(() => {
-            const priceImpactBadge = screen.queryByTestId('price-impact-badge');
-            if (priceImpactBadge) {
-              const impactText = priceImpactBadge.textContent || '';
-              const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
-              
-              impacts.push({
-                pair: `${pair.from}-${pair.to}`,
-                impact: impactValue
-              });
-            }
-          });
-
-          // Clear for next iteration
-          fireEvent.change(fromAmountInput, { target: { value: '' } });
-          await new Promise(resolve => setTimeout(resolve, 100));
-        } catch (error) {
-          console.log(`Skipping ${pair.from}→${pair.to}: Not available in current implementation`);
+      const fromAmountInput = screen.getByLabelText('From');
+      
+      // Test one representative pair to avoid flaky loops
+      fireEvent.change(fromAmountInput, { target: { value: testAmount } });
+      
+      await waitFor(() => {
+        const priceImpactBadge = screen.queryByTestId('price-impact-badge');
+        if (priceImpactBadge) {
+          const impactText = priceImpactBadge.textContent || '';
+          const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
+          
+          expect(impactValue).toBeGreaterThanOrEqual(0);
+          expect(impactValue).toBeLessThan(50); // Reasonable upper bound for 1000 token trade
         }
-      }
-
-      // If we have impacts, they should all be reasonable
-      if (impacts.length > 0) {
-        impacts.forEach(({ impact, pair }) => {
-          expect(impact).toBeGreaterThanOrEqual(0);
-          expect(impact).toBeLessThan(50); // Reasonable upper bound for 1000 token trade
-        });
-      }
+      });
     });
   });
 
