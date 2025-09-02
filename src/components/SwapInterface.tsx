@@ -8,11 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// Real GalaSwap tokens as per https://blog.gala.games/introducing-galaswap-decentralized-p2p-and-now-live-on-galachain-19e79372ea4d
 const TOKENS = [
   { symbol: 'GALA', name: 'Gala', balance: '1,000.00' },
-  { symbol: 'USDC', name: 'USD Coin', balance: '500.00' },
-  { symbol: 'ETH', name: 'Ethereum', balance: '2.50' },
-  { symbol: 'TOWN', name: 'Town Coin', balance: '10,000.00' },
+  { symbol: 'ETIME', name: 'Eternal Time', balance: '500.00' },
+  { symbol: 'SILK', name: 'Silk', balance: '2.50' },
+  { symbol: 'MTRM', name: 'Materium', balance: '10,000.00' },
+  { symbol: 'GUSDT', name: 'Gala USD Tether', balance: '1,500.00' },
+  { symbol: 'GUSDC', name: 'Gala USD Coin', balance: '1,200.00' },
+  { symbol: 'GWETH', name: 'Gala Wrapped ETH', balance: '0.75' },
 ];
 
 interface SwapState {
@@ -30,7 +34,7 @@ interface SwapState {
 const SwapInterface = () => {
   const [swap, setSwap] = useState<SwapState>({
     fromToken: 'GALA',
-    toToken: 'USDC',
+    toToken: 'ETIME',
     fromAmount: '',
     toAmount: '',
     slippage: '0.5',
@@ -52,12 +56,22 @@ const SwapInterface = () => {
   };
 
   const getExchangeRate = (from: string, to: string) => {
-    // Mock exchange rates (mid-prices)
+    // Mock exchange rates for GalaSwap tokens (mid-prices)
     const rates: Record<string, Record<string, number>> = {
-      GALA: { USDC: 0.025, ETH: 0.000015, TOWN: 0.1 },
-      USDC: { GALA: 40, ETH: 0.0006, TOWN: 4 },
-      ETH: { GALA: 66666.67, USDC: 1666.67, TOWN: 6666.67 },
-      TOWN: { GALA: 10, USDC: 0.25, ETH: 0.00015 },
+      GALA: { 
+        ETIME: 0.5,      // 1 GALA = 0.5 ETIME
+        SILK: 0.25,      // 1 GALA = 0.25 SILK
+        MTRM: 2.0,       // 1 GALA = 2.0 MTRM
+        GUSDT: 0.025,    // 1 GALA = 0.025 GUSDT (~$0.025)
+        GUSDC: 0.025,    // 1 GALA = 0.025 GUSDC (~$0.025)
+        GWETH: 0.000008  // 1 GALA = 0.000008 GWETH
+      },
+      ETIME: { GALA: 2.0 },        // 1 ETIME = 2.0 GALA
+      SILK: { GALA: 4.0 },         // 1 SILK = 4.0 GALA  
+      MTRM: { GALA: 0.5 },         // 1 MTRM = 0.5 GALA
+      GUSDT: { GALA: 40.0 },       // 1 GUSDT = 40.0 GALA
+      GUSDC: { GALA: 40.0 },       // 1 GUSDC = 40.0 GALA
+      GWETH: { GALA: 125000.0 },   // 1 GWETH = 125000.0 GALA
     };
     return rates[from]?.[to] || 1;
   };
