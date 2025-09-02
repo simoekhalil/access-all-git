@@ -249,9 +249,9 @@ describe('Price Impact Property-Based Tests', () => {
       const testAmount = '1000';
       const tokenPairs = [
         { from: 'GALA', to: 'USDC' },
-        { from: 'GALA', to: 'ETH' },
-        { from: 'USDC', to: 'ETH' },
-        { from: 'ETH', to: 'TOWN' }
+        { from: 'GALA', to: 'USDT' },
+        { from: 'USDC', to: 'WETH' },
+        { from: 'WETH', to: 'GALA' }
       ];
 
       const impacts: Array<{ pair: string; impact: number }> = [];

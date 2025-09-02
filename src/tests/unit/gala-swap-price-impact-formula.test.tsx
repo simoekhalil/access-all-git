@@ -14,27 +14,49 @@ const calculatePriceImpact = (midPrice: number, executionPrice: number): number 
   return ((executionPrice - midPrice) / midPrice) * 100;
 };
 
-// Mock exchange rates for GalaSwap tokens (same as in SwapInterface)
-const GALA_SWAP_RATES: Record<string, Record<string, number>> = {
+// Mock exchange rates for current GalaSwap tokens (same as in SwapInterface)
+const CURRENT_GALA_SWAP_RATES: Record<string, Record<string, number>> = {
   GALA: { 
-    ETIME: 0.5,      // 1 GALA = 0.5 ETIME
-    SILK: 0.25,      // 1 GALA = 0.25 SILK
-    MTRM: 2.0,       // 1 GALA = 2.0 MTRM
-    GUSDT: 0.025,    // 1 GALA = 0.025 GUSDT (~$0.025)
-    GUSDC: 0.025,    // 1 GALA = 0.025 GUSDC (~$0.025)
-    GWETH: 0.000008  // 1 GALA = 0.000008 GWETH
+    USDC: 0.025, USDT: 0.025, WBTC: 0.00000025, WETH: 0.0000075, 
+    WEN: 250.0, '$GMUSIC': 0.8, FILM: 1.2, WXRP: 0.04
   },
-  ETIME: { GALA: 2.0 },        // 1 ETIME = 2.0 GALA
-  SILK: { GALA: 4.0 },         // 1 SILK = 4.0 GALA  
-  MTRM: { GALA: 0.5 },         // 1 MTRM = 0.5 GALA
-  GUSDT: { GALA: 40.0 },       // 1 GUSDT = 40.0 GALA
-  GUSDC: { GALA: 40.0 },       // 1 GUSDC = 40.0 GALA
-  GWETH: { GALA: 125000.0 },   // 1 GWETH = 125000.0 GALA
+  USDC: { 
+    GALA: 40.0, USDT: 1.0, WBTC: 0.00001, WETH: 0.0003, 
+    WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
+  },
+  USDT: { 
+    GALA: 40.0, USDC: 1.0, WBTC: 0.00001, WETH: 0.0003,
+    WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
+  },
+  WBTC: { 
+    GALA: 4000000.0, USDC: 100000.0, USDT: 100000.0, WETH: 30.0,
+    WEN: 1000000000.0, '$GMUSIC': 128000.0, FILM: 192000.0, WXRP: 160000.0
+  },
+  WETH: { 
+    GALA: 133333.0, USDC: 3333.0, USDT: 3333.0, WBTC: 0.033,
+    WEN: 33333333.0, '$GMUSIC': 4266.0, FILM: 6400.0, WXRP: 5333.0
+  },
+  WEN: { 
+    GALA: 0.004, USDC: 0.0001, USDT: 0.0001, WBTC: 0.000000001, WETH: 0.00000003,
+    '$GMUSIC': 0.0032, FILM: 0.0048, WXRP: 0.00016
+  },
+  '$GMUSIC': { 
+    GALA: 1.25, USDC: 0.03125, USDT: 0.03125, WBTC: 0.0000000078, WETH: 0.0000234,
+    WEN: 312.5, FILM: 1.5, WXRP: 0.05
+  },
+  FILM: { 
+    GALA: 0.833, USDC: 0.02083, USDT: 0.02083, WBTC: 0.0000000052, WETH: 0.000156,
+    WEN: 208.3, '$GMUSIC': 0.667, WXRP: 0.033
+  },
+  WXRP: { 
+    GALA: 25.0, USDC: 0.625, USDT: 0.625, WBTC: 0.00000625, WETH: 0.0001875,
+    WEN: 6250.0, '$GMUSIC': 20.0, FILM: 30.0
+  }
 };
 
 // Simulate execution price with slippage (same model as SwapInterface)
 const getExecutionPrice = (from: string, to: string, amount: number): number => {
-  const midPrice = GALA_SWAP_RATES[from]?.[to] || 1;
+  const midPrice = CURRENT_GALA_SWAP_RATES[from]?.[to] || 1;
   if (amount === 0) return midPrice;
   
   // Simulate price impact based on trade size (square root model)
@@ -86,10 +108,10 @@ describe('GalaSwap Price Impact Formula Tests', () => {
   });
 
   describe('Real GalaSwap Token Pair Scenarios', () => {
-    test('GALA → ETIME: should calculate correct price impact for different trade sizes', () => {
+    test('GALA → USDC: should calculate correct price impact for different trade sizes', () => {
       const from = 'GALA';
-      const to = 'ETIME';
-      const midPrice = GALA_SWAP_RATES[from][to]; // 0.5
+      const to = 'USDC';
+      const midPrice = CURRENT_GALA_SWAP_RATES[from][to]; // 0.025
 
       // Small trade (100 GALA)
       const smallAmount = 100;
@@ -108,10 +130,10 @@ describe('GalaSwap Price Impact Formula Tests', () => {
       expect(largeImpact).toBeGreaterThan(5);
     });
 
-    test('GALA → GUSDC: stablecoin pair should follow same formula', () => {
+    test('GALA → USDT: stablecoin pair should follow same formula', () => {
       const from = 'GALA';
-      const to = 'GUSDC';
-      const midPrice = GALA_SWAP_RATES[from][to]; // 0.025
+      const to = 'USDT';
+      const midPrice = CURRENT_GALA_SWAP_RATES[from][to]; // 0.025
       
       const amount = 1000;
       const executionPrice = getExecutionPrice(from, to, amount);
@@ -123,12 +145,12 @@ describe('GalaSwap Price Impact Formula Tests', () => {
       expect(isFinite(impact)).toBe(true);
     });
 
-    test('GWETH → GALA: high-value token pair should handle large numbers', () => {
-      const from = 'GWETH';
+    test('WETH → GALA: high-value token pair should handle large numbers', () => {
+      const from = 'WETH';
       const to = 'GALA';
-      const midPrice = GALA_SWAP_RATES[from][to]; // 125,000
+      const midPrice = CURRENT_GALA_SWAP_RATES[from][to]; // 133,333
       
-      const amount = 0.1; // 0.1 GWETH
+      const amount = 0.1; // 0.1 WETH
       const executionPrice = getExecutionPrice(from, to, amount);
       const impact = calculatePriceImpact(midPrice, executionPrice);
       
@@ -138,10 +160,10 @@ describe('GalaSwap Price Impact Formula Tests', () => {
       expect(isFinite(impact)).toBe(true);
     });
 
-    test('SILK → GALA: gaming token pair should calculate impact correctly', () => {
-      const from = 'SILK';
+    test('$GMUSIC → GALA: ecosystem token pair should calculate impact correctly', () => {
+      const from = '$GMUSIC';
       const to = 'GALA';
-      const midPrice = GALA_SWAP_RATES[from][to]; // 4.0
+      const midPrice = CURRENT_GALA_SWAP_RATES[from][to]; // 1.25
       
       const testAmounts = [10, 100, 1000];
       const impacts: number[] = [];
@@ -196,21 +218,21 @@ describe('GalaSwap Price Impact Formula Tests', () => {
 
   describe('Symmetry and Consistency Tests', () => {
     test('should maintain mathematical consistency across inverse pairs', () => {
-      // Test GALA → ETIME vs ETIME → GALA
-      const galaToEtimeRate = GALA_SWAP_RATES.GALA.ETIME; // 0.5
-      const etimeToGalaRate = GALA_SWAP_RATES.ETIME.GALA; // 2.0
+      // Test GALA → USDC vs USDC → GALA
+      const galaToUsdcRate = CURRENT_GALA_SWAP_RATES.GALA.USDC; // 0.025
+      const usdcToGalaRate = CURRENT_GALA_SWAP_RATES.USDC.GALA; // 40.0
       
       // These should be mathematical inverses
-      expect(galaToEtimeRate * etimeToGalaRate).toBeCloseTo(1, 6);
+      expect(galaToUsdcRate * usdcToGalaRate).toBeCloseTo(1, 6);
       
       // Price impact formula should work consistently for both directions
       const amount1 = 100;
-      const executionPrice1 = getExecutionPrice('GALA', 'ETIME', amount1);
-      const impact1 = calculatePriceImpact(galaToEtimeRate, executionPrice1);
+      const executionPrice1 = getExecutionPrice('GALA', 'USDC', amount1);
+      const impact1 = calculatePriceImpact(galaToUsdcRate, executionPrice1);
       
-      const amount2 = 50; // Equivalent amount in reverse direction
-      const executionPrice2 = getExecutionPrice('ETIME', 'GALA', amount2);
-      const impact2 = calculatePriceImpact(etimeToGalaRate, executionPrice2);
+      const amount2 = 2.5; // Equivalent amount in reverse direction (100 * 0.025)
+      const executionPrice2 = getExecutionPrice('USDC', 'GALA', amount2);
+      const impact2 = calculatePriceImpact(usdcToGalaRate, executionPrice2);
       
       // Both should produce positive impacts
       expect(impact1).toBeGreaterThan(0);
@@ -233,12 +255,12 @@ describe('GalaSwap Price Impact Formula Tests', () => {
 
   describe('Real-World Scenario Validation', () => {
     test('should calculate realistic impact for typical GalaSwap trades', () => {
-      // Simulate a typical user swapping 500 GALA for ETIME
+      // Simulate a typical user swapping 500 GALA for USDC
       const from = 'GALA';
-      const to = 'ETIME';
+      const to = 'USDC';
       const amount = 500;
       
-      const midPrice = GALA_SWAP_RATES[from][to];
+      const midPrice = CURRENT_GALA_SWAP_RATES[from][to];
       const executionPrice = getExecutionPrice(from, to, amount);
       const impact = calculatePriceImpact(midPrice, executionPrice);
       
@@ -252,12 +274,12 @@ describe('GalaSwap Price Impact Formula Tests', () => {
     });
 
     test('should handle whale trades with appropriate high impact', () => {
-      // Simulate a whale trade: 100,000 GALA for GUSDC
+      // Simulate a whale trade: 100,000 GALA for USDC
       const from = 'GALA';
-      const to = 'GUSDC';
+      const to = 'USDC';
       const amount = 100000;
       
-      const midPrice = GALA_SWAP_RATES[from][to];
+      const midPrice = CURRENT_GALA_SWAP_RATES[from][to];
       const executionPrice = getExecutionPrice(from, to, amount);
       const impact = calculatePriceImpact(midPrice, executionPrice);
       
@@ -267,12 +289,12 @@ describe('GalaSwap Price Impact Formula Tests', () => {
     });
 
     test('should handle micro trades with minimal impact', () => {
-      // Simulate a micro trade: 1 GALA for MTRM
+      // Simulate a micro trade: 1 GALA for $GMUSIC
       const from = 'GALA';
-      const to = 'MTRM';
+      const to = '$GMUSIC';
       const amount = 1;
       
-      const midPrice = GALA_SWAP_RATES[from][to];
+      const midPrice = CURRENT_GALA_SWAP_RATES[from][to];
       const executionPrice = getExecutionPrice(from, to, amount);
       const impact = calculatePriceImpact(midPrice, executionPrice);
       

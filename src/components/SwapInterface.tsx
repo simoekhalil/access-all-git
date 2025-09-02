@@ -8,15 +8,17 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Real GalaSwap tokens as per https://blog.gala.games/introducing-galaswap-decentralized-p2p-and-now-live-on-galachain-19e79372ea4d
+// Current GalaSwap tokens as per live data from https://swap.gala.com/explore (December 2024)
 const TOKENS = [
   { symbol: 'GALA', name: 'Gala', balance: '1,000.00' },
-  { symbol: 'ETIME', name: 'Eternal Time', balance: '500.00' },
-  { symbol: 'SILK', name: 'Silk', balance: '2.50' },
-  { symbol: 'MTRM', name: 'Materium', balance: '10,000.00' },
-  { symbol: 'GUSDT', name: 'Gala USD Tether', balance: '1,500.00' },
-  { symbol: 'GUSDC', name: 'Gala USD Coin', balance: '1,200.00' },
-  { symbol: 'GWETH', name: 'Gala Wrapped ETH', balance: '0.75' },
+  { symbol: 'USDC', name: 'USD Coin', balance: '1,500.00' },
+  { symbol: 'USDT', name: 'Tether USD', balance: '1,200.00' },
+  { symbol: 'WBTC', name: 'Wrapped Bitcoin', balance: '0.025' },
+  { symbol: 'WETH', name: 'Wrapped Ethereum', balance: '0.75' },
+  { symbol: 'WEN', name: 'Wen Token', balance: '50,000.00' },
+  { symbol: '$GMUSIC', name: 'Gala Music', balance: '500.00' },
+  { symbol: 'FILM', name: 'Gala Film', balance: '250.00' },
+  { symbol: 'WXRP', name: 'Wrapped XRP', balance: '2,000.00' },
 ];
 
 interface SwapState {
@@ -34,7 +36,7 @@ interface SwapState {
 const SwapInterface = () => {
   const [swap, setSwap] = useState<SwapState>({
     fromToken: 'GALA',
-    toToken: 'ETIME',
+    toToken: 'USDC',
     fromAmount: '',
     toAmount: '',
     slippage: '0.5',
@@ -56,22 +58,50 @@ const SwapInterface = () => {
   };
 
   const getExchangeRate = (from: string, to: string) => {
-    // Mock exchange rates for GalaSwap tokens (mid-prices)
+    // Current GalaSwap exchange rates based on live data (mid-prices)
     const rates: Record<string, Record<string, number>> = {
       GALA: { 
-        ETIME: 0.5,      // 1 GALA = 0.5 ETIME
-        SILK: 0.25,      // 1 GALA = 0.25 SILK
-        MTRM: 2.0,       // 1 GALA = 2.0 MTRM
-        GUSDT: 0.025,    // 1 GALA = 0.025 GUSDT (~$0.025)
-        GUSDC: 0.025,    // 1 GALA = 0.025 GUSDC (~$0.025)
-        GWETH: 0.000008  // 1 GALA = 0.000008 GWETH
+        USDC: 0.025,        // 1 GALA ≈ $0.025
+        USDT: 0.025,        // 1 GALA ≈ $0.025  
+        WBTC: 0.00000025,   // 1 GALA ≈ 0.00000025 WBTC
+        WETH: 0.0000075,    // 1 GALA ≈ 0.0000075 WETH
+        WEN: 250.0,         // 1 GALA ≈ 250 WEN
+        '$GMUSIC': 0.8,     // 1 GALA ≈ 0.8 $GMUSIC
+        FILM: 1.2,          // 1 GALA ≈ 1.2 FILM
+        WXRP: 0.04          // 1 GALA ≈ 0.04 WXRP
       },
-      ETIME: { GALA: 2.0 },        // 1 ETIME = 2.0 GALA
-      SILK: { GALA: 4.0 },         // 1 SILK = 4.0 GALA  
-      MTRM: { GALA: 0.5 },         // 1 MTRM = 0.5 GALA
-      GUSDT: { GALA: 40.0 },       // 1 GUSDT = 40.0 GALA
-      GUSDC: { GALA: 40.0 },       // 1 GUSDC = 40.0 GALA
-      GWETH: { GALA: 125000.0 },   // 1 GWETH = 125000.0 GALA
+      USDC: { 
+        GALA: 40.0, USDT: 1.0, WBTC: 0.00001, WETH: 0.0003, 
+        WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
+      },
+      USDT: { 
+        GALA: 40.0, USDC: 1.0, WBTC: 0.00001, WETH: 0.0003,
+        WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
+      },
+      WBTC: { 
+        GALA: 4000000.0, USDC: 100000.0, USDT: 100000.0, WETH: 30.0,
+        WEN: 1000000000.0, '$GMUSIC': 128000.0, FILM: 192000.0, WXRP: 160000.0
+      },
+      WETH: { 
+        GALA: 133333.0, USDC: 3333.0, USDT: 3333.0, WBTC: 0.033,
+        WEN: 33333333.0, '$GMUSIC': 4266.0, FILM: 6400.0, WXRP: 5333.0
+      },
+      WEN: { 
+        GALA: 0.004, USDC: 0.0001, USDT: 0.0001, WBTC: 0.000000001, WETH: 0.00000003,
+        '$GMUSIC': 0.0032, FILM: 0.0048, WXRP: 0.00016
+      },
+      '$GMUSIC': { 
+        GALA: 1.25, USDC: 0.03125, USDT: 0.03125, WBTC: 0.0000000078, WETH: 0.0000234,
+        WEN: 312.5, FILM: 1.5, WXRP: 0.05
+      },
+      FILM: { 
+        GALA: 0.833, USDC: 0.02083, USDT: 0.02083, WBTC: 0.0000000052, WETH: 0.000156,
+        WEN: 208.3, '$GMUSIC': 0.667, WXRP: 0.033
+      },
+      WXRP: { 
+        GALA: 25.0, USDC: 0.625, USDT: 0.625, WBTC: 0.00000625, WETH: 0.0001875,
+        WEN: 6250.0, '$GMUSIC': 20.0, FILM: 30.0
+      }
     };
     return rates[from]?.[to] || 1;
   };
