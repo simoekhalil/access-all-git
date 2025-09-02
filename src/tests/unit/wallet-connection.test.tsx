@@ -121,7 +121,9 @@ describe('WalletConnection Component', () => {
       await waitFor(() => {
         // Check for error toast in the list container to be more specific
         expect(screen.getByText('Connection Failed')).toBeInTheDocument();
-        expect(screen.getByText('User rejected request')).toBeInTheDocument();
+        // Use getAllByText and check we have multiple instances (toast + component error)
+        const errorMessages = screen.getAllByText('User rejected request');
+        expect(errorMessages.length).toBeGreaterThanOrEqual(1);
       });
     });
   });

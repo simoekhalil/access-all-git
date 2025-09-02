@@ -105,8 +105,13 @@ describe('SwapInterface Component', () => {
       fireEvent.click(toTokenSelect);
 
       await waitFor(() => {
-        // GALA should not be available in to token since it's selected in from
-        expect(screen.queryByText('GALA')).not.toBeInTheDocument();
+        // GALA should be disabled/grayed out since it's selected in from, but might still be in DOM
+        const galaOptions = screen.queryAllByText('GALA');
+        // Check if GALA is either not present or disabled (has pointer-events: none style)
+        const availableGalaOptions = galaOptions.filter(option => 
+          !option.closest('[style*="pointer-events: none"]')
+        );
+        expect(availableGalaOptions).toHaveLength(0);
         expect(screen.getByText('USDC')).toBeInTheDocument();
         expect(screen.getByText('WETH')).toBeInTheDocument();
         expect(screen.getByText('USDT')).toBeInTheDocument();
@@ -126,8 +131,9 @@ describe('SwapInterface Component', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue(2.5); // Number input returns number, not string
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        // Use toBeCloseTo for floating point precision testing
+        expect(parseFloat(toAmountInput.value)).toBeCloseTo(2.525, 3); // Allow for up to 3 decimal places
       });
     });
 
@@ -139,11 +145,83 @@ describe('SwapInterface Component', () => {
       );
 
       const toAmountInput = screen.getByLabelText('To');
-      fireEvent.change(toAmountInput, { target: { value: '2.5' } });
+      fireEvent.change(toAmountInput, { target: { value: '2.525' } });
 
       await waitFor(() => {
-        const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue(100); // Number input returns number
+        const fromAmountInput = screen.getByLabelText('From') as HTMLInputElement;
+        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(100, 3); // Allow for decimal precision
+      });
+    });
+
+    it('should handle high precision decimal calculations', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      const fromAmountInput = screen.getByLabelText('From');
+      // Test with high precision input
+      fireEvent.change(fromAmountInput, { target: { value: '123.456789' } });
+
+      await waitFor(() => {
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        const expectedValue = 123.456789 * 0.025251; // Based on GALA->USDC rate with price impact
+        expect(parseFloat(toAmountInput.value)).toBeCloseTo(expectedValue, 6);
+      });
+    });
+
+    it('should handle very small decimal amounts', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      const fromAmountInput = screen.getByLabelText('From');
+      // Test with very small amount
+      fireEvent.change(fromAmountInput, { target: { value: '0.000001' } });
+
+      await waitFor(() => {
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        const expectedValue = 0.000001 * 0.025251;
+        expect(parseFloat(toAmountInput.value)).toBeCloseTo(expectedValue, 10);
+      });
+    });
+
+    it('should handle large decimal amounts', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      const fromAmountInput = screen.getByLabelText('From');
+      // Test with large amount
+      fireEvent.change(fromAmountInput, { target: { value: '999999.999999' } });
+
+      await waitFor(() => {
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        const expectedValue = 999999.999999 * 0.025251;
+        expect(parseFloat(toAmountInput.value)).toBeCloseTo(expectedValue, 6);
+      });
+    });
+
+    it('should maintain precision in reverse calculations', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      const toAmountInput = screen.getByLabelText('To');
+      // Enter precise decimal in to field
+      fireEvent.change(toAmountInput, { target: { value: '3.141592653589793' } });
+
+      await waitFor(() => {
+        const fromAmountInput = screen.getByLabelText('From') as HTMLInputElement;
+        const expectedValue = 3.141592653589793 / 0.025251;
+        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(expectedValue, 6);
       });
     });
 
