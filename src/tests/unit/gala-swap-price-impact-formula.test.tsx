@@ -18,15 +18,15 @@ const calculatePriceImpact = (midPrice: number, executionPrice: number): number 
 const CURRENT_GALA_SWAP_RATES: Record<string, Record<string, number>> = {
   GALA: { 
     USDC: 0.025, USDT: 0.025, WBTC: 0.00000025, WETH: 0.0000075, 
-    WEN: 250.0, '$GMUSIC': 0.8, FILM: 1.2, WXRP: 0.04
+    WEN: 250.0, '$GMUSIC': 0.8, FILM: 1.2, WXRP: 0.0125
   },
   USDC: { 
     GALA: 40.0, USDT: 1.0, WBTC: 0.00001, WETH: 0.0003, 
-    WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
+    WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 0.5
   },
   USDT: { 
     GALA: 40.0, USDC: 1.0, WBTC: 0.00001, WETH: 0.0003,
-    WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
+    WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 0.5
   },
   WBTC: { 
     GALA: 4000000.0, USDC: 100000.0, USDT: 100000.0, WETH: 30.0,
@@ -49,7 +49,7 @@ const CURRENT_GALA_SWAP_RATES: Record<string, Record<string, number>> = {
     WEN: 208.3, '$GMUSIC': 0.667, WXRP: 0.033
   },
   WXRP: { 
-    GALA: 25.0, USDC: 0.625, USDT: 0.625, WBTC: 0.00000625, WETH: 0.0001875,
+    GALA: 80.0, USDC: 2.0, USDT: 2.0, WBTC: 0.00000625, WETH: 0.0001875,
     WEN: 6250.0, '$GMUSIC': 20.0, FILM: 30.0
   }
 };

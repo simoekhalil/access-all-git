@@ -27,17 +27,20 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 // Mock market data for validation
 const MOCK_MARKET_RATES = {
   'GALA-USDC': 0.025,
-  'GALA-ETH': 0.000015,
-  'GALA-TOWN': 0.1,
+  'GALA-USDT': 0.025,
+  'GALA-WETH': 0.0000075,
+  'GALA-WBTC': 0.00000025,
   'USDC-GALA': 40,
-  'USDC-ETH': 0.0006,
-  'USDC-TOWN': 4,
-  'ETH-GALA': 66666.67,
-  'ETH-USDC': 1666.67,
-  'ETH-TOWN': 6666.67,
-  'TOWN-GALA': 10,
-  'TOWN-USDC': 0.25,
-  'TOWN-ETH': 0.00015,
+  'USDC-USDT': 1.0,
+  'USDC-WETH': 0.0003,
+  'USDT-GALA': 40,
+  'USDT-USDC': 1.0,
+  'USDT-WETH': 0.0003,
+  'WETH-GALA': 133333.33,
+  'WETH-USDC': 3333.33,
+  'WETH-USDT': 3333.33,
+  'WBTC-GALA': 4000000.0,
+  'WBTC-USDC': 100000.0,
 };
 
 // Helper functions
@@ -85,8 +88,8 @@ describe('Price Impact Integration Tests', () => {
       // Step 2: Change token pair
       const fromTokenButton = screen.getByDisplayValue('GALA');
       fireEvent.click(fromTokenButton);
-      const ethOption = screen.getByText('ETH');
-      fireEvent.click(ethOption);
+      const wethOption = screen.getByText('WETH');
+      fireEvent.click(wethOption);
 
       // Verify price impact recalculates
       await waitFor(() => {
@@ -127,7 +130,7 @@ describe('Price Impact Integration Tests', () => {
     test('should maintain price impact accuracy across multiple operations', async () => {
       const operations = [
         { action: 'setAmount', field: 'from', value: '100' },
-        { action: 'changeToken', field: 'from', value: 'ETH' },
+        { action: 'changeToken', field: 'from', value: 'WETH' },
         { action: 'setAmount', field: 'to', value: '2000' },
         { action: 'swap', field: null, value: null },
         { action: 'setAmount', field: 'from', value: '500' },
@@ -142,7 +145,7 @@ describe('Price Impact Integration Tests', () => {
             fireEvent.change(input, { target: { value: operation.value } });
             break;
           case 'changeToken':
-            const tokenButton = screen.getByDisplayValue(/GALA|USDC|ETH|TOWN/);
+            const tokenButton = screen.getByDisplayValue(/GALA|USDC|WETH|USDT/);
             fireEvent.click(tokenButton);
             const option = screen.getByText(operation.value!);
             fireEvent.click(option);
@@ -177,15 +180,15 @@ describe('Price Impact Integration Tests', () => {
     test('should match expected price impact calculations for known inputs', async () => {
       const testCases = [
         { from: 'GALA', to: 'USDC', amount: '1000' },
-        { from: 'ETH', to: 'TOWN', amount: '0.5' },
+        { from: 'WETH', to: 'USDT', amount: '0.5' },
         { from: 'USDC', to: 'GALA', amount: '100' },
-        { from: 'TOWN', to: 'ETH', amount: '10000' },
+        { from: 'USDT', to: 'WETH', amount: '10000' },
       ];
 
       for (const testCase of testCases) {
         // Set tokens if needed
-        if (screen.getByDisplayValue(/GALA|USDC|ETH|TOWN/).getAttribute('value') !== testCase.from) {
-          const fromTokenButton = screen.getByDisplayValue(/GALA|USDC|ETH|TOWN/);
+        if (screen.getByDisplayValue(/GALA|USDC|WETH|USDT/).getAttribute('value') !== testCase.from) {
+          const fromTokenButton = screen.getByDisplayValue(/GALA|USDC|WETH|USDT/);
           fireEvent.click(fromTokenButton);
           const fromOption = screen.getByText(testCase.from);
           fireEvent.click(fromOption);
@@ -273,8 +276,8 @@ describe('Price Impact Integration Tests', () => {
       // Immediately change token
       const fromTokenButton = screen.getByDisplayValue('GALA');
       fireEvent.click(fromTokenButton);
-      const ethOption = screen.getByText('ETH');
-      fireEvent.click(ethOption);
+      const wethOption = screen.getByText('WETH');
+      fireEvent.click(wethOption);
 
       // Immediately change amount again
       fireEvent.change(fromAmountInput, { target: { value: '2000' } });

@@ -258,7 +258,7 @@ describe('Price Impact Property-Based Tests', () => {
 
       for (const pair of tokenPairs) {
         // Set from token
-        const fromTokenButton = screen.getByDisplayValue(screen.getByDisplayValue(/GALA|USDC|ETH|TOWN/).getAttribute('value') || 'GALA');
+        const fromTokenButton = screen.getByDisplayValue(screen.getByDisplayValue(/GALA|USDC|WETH|USDT/).getAttribute('value') || 'GALA');
         fireEvent.click(fromTokenButton);
         
         const fromOption = screen.getByText(pair.from);

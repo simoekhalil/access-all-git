@@ -23,12 +23,17 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 // All available tokens and their expected exchange rates
-const TOKENS = ['GALA', 'USDC', 'ETH', 'TOWN'];
+const TOKENS = ['GALA', 'USDC', 'USDT', 'WBTC', 'WETH', 'WEN', '$GMUSIC', 'FILM', 'WXRP'];
 const EXCHANGE_RATES = {
-  GALA: { USDC: 0.025, ETH: 0.000015, TOWN: 0.1 },
-  USDC: { GALA: 40, ETH: 0.0006, TOWN: 4 },
-  ETH: { GALA: 66666.67, USDC: 1666.67, TOWN: 6666.67 },
-  TOWN: { GALA: 10, USDC: 0.25, ETH: 0.00015 },
+  GALA: { USDC: 0.025, USDT: 0.025, WBTC: 0.00000025, WETH: 0.0000075, WEN: 250.0, '$GMUSIC': 0.8, FILM: 1.2, WXRP: 0.0125 },
+  USDC: { GALA: 40.0, USDT: 1.0, WBTC: 0.00001, WETH: 0.0003, WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 0.5 },
+  USDT: { GALA: 40.0, USDC: 1.0, WBTC: 0.00001, WETH: 0.0003, WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 0.5 },
+  WBTC: { GALA: 4000000.0, USDC: 100000.0, USDT: 100000.0, WETH: 30.0, WEN: 1000000000.0, '$GMUSIC': 128000.0, FILM: 192000.0, WXRP: 160000.0 },
+  WETH: { GALA: 133333.33, USDC: 3333.33, USDT: 3333.33, WBTC: 0.033, WEN: 33333333.0, '$GMUSIC': 4266.67, FILM: 6400.0, WXRP: 5333.33 },
+  WEN: { GALA: 0.004, USDC: 0.0001, USDT: 0.0001, WBTC: 0.000000001, WETH: 0.00000003, '$GMUSIC': 0.0032, FILM: 0.0048, WXRP: 0.00016 },
+  '$GMUSIC': { GALA: 1.25, USDC: 0.03125, USDT: 0.03125, WBTC: 0.0000000078, WETH: 0.0000234, WEN: 312.5, FILM: 1.5, WXRP: 0.05 },
+  FILM: { GALA: 0.833, USDC: 0.02083, USDT: 0.02083, WBTC: 0.0000000052, WETH: 0.000156, WEN: 208.3, '$GMUSIC': 0.667, WXRP: 0.033 },
+  WXRP: { GALA: 80.0, USDC: 2.0, USDT: 2.0, WBTC: 0.00000625, WETH: 0.0001875, WEN: 6250.0, '$GMUSIC': 20.0, FILM: 30.0 }
 };
 
 describe('All Token Combination Tests', () => {
@@ -60,33 +65,33 @@ describe('All Token Combination Tests', () => {
       });
     });
 
-    it('should calculate GALA to ETH conversion correctly', async () => {
+    it('should calculate GALA to WETH conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change to ETH
-      await selectToken(1, 'ETH');
+      // Change to WETH
+      await selectToken(1, 'WETH');
 
       const fromInput = screen.getByLabelText('From');
-      fireEvent.change(fromInput, { target: { value: '66666.67' } });
+      fireEvent.change(fromInput, { target: { value: '133333.33' } });
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1.000000'); // 66666.67 * 0.000015 ≈ 1
+        expect(toInput).toHaveValue('1.000000'); // 133333.33 * 0.0000075 ≈ 1
       });
     });
 
-    it('should calculate GALA to TOWN conversion correctly', async () => {
+    it('should calculate GALA to USDT conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change to TOWN
-      await selectToken(1, 'TOWN');
+      // Change to USDT
+      await selectToken(1, 'USDT');
 
       const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '1000' } });
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('100.000000'); // 1000 * 0.1
+        expect(toInput).toHaveValue('25.000000'); // 1000 * 0.025
       });
     });
   });
@@ -108,45 +113,45 @@ describe('All Token Combination Tests', () => {
       });
     });
 
-    it('should calculate USDC to ETH conversion correctly', async () => {
+    it('should calculate USDC to WETH conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change from to USDC, to to ETH
+      // Change from to USDC, to to WETH
       await selectToken(0, 'USDC');
-      await selectToken(1, 'ETH');
+      await selectToken(1, 'WETH');
 
       const fromInput = screen.getByLabelText('From');
-      fireEvent.change(fromInput, { target: { value: '1666.67' } });
+      fireEvent.change(fromInput, { target: { value: '3333.33' } });
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1.000000'); // 1666.67 * 0.0006 ≈ 1
+        expect(toInput).toHaveValue('1.000000'); // 3333.33 * 0.0003 ≈ 1
       });
     });
 
-    it('should calculate USDC to TOWN conversion correctly', async () => {
+    it('should calculate USDC to USDT conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change from to USDC, to to TOWN
+      // Change from to USDC, to to USDT
       await selectToken(0, 'USDC');
-      await selectToken(1, 'TOWN');
+      await selectToken(1, 'USDT');
 
       const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('400.000000'); // 100 * 4
+        expect(toInput).toHaveValue('100.000000'); // 100 * 1.0
       });
     });
   });
 
-  describe('ETH Token Pair Tests', () => {
-    it('should calculate ETH to GALA conversion correctly', async () => {
+  describe('WETH Token Pair Tests', () => {
+    it('should calculate WETH to GALA conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change from to ETH, to to GALA
-      await selectToken(0, 'ETH');
+      // Change from to WETH, to to GALA
+      await selectToken(0, 'WETH');
       await selectToken(1, 'GALA');
 
       const fromInput = screen.getByLabelText('From');
@@ -154,15 +159,15 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('66666.670000'); // 1 * 66666.67
+        expect(toInput).toHaveValue('133333.330000'); // 1 * 133333.33
       });
     });
 
-    it('should calculate ETH to USDC conversion correctly', async () => {
+    it('should calculate WETH to USDC conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change from to ETH, to to USDC
-      await selectToken(0, 'ETH');
+      // Change from to WETH, to to USDC
+      await selectToken(0, 'WETH');
       await selectToken(1, 'USDC');
 
       const fromInput = screen.getByLabelText('From');
@@ -170,33 +175,33 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1666.670000'); // 1 * 1666.67
+        expect(toInput).toHaveValue('3333.330000'); // 1 * 3333.33
       });
     });
 
-    it('should calculate ETH to TOWN conversion correctly', async () => {
+    it('should calculate WETH to USDT conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change from to ETH, to to TOWN
-      await selectToken(0, 'ETH');
-      await selectToken(1, 'TOWN');
+      // Change from to WETH, to to USDT
+      await selectToken(0, 'WETH');
+      await selectToken(1, 'USDT');
 
       const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('6666.670000'); // 1 * 6666.67
+        expect(toInput).toHaveValue('3333.330000'); // 1 * 3333.33
       });
     });
   });
 
-  describe('TOWN Token Pair Tests', () => {
-    it('should calculate TOWN to GALA conversion correctly', async () => {
+  describe('USDT Token Pair Tests', () => {
+    it('should calculate USDT to GALA conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change from to TOWN, to to GALA
-      await selectToken(0, 'TOWN');
+      // Change from to USDT, to to GALA
+      await selectToken(0, 'USDT');
       await selectToken(1, 'GALA');
 
       const fromInput = screen.getByLabelText('From');
@@ -204,15 +209,15 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1000.000000'); // 100 * 10
+        expect(toInput).toHaveValue('4000.000000'); // 100 * 40
       });
     });
 
-    it('should calculate TOWN to USDC conversion correctly', async () => {
+    it('should calculate USDT to USDC conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change from to TOWN, to to USDC
-      await selectToken(0, 'TOWN');
+      // Change from to USDT, to to USDC  
+      await selectToken(0, 'USDT');
       await selectToken(1, 'USDC');
 
       const fromInput = screen.getByLabelText('From');
@@ -220,23 +225,23 @@ describe('All Token Combination Tests', () => {
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('25.000000'); // 100 * 0.25
+        expect(toInput).toHaveValue('100.000000'); // 100 * 1.0
       });
     });
 
-    it('should calculate TOWN to ETH conversion correctly', async () => {
+    it('should calculate USDT to WETH conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Change from to TOWN, to to ETH
-      await selectToken(0, 'TOWN');
-      await selectToken(1, 'ETH');
+      // Change from to USDT, to to WETH
+      await selectToken(0, 'USDT');
+      await selectToken(1, 'WETH');
 
       const fromInput = screen.getByLabelText('From');
-      fireEvent.change(fromInput, { target: { value: '6666.67' } });
+      fireEvent.change(fromInput, { target: { value: '3333.33' } });
 
       await waitFor(() => {
         const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('1.000000'); // 6666.67 * 0.00015 ≈ 1
+        expect(toInput).toHaveValue('1.000000'); // 3333.33 * 0.0003 ≈ 1
       });
     });
   });
@@ -245,17 +250,17 @@ describe('All Token Combination Tests', () => {
     it('should calculate all token pairs correctly when entering to amount', async () => {
       const testCases = [
         { from: 'GALA', to: 'USDC', toAmount: '25', expectedFrom: '1000.000000' },
-        { from: 'GALA', to: 'ETH', toAmount: '1', expectedFrom: '66666.666667' },
-        { from: 'GALA', to: 'TOWN', toAmount: '100', expectedFrom: '1000.000000' },
+        { from: 'GALA', to: 'WETH', toAmount: '1', expectedFrom: '133333.333333' },
+        { from: 'GALA', to: 'USDT', toAmount: '25', expectedFrom: '1000.000000' },
         { from: 'USDC', to: 'GALA', toAmount: '4000', expectedFrom: '100.000000' },
-        { from: 'USDC', to: 'ETH', toAmount: '1', expectedFrom: '1666.666667' },
-        { from: 'USDC', to: 'TOWN', toAmount: '400', expectedFrom: '100.000000' },
-        { from: 'ETH', to: 'GALA', toAmount: '66666.67', expectedFrom: '1.000000' },
-        { from: 'ETH', to: 'USDC', toAmount: '1666.67', expectedFrom: '1.000000' },
-        { from: 'ETH', to: 'TOWN', toAmount: '6666.67', expectedFrom: '1.000000' },
-        { from: 'TOWN', to: 'GALA', toAmount: '1000', expectedFrom: '100.000000' },
-        { from: 'TOWN', to: 'USDC', toAmount: '25', expectedFrom: '100.000000' },
-        { from: 'TOWN', to: 'ETH', toAmount: '1', expectedFrom: '6666.666667' },
+        { from: 'USDC', to: 'WETH', toAmount: '1', expectedFrom: '3333.333333' },
+        { from: 'USDC', to: 'USDT', toAmount: '100', expectedFrom: '100.000000' },
+        { from: 'WETH', to: 'GALA', toAmount: '133333.33', expectedFrom: '1.000000' },
+        { from: 'WETH', to: 'USDC', toAmount: '3333.33', expectedFrom: '1.000000' },
+        { from: 'WETH', to: 'USDT', toAmount: '3333.33', expectedFrom: '1.000000' },
+        { from: 'USDT', to: 'GALA', toAmount: '4000', expectedFrom: '100.000000' },
+        { from: 'USDT', to: 'USDC', toAmount: '100', expectedFrom: '100.000000' },
+        { from: 'USDT', to: 'WETH', toAmount: '1', expectedFrom: '3333.333333' },
       ];
 
       for (const testCase of testCases) {
@@ -287,17 +292,17 @@ describe('All Token Combination Tests', () => {
     it('should maintain accuracy when swapping direction for all token combinations', async () => {
       const testCases = [
         { initialFrom: 'GALA', initialTo: 'USDC', amount: '1000' },
-        { initialFrom: 'GALA', initialTo: 'ETH', amount: '66666.67' },
-        { initialFrom: 'GALA', initialTo: 'TOWN', amount: '1000' },
+        { initialFrom: 'GALA', initialTo: 'WETH', amount: '133333.33' },
+        { initialFrom: 'GALA', initialTo: 'USDT', amount: '1000' },
         { initialFrom: 'USDC', initialTo: 'GALA', amount: '100' },
-        { initialFrom: 'USDC', initialTo: 'ETH', amount: '1666.67' },
-        { initialFrom: 'USDC', initialTo: 'TOWN', amount: '100' },
-        { initialFrom: 'ETH', initialTo: 'GALA', amount: '1' },
-        { initialFrom: 'ETH', initialTo: 'USDC', amount: '1' },
-        { initialFrom: 'ETH', initialTo: 'TOWN', amount: '1' },
-        { initialFrom: 'TOWN', initialTo: 'GALA', amount: '100' },
-        { initialFrom: 'TOWN', initialTo: 'USDC', amount: '100' },
-        { initialFrom: 'TOWN', initialTo: 'ETH', amount: '6666.67' },
+        { initialFrom: 'USDC', initialTo: 'WETH', amount: '3333.33' },
+        { initialFrom: 'USDC', initialTo: 'USDT', amount: '100' },
+        { initialFrom: 'WETH', initialTo: 'GALA', amount: '1' },
+        { initialFrom: 'WETH', initialTo: 'USDC', amount: '1' },
+        { initialFrom: 'WETH', initialTo: 'USDT', amount: '1' },
+        { initialFrom: 'USDT', initialTo: 'GALA', amount: '100' },
+        { initialFrom: 'USDT', initialTo: 'USDC', amount: '100' },
+        { initialFrom: 'USDT', initialTo: 'WETH', amount: '3333.33' },
       ];
 
       for (const testCase of testCases) {
@@ -350,17 +355,17 @@ describe('All Token Combination Tests', () => {
     it('should display correct exchange rates for all token pairs', async () => {
       const testCases = [
         { from: 'GALA', to: 'USDC', amount: '1000', expectedRate: '0.025000' },
-        { from: 'GALA', to: 'ETH', amount: '66666.67', expectedRate: '0.000015' },
-        { from: 'GALA', to: 'TOWN', amount: '1000', expectedRate: '0.100000' },
+        { from: 'GALA', to: 'WETH', amount: '133333.33', expectedRate: '0.0000075' },
+        { from: 'GALA', to: 'USDT', amount: '1000', expectedRate: '0.025000' },
         { from: 'USDC', to: 'GALA', amount: '100', expectedRate: '40.000000' },
-        { from: 'USDC', to: 'ETH', amount: '1666.67', expectedRate: '0.000600' },
-        { from: 'USDC', to: 'TOWN', amount: '100', expectedRate: '4.000000' },
-        { from: 'ETH', to: 'GALA', amount: '1', expectedRate: '66666.670000' },
-        { from: 'ETH', to: 'USDC', amount: '1', expectedRate: '1666.670000' },
-        { from: 'ETH', to: 'TOWN', amount: '1', expectedRate: '6666.670000' },
-        { from: 'TOWN', to: 'GALA', amount: '100', expectedRate: '10.000000' },
-        { from: 'TOWN', to: 'USDC', amount: '100', expectedRate: '0.250000' },
-        { from: 'TOWN', to: 'ETH', amount: '6666.67', expectedRate: '0.000150' },
+        { from: 'USDC', to: 'WETH', amount: '3333.33', expectedRate: '0.000300' },
+        { from: 'USDC', to: 'USDT', amount: '100', expectedRate: '1.000000' },
+        { from: 'WETH', to: 'GALA', amount: '1', expectedRate: '133333.330000' },
+        { from: 'WETH', to: 'USDC', amount: '1', expectedRate: '3333.330000' },
+        { from: 'WETH', to: 'USDT', amount: '1', expectedRate: '3333.330000' },
+        { from: 'USDT', to: 'GALA', amount: '100', expectedRate: '40.000000' },
+        { from: 'USDT', to: 'USDC', amount: '100', expectedRate: '1.000000' },
+        { from: 'USDT', to: 'WETH', amount: '3333.33', expectedRate: '0.000300' },
       ];
 
       for (const testCase of testCases) {

@@ -44,28 +44,28 @@ describe('Comprehensive Swap Calculations', () => {
       });
     });
 
-    it('should calculate correct GALA to ETH conversion when entering from amount', async () => {
+    it('should calculate correct GALA to WETH conversion when entering from amount', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      // Change to token to ETH
+      // Change to token to WETH
       const toTokenSelect = screen.getAllByRole('combobox')[1];
       fireEvent.click(toTokenSelect);
 
       await waitFor(() => {
-        const ethOption = screen.getByText('ETH');
-        fireEvent.click(ethOption);
+        const wethOption = screen.getByText('WETH');
+        fireEvent.click(wethOption);
       });
 
       const fromAmountInput = screen.getByLabelText('From');
-      fireEvent.change(fromAmountInput, { target: { value: '66666.67' } });
+      fireEvent.change(fromAmountInput, { target: { value: '133333.33' } });
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('1.000000'); // 66666.67 * 0.000015 ≈ 1
+        expect(toAmountInput).toHaveValue('1.000000'); // 133333.33 * 0.0000075 ≈ 1
       });
     });
 
@@ -153,20 +153,20 @@ describe('Comprehensive Swap Calculations', () => {
       });
     });
 
-    it('should calculate correct from amount when entering ETH to amount', async () => {
+    it('should calculate correct from amount when entering WETH to amount', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      // Change to token to ETH
+      // Change to token to WETH
       const toTokenSelect = screen.getAllByRole('combobox')[1];
       fireEvent.click(toTokenSelect);
 
       await waitFor(() => {
-        const ethOption = screen.getByText('ETH');
-        fireEvent.click(ethOption);
+        const wethOption = screen.getByText('WETH');
+        fireEvent.click(wethOption);
       });
 
       const toAmountInput = screen.getByLabelText('To');
@@ -174,7 +174,7 @@ describe('Comprehensive Swap Calculations', () => {
 
       await waitFor(() => {
         const fromAmountInput = screen.getByLabelText('From');
-        expect(fromAmountInput).toHaveValue('66666.666667'); // 1 / 0.000015 ≈ 66666.67
+        expect(fromAmountInput).toHaveValue('133333.333333'); // 1 / 0.0000075 ≈ 133333.33
       });
     });
 
@@ -367,14 +367,14 @@ describe('Comprehensive Swap Calculations', () => {
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
-        // Now USDC is from token, change it to ETH
+        // Now USDC is from token, change it to WETH
         const fromTokenSelect = screen.getAllByRole('combobox')[0];
         fireEvent.click(fromTokenSelect);
       });
 
       await waitFor(() => {
-        const ethOption = screen.getByText('ETH');
-        fireEvent.click(ethOption);
+        const wethOption = screen.getByText('WETH');
+        fireEvent.click(wethOption);
       });
 
       await waitFor(() => {

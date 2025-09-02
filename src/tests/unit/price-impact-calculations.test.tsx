@@ -208,12 +208,12 @@ describe('Price Impact Calculations', () => {
 
   describe('Token Pair Tests', () => {
     test('should calculate price impact for different token pairs', async () => {
-      // Test GALA to ETH
+      // Test GALA to WETH
       const fromTokenSelect = screen.getByDisplayValue('GALA');
       fireEvent.click(fromTokenSelect);
       
-      const ethOption = screen.getByText('ETH');
-      fireEvent.click(ethOption);
+      const wethOption = screen.getByText('WETH');
+      fireEvent.click(wethOption);
 
       const fromAmountInput = screen.getByLabelText('From');
       fireEvent.change(fromAmountInput, { target: { value: '1000' } });
