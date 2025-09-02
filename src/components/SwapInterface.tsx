@@ -22,6 +22,9 @@ interface SwapState {
   toAmount: string;
   slippage: string;
   isLoading: boolean;
+  priceImpact: number | null;
+  midPrice: number | null;
+  executionPrice: number | null;
 }
 
 const SwapInterface = () => {
@@ -32,6 +35,9 @@ const SwapInterface = () => {
     toAmount: '',
     slippage: '0.5',
     isLoading: false,
+    priceImpact: null,
+    midPrice: null,
+    executionPrice: null,
   });
   const { toast } = useToast();
 
@@ -46,7 +52,7 @@ const SwapInterface = () => {
   };
 
   const getExchangeRate = (from: string, to: string) => {
-    // Mock exchange rates
+    // Mock exchange rates (mid-prices)
     const rates: Record<string, Record<string, number>> = {
       GALA: { USDC: 0.025, ETH: 0.000015, TOWN: 0.1 },
       USDC: { GALA: 40, ETH: 0.0006, TOWN: 4 },
@@ -56,33 +62,70 @@ const SwapInterface = () => {
     return rates[from]?.[to] || 1;
   };
 
+  const getExecutionPrice = (from: string, to: string, fromAmount: string) => {
+    // Simulate price impact based on trade size
+    const midPrice = getExchangeRate(from, to);
+    const amount = Number(fromAmount);
+    
+    if (amount === 0) return midPrice;
+    
+    // Simulate higher execution price for larger trades (positive price impact)
+    const impactFactor = Math.sqrt(amount) * 0.001; // Simple impact model
+    return midPrice * (1 + impactFactor);
+  };
+
+  const calculatePriceImpact = (midPrice: number, executionPrice: number): number => {
+    if (midPrice === 0) return 0;
+    return ((executionPrice - midPrice) / midPrice) * 100;
+  };
+
   const calculateToAmount = (fromAmount: string, fromToken: string, toToken: string) => {
     if (!fromAmount || isNaN(Number(fromAmount))) return '';
-    const rate = getExchangeRate(fromToken, toToken);
-    const amount = Number(fromAmount) * rate;
+    const executionPrice = getExecutionPrice(fromToken, toToken, fromAmount);
+    const amount = Number(fromAmount) * executionPrice;
     return amount.toFixed(6);
   };
 
   const calculateFromAmount = (toAmount: string, fromToken: string, toToken: string) => {
     if (!toAmount || isNaN(Number(toAmount))) return '';
-    const rate = getExchangeRate(fromToken, toToken);
-    const amount = Number(toAmount) / rate;
+    const midPrice = getExchangeRate(fromToken, toToken);
+    const amount = Number(toAmount) / midPrice;
     return amount.toFixed(6);
   };
 
   const handleFromAmountChange = (value: string) => {
+    const toAmount = calculateToAmount(value, swap.fromToken, swap.toToken);
+    const midPrice = getExchangeRate(swap.fromToken, swap.toToken);
+    const executionPrice = getExecutionPrice(swap.fromToken, swap.toToken, value);
+    const priceImpact = value && !isNaN(Number(value)) && Number(value) > 0 
+      ? calculatePriceImpact(midPrice, executionPrice) 
+      : null;
+
     setSwap(prev => ({
       ...prev,
       fromAmount: value,
-      toAmount: calculateToAmount(value, prev.fromToken, prev.toToken),
+      toAmount,
+      midPrice,
+      executionPrice,
+      priceImpact,
     }));
   };
 
   const handleToAmountChange = (value: string) => {
+    const fromAmount = calculateFromAmount(value, swap.fromToken, swap.toToken);
+    const midPrice = getExchangeRate(swap.fromToken, swap.toToken);
+    const executionPrice = getExecutionPrice(swap.fromToken, swap.toToken, fromAmount);
+    const priceImpact = fromAmount && !isNaN(Number(fromAmount)) && Number(fromAmount) > 0 
+      ? calculatePriceImpact(midPrice, executionPrice) 
+      : null;
+
     setSwap(prev => ({
       ...prev,
       toAmount: value,
-      fromAmount: calculateFromAmount(value, prev.fromToken, prev.toToken),
+      fromAmount,
+      midPrice,
+      executionPrice,
+      priceImpact,
     }));
   };
 
@@ -241,6 +284,17 @@ const SwapInterface = () => {
               <span>Slippage Tolerance:</span>
               <Badge variant="secondary">{swap.slippage}%</Badge>
             </div>
+            {swap.priceImpact !== null && (
+              <div className="flex justify-between text-sm">
+                <span>Price Impact:</span>
+                <Badge 
+                  variant={Math.abs(swap.priceImpact) > 5 ? "destructive" : Math.abs(swap.priceImpact) > 1 ? "secondary" : "outline"}
+                  data-testid="price-impact-badge"
+                >
+                  {swap.priceImpact > 0 ? '+' : ''}{swap.priceImpact.toFixed(3)}%
+                </Badge>
+              </div>
+            )}
           </div>
         )}
 
