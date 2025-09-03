@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Current GalaSwap tokens as per live data from https://swap.gala.com/explore (January 2025)
+// Current GalaSwap tokens as per live data from https://swap.gala.com/explore (September 2025)
 const TOKENS = [
   { symbol: 'USDC', name: 'USD Coin', balance: '1,500.00' },
   { symbol: 'GALA', name: 'Gala', balance: '1,000.00' },
