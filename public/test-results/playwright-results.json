@@ -1,0 +1,46 @@
+{
+  "stats": {
+    "total": 3,
+    "passed": 2, 
+    "failed": 1,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "title": "Swap Workflow",
+      "tests": [
+        {
+          "title": "should complete full swap flow",
+          "outcome": "passed",
+          "duration": 2340,
+          "errors": []
+        },
+        {
+          "title": "should handle wallet connection errors",
+          "outcome": "failed",
+          "duration": 1890,
+          "errors": [
+            {
+              "message": "Timeout waiting for wallet connection dialog",
+              "location": {
+                "file": "src/tests/e2e/complete-swap-workflow.spec.ts",
+                "line": 45
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Cross-browser Compatibility", 
+      "tests": [
+        {
+          "title": "should work in Chrome and Firefox",
+          "outcome": "passed",
+          "duration": 3200,
+          "errors": []
+        }
+      ]
+    }
+  ]
+}
