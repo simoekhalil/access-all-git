@@ -194,6 +194,15 @@ export const useTestResults = () => {
           });
           
           if (e2eTests.length > 0) {
+            console.log('E2E Test breakdown:');
+            console.log('Total individual tests loaded:', e2eTests.length);
+            console.log('Tests by status:', {
+              passed: e2eTests.filter(t => t.status === 'passed').length,
+              failed: e2eTests.filter(t => t.status === 'failed').length,
+              skipped: e2eTests.filter(t => t.status === 'skipped').length
+            });
+            console.log('Using Playwright stats:', playwrightData.stats);
+            
             suites.push({
               name: 'E2E Tests',
               tests: e2eTests,
@@ -212,6 +221,14 @@ export const useTestResults = () => {
       if (suites.length === 0) {
         setError('No test results found. Please run tests first using "npm run test" or "npm run test:e2e"');
       }
+      
+      console.log('Final test suites:', suites.map(s => ({
+        name: s.name,
+        totalTests: s.totalTests,
+        passedTests: s.passedTests,
+        failedTests: s.failedTests,
+        skippedTests: s.skippedTests
+      })));
       
       setTestSuites(suites);
     } catch (err) {
