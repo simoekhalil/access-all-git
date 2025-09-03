@@ -235,7 +235,7 @@
     {"name": "State Management › should be predictable", "status": "passed", "duration": 145}
   ],
   "numTotalTests": 232,
-  "numPassedTests": 196,
-  "numFailedTests": 36,
+  "numPassedTests": 189,
+  "numFailedTests": 43,
   "numPendingTests": 0
 }
