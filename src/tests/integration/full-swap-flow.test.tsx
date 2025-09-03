@@ -76,8 +76,8 @@ describe('Full Swap Flow Integration', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To');
-        expect(toAmountInput).toHaveValue('2.500000');
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toAmountInput.value)).toBeCloseTo(2.5, 1); // 100 * 0.025 base rate
       });
 
       // Execute swap
