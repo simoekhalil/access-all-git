@@ -213,6 +213,10 @@ export const useTestResults = () => {
             });
             
             if (e2eTests.length > 0) {
+              console.log('Creating E2E suite with stats:', playwrightData.stats);
+              console.log('Individual E2E tests found:', e2eTests.length);
+              console.log('Passed tests by counting:', e2eTests.filter(t => t.status === 'passed').length);
+              
               suites.push({
                 name: 'E2E Tests',
                 tests: e2eTests,
