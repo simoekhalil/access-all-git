@@ -22,10 +22,13 @@ import {
   Zap,
   Globe,
   ArrowLeft,
-  Home
+  Home,
+  Loader2,
+  AlertTriangle
 } from 'lucide-react';
 import TestResultCard from '@/components/TestResultCard';
 import FailureExplanation from '@/components/FailureExplanation';
+import { useTestResults } from '@/hooks/useTestResults';
 
 interface TestResult {
   name: string;
@@ -233,15 +236,17 @@ const explainFailure = (error: string, testName: string) => {
 };
 
 export default function TestDashboard() {
+  const { testSuites, isLoading, error, refetch } = useTestResults();
   const [selectedSuite, setSelectedSuite] = useState<string>('overview');
   const [isRunning, setIsRunning] = useState(false);
   const [expandedTests, setExpandedTests] = useState<Set<string>>(new Set());
 
-  const totalTests = mockTestData.reduce((sum, suite) => sum + suite.totalTests, 0);
-  const totalPassed = mockTestData.reduce((sum, suite) => sum + suite.passedTests, 0);
-  const totalFailed = mockTestData.reduce((sum, suite) => sum + suite.failedTests, 0);
-  const totalSkipped = mockTestData.reduce((sum, suite) => sum + suite.skippedTests, 0);
-  const passRate = ((totalPassed / totalTests) * 100);
+  // Calculate totals from actual data
+  const totalTests = testSuites.reduce((sum, suite) => sum + suite.totalTests, 0);
+  const totalPassed = testSuites.reduce((sum, suite) => sum + suite.passedTests, 0);
+  const totalFailed = testSuites.reduce((sum, suite) => sum + suite.failedTests, 0);
+  const totalSkipped = testSuites.reduce((sum, suite) => sum + suite.skippedTests, 0);
+  const passRate = totalTests > 0 ? ((totalPassed / totalTests) * 100) : 0;
 
   const toggleTestExpansion = (testName: string) => {
     setExpandedTests(prev => {
@@ -255,10 +260,18 @@ export default function TestDashboard() {
     });
   };
 
-  const runTests = () => {
+  const runTests = async () => {
     setIsRunning(true);
-    // Simulate test run
-    setTimeout(() => setIsRunning(false), 3000);
+    try {
+      // In a real implementation, you would trigger the test runner here
+      // For now, we'll just refresh the results after a delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await refetch();
+    } catch (err) {
+      console.error('Failed to run tests:', err);
+    } finally {
+      setIsRunning(false);
+    }
   };
 
   return (
@@ -284,6 +297,18 @@ export default function TestDashboard() {
           </div>
           <div className="flex gap-3">
             <Button 
+              onClick={refetch} 
+              variant="outline"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-2" />
+              )}
+              Refresh Results
+            </Button>
+            <Button 
               onClick={runTests} 
               disabled={isRunning}
               className="bg-gradient-to-r from-primary to-primary/80"
@@ -293,12 +318,42 @@ export default function TestDashboard() {
               ) : (
                 <Play className="h-4 w-4 mr-2" />
               )}
-              {isRunning ? 'Running Tests...' : 'Run All Tests'}
+              {isRunning ? 'Running Tests...' : 'Run Tests'}
             </Button>
           </div>
         </div>
 
-        {/* Overview Cards */}
+        {/* Loading State */}
+        {isLoading && (
+          <Card>
+            <CardContent className="flex items-center justify-center py-8">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Loading test results...</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <div className="space-y-2">
+                <p>{error}</p>
+                <p className="text-sm">
+                  To generate test results, run: <code className="bg-muted px-1 rounded">npm run test</code> for unit tests 
+                  or <code className="bg-muted px-1 rounded">npm run test:e2e</code> for end-to-end tests.
+                </p>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Results */}
+        {!isLoading && !error && testSuites.length > 0 && (
+          <>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20 border-green-200 dark:border-green-800">
             <CardHeader className="pb-3">
@@ -395,7 +450,7 @@ export default function TestDashboard() {
 
           <TabsContent value="overview">
             <div className="grid gap-4">
-              {mockTestData.map((suite) => {
+              {testSuites.map((suite) => {
                 const suitePassRate = (suite.passedTests / suite.totalTests) * 100;
                 return (
                   <Card key={suite.name}>
@@ -425,7 +480,7 @@ export default function TestDashboard() {
             </div>
           </TabsContent>
 
-          {mockTestData.map((suite) => (
+          {testSuites.map((suite) => (
             <TabsContent key={suite.name.toLowerCase().replace(' ', '')} value={suite.name.toLowerCase().replace(' ', '')}>
               <Card>
                 <CardHeader>
@@ -484,6 +539,35 @@ export default function TestDashboard() {
             </TabsContent>
           ))}
         </Tabs>
+        </>
+        )}
+
+        {/* Show empty state when no tests but not loading */}
+        {!isLoading && !error && testSuites.length === 0 && (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <TestTube className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No test results found</h3>
+              <p className="text-muted-foreground text-center max-w-md mb-4">
+                Run your tests first to see results here. Test reports will be automatically loaded from the generated files.
+              </p>
+              <div className="flex gap-2">
+                <Button onClick={runTests} disabled={isRunning}>
+                  {isRunning ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Play className="h-4 w-4 mr-2" />
+                  )}
+                  Run Tests
+                </Button>
+                <Button variant="outline" onClick={refetch}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

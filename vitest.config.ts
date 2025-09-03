@@ -48,8 +48,8 @@ export default defineConfig({
     },
     reporter: ['verbose', 'json', 'html'],
     outputFile: {
-      json: './test-results/results.json',
-      html: './test-results/index.html'
+      json: './public/test-results/results.json',
+      html: './public/test-results/index.html'
     }
   },
   resolve: {
