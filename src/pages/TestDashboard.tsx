@@ -50,140 +50,7 @@ interface TestSuite {
   duration: number;
 }
 
-const mockTestData: TestSuite[] = [
-  {
-    name: 'Unit Tests',
-    totalTests: 42,
-    passedTests: 38,
-    failedTests: 3,
-    skippedTests: 1,
-    duration: 2340,
-    tests: [
-      {
-        name: 'SwapInterface Component - Amount Calculation',
-        status: 'failed',
-        duration: 145,
-        error: 'Expected 99.014766 to be close to 100, received difference is 0.98',
-        file: 'src/tests/unit/swap-interface.test.tsx',
-        type: 'unit'
-      },
-      {
-        name: 'Price Impact Property-Based Tests',
-        status: 'failed',
-        duration: 230,
-        error: 'Found multiple elements with text: GALA. Element selection issue in dropdown.',
-        file: 'src/tests/unit/price-impact-property-based.test.tsx',
-        type: 'unit'
-      },
-      {
-        name: 'GalaSwap Price Impact Formula - Precision',
-        status: 'failed',
-        duration: 89,
-        error: 'Precision test failed - expected 6.172839 to be close to 6.172839450000001',
-        file: 'src/tests/unit/gala-swap-price-impact-formula.test.tsx',
-        type: 'unit'
-      },
-      {
-        name: 'Basic Component Rendering',
-        status: 'passed',
-        duration: 67,
-        file: 'src/tests/unit/swap-interface.test.tsx',
-        type: 'unit'
-      },
-      {
-        name: 'Token Selection Logic',
-        status: 'passed',
-        duration: 123,
-        file: 'src/tests/unit/swap-interface.test.tsx',
-        type: 'unit'
-      }
-    ]
-  },
-  {
-    name: 'Integration Tests',
-    totalTests: 12,
-    passedTests: 11,
-    failedTests: 1,
-    skippedTests: 0,
-    duration: 1890,
-    tests: [
-      {
-        name: 'Price Impact Integration Flow',
-        status: 'passed',
-        duration: 456,
-        file: 'src/tests/integration/price-impact-integration.test.tsx',
-        type: 'integration'
-      },
-      {
-        name: 'Full Swap Flow Integration',
-        status: 'failed',
-        duration: 678,
-        error: 'Network timeout during swap execution simulation',
-        file: 'src/tests/integration/full-swap-flow.test.tsx',
-        type: 'integration'
-      }
-    ]
-  },
-  {
-    name: 'E2E Tests',
-    totalTests: 8,
-    passedTests: 7,
-    failedTests: 1,
-    skippedTests: 0,
-    duration: 45600,
-    tests: [
-      {
-        name: 'Complete Swap Workflow',
-        status: 'passed',
-        duration: 12340,
-        file: 'src/tests/e2e/complete-swap-workflow.spec.ts',
-        type: 'e2e'
-      },
-      {
-        name: 'Cross-browser Compatibility',
-        status: 'failed',
-        duration: 8900,
-        error: 'Safari-specific issue with wallet connection modal',
-        file: 'src/tests/e2e/cross-browser-compatibility.spec.ts',
-        type: 'e2e'
-      }
-    ]
-  },
-  {
-    name: 'Performance Tests',
-    totalTests: 6,
-    passedTests: 6,
-    failedTests: 0,
-    skippedTests: 0,
-    duration: 3450,
-    tests: [
-      {
-        name: 'Advanced Performance Metrics',
-        status: 'passed',
-        duration: 1234,
-        file: 'src/tests/performance/advanced-performance.test.tsx',
-        type: 'performance'
-      }
-    ]
-  },
-  {
-    name: 'Security Tests',
-    totalTests: 4,
-    passedTests: 4,
-    failedTests: 0,
-    skippedTests: 0,
-    duration: 890,
-    tests: [
-      {
-        name: 'Basic Security Validation',
-        status: 'passed',
-        duration: 445,
-        file: 'src/tests/security/basic-security.test.tsx',
-        type: 'security'
-      }
-    ]
-  }
-];
+// Real test data only - no mock data
 
 const getStatusIcon = (status: TestResult['status']) => {
   switch (status) {
@@ -378,6 +245,23 @@ export default function TestDashboard() {
               </div>
             </AlertDescription>
           </Alert>
+        )}
+
+        {/* Show message when no test results */}
+        {!isLoading && !error && testSuites.length === 0 && (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <TestTube className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Test Results Found</h3>
+              <p className="text-muted-foreground mb-4 max-w-md">
+                Run tests to see results here. Use the "Run Tests" button above or run tests manually in your terminal.
+              </p>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p><code className="bg-muted px-2 py-1 rounded">npm run test</code> - Run unit and integration tests</p>
+                <p><code className="bg-muted px-2 py-1 rounded">npm run test:e2e</code> - Run end-to-end tests</p>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Results */}
