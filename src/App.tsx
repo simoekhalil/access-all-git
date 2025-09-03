@@ -25,6 +25,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/swap" element={<Swap />} />
+          <Route path="/swap-interface" element={<Swap />} />
           <Route path="/wallet-connection" element={<WalletConnectionPage />} />
           <Route path="/test-dashboard" element={<TestDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
