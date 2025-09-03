@@ -73,11 +73,11 @@
         {"title": "should handle MetaMask rejection", "outcome": "passed", "duration": 2200},
         {"title": "should detect network changes", "outcome": "passed", "duration": 2400},
         {"title": "should detect account changes", "outcome": "passed", "duration": 2300},
-        {"title": "should handle missing MetaMask", "outcome": "passed", "duration": 1800},
-        {"title": "should persist connection state", "outcome": "failed", "duration": 2100, "errors": [{"message": "Connection state not persisted", "location": {"file": "wallet-integration.spec.ts", "line": 89}}]},
+        {"title": "should handle missing MetaMask", "outcome": "skipped", "duration": 0},
+        {"title": "should persist connection state", "outcome": "failed", "duration": 2100, "errors": [{"message": "Connection state not persisted across page reloads", "location": {"file": "wallet-integration.spec.ts", "line": 89}}]},
         {"title": "should handle wallet lock", "outcome": "passed", "duration": 2000},
         {"title": "should show connection status", "outcome": "passed", "duration": 1900},
-        {"title": "should handle multiple wallets", "outcome": "passed", "duration": 2500},
+        {"title": "should handle multiple wallets", "outcome": "skipped", "duration": 0},
         {"title": "should validate wallet signatures", "outcome": "passed", "duration": 2600}
       ]
     },
