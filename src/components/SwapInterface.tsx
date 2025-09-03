@@ -134,9 +134,28 @@ const SwapInterface = () => {
 
   const calculateFromAmount = (toAmount: string, fromToken: string, toToken: string) => {
     if (!toAmount || isNaN(Number(toAmount))) return '';
+    
+    const targetAmount = Number(toAmount);
     const midPrice = getExchangeRate(fromToken, toToken);
-    const amount = Number(toAmount) / midPrice;
-    return amount.toFixed(6);
+    
+    // Start with mid-price estimate
+    let estimate = targetAmount / midPrice;
+    
+    // Use iterative approach to find the fromAmount that yields the desired toAmount
+    // accounting for price impact
+    for (let i = 0; i < 5; i++) {
+      const executionPrice = getExecutionPrice(fromToken, toToken, estimate.toString());
+      const calculatedTo = estimate * executionPrice;
+      const error = calculatedTo - targetAmount;
+      
+      if (Math.abs(error) < 0.000001) break;
+      
+      // Adjust estimate using Newton's method approximation
+      estimate = estimate - (error / executionPrice);
+      estimate = Math.max(0, estimate); // Ensure non-negative
+    }
+    
+    return estimate.toFixed(6);
   };
 
   const handleFromAmountChange = (value: string) => {
