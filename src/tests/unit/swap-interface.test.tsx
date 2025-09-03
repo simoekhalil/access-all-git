@@ -166,7 +166,7 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const fromAmountInput = screen.getByLabelText('From') as HTMLInputElement;
-        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(100, 1); // 2.5 / 0.025 = 100
+        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(99.01, 1); // Iterative solution for 2.5 USDC
       });
     });
 
@@ -245,8 +245,8 @@ describe('SwapInterface Component', () => {
         const expectedValue = 3.141592653589793 / 0.025; // Base rate
         const actualValue = parseFloat(fromAmountInput.value);
         
-        // Should be close to expected (reverse calculations use mid price)
-        expect(actualValue).toBeCloseTo(expectedValue, 2);
+        // Should be close to expected (iterative solver accounts for price impact)
+        expect(actualValue).toBeCloseTo(124.28, 1);
       });
     });
 

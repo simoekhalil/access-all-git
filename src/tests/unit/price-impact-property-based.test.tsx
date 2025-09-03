@@ -261,7 +261,8 @@ describe('Price Impact Property-Based Tests', () => {
         const fromTokenSelect = screen.getAllByRole('combobox')[0];
         fireEvent.click(fromTokenSelect);
         
-        const fromOption = screen.getByText(pair.from);
+        const fromOptions = screen.getAllByText(pair.from);
+        const fromOption = fromOptions.find(option => option.closest('[role="option"]')) || fromOptions[1];
         fireEvent.click(fromOption);
 
         await waitFor(() => {
@@ -272,7 +273,8 @@ describe('Price Impact Property-Based Tests', () => {
         const toTokenButton = screen.getAllByRole('combobox')[1];
         fireEvent.click(toTokenButton);
         
-        const toOption = screen.getByText(pair.to);
+        const toOptions = screen.getAllByText(pair.to);
+        const toOption = toOptions.find(option => option.closest('[role="option"]')) || toOptions[1];
         fireEvent.click(toOption);
 
         await waitFor(() => {
