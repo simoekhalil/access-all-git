@@ -96,6 +96,7 @@ export const useTestResults = () => {
               } else if (test.name.startsWith('API ›') || test.name.startsWith('Database ›')) {
                 testType = 'integration';
               }
+              // All other tests (SwapInterface, WalletConnection, Price Impact, etc.) are unit tests
               
               const testItem = {
                 name: test.name,
