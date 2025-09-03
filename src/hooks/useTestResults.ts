@@ -234,8 +234,8 @@ export const useTestResults = () => {
         console.log('Playwright error:', playwrightError);
       }
       
-      // If no test results found, provide helpful message
       console.log('Total suites found:', suites.length);
+      console.log('Suites:', suites.map(s => ({ name: s.name, totalTests: s.totalTests })));
       if (suites.length === 0) {
         setError('No test results found. Please run tests first using "npm run test" or "npm run test:e2e"');
       }
