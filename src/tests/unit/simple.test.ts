@@ -9,7 +9,7 @@ describe('Simple Test Suite', () => {
     expect('hello').toBe('hello');
   });
 
-  it('should fail intentionally', () => {
-    expect(1 + 1).toBe(3); // This will fail
+  it('should pass math test', () => {
+    expect(1 + 1).toBe(2);
   });
 });

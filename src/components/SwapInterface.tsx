@@ -141,7 +141,7 @@ const SwapInterface = () => {
     if (!fromAmount || isNaN(Number(fromAmount))) return '';
     const executionPrice = getExecutionPrice(fromToken, toToken, fromAmount);
     const amount = Number(fromAmount) * executionPrice;
-    return amount.toFixed(6);
+    return amount === 0 ? '0' : amount.toFixed(6);
   };
 
   const calculateFromAmount = (toAmount: string, fromToken: string, toToken: string) => {
