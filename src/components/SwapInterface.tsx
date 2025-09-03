@@ -48,13 +48,25 @@ const SwapInterface = () => {
   const { toast } = useToast();
 
   const handleSwapTokens = () => {
-    setSwap(prev => ({
-      ...prev,
-      fromToken: prev.toToken,
-      toToken: prev.fromToken,
-      fromAmount: prev.toAmount,
-      toAmount: prev.fromAmount,
-    }));
+    setSwap(prev => {
+      const newState = {
+        ...prev,
+        fromToken: prev.toToken,
+        toToken: prev.fromToken,
+        fromAmount: prev.toAmount,
+        toAmount: prev.fromAmount,
+      };
+      
+      // Recalculate price impact after swap
+      if (newState.fromAmount && !isNaN(Number(newState.fromAmount)) && Number(newState.fromAmount) > 0) {
+        const midPrice = getExchangeRate(newState.fromToken, newState.toToken);
+        const executionPrice = getExecutionPrice(newState.fromToken, newState.toToken, newState.fromAmount);
+        const priceImpact = calculatePriceImpact(midPrice, executionPrice);
+        return { ...newState, midPrice, executionPrice, priceImpact };
+      }
+      
+      return { ...newState, priceImpact: null, midPrice: null, executionPrice: null };
+    });
   };
 
   const getExchangeRate = (from: string, to: string) => {
@@ -218,11 +230,14 @@ const SwapInterface = () => {
         description: `Swapped ${swap.fromAmount} ${swap.fromToken} for ${swap.toAmount} ${swap.toToken}`,
       });
 
-      // Reset form
+      // Reset form with proper state cleanup
       setSwap(prev => ({
         ...prev,
         fromAmount: '',
         toAmount: '',
+        priceImpact: null,
+        midPrice: null,
+        executionPrice: null,
         isLoading: false,
       }));
     } catch (error) {
@@ -258,19 +273,30 @@ const SwapInterface = () => {
           <Label htmlFor="from-amount">From</Label>
           <div className="flex gap-2">
             <div className="flex-1">
-              <Input
-                id="from-amount"
-                type="number"
-                placeholder="0.00"
-                value={swap.fromAmount}
-                onChange={(e) => handleFromAmountChange(e.target.value)}
-              />
+          <Input
+            id="from-amount"
+            type="number"
+            placeholder="0.00"
+            value={swap.fromAmount}
+            onChange={(e) => handleFromAmountChange(e.target.value)}
+            aria-label="From"
+          />
             </div>
             <Select
               value={swap.fromToken}
-              onValueChange={(value) => setSwap(prev => ({ ...prev, fromToken: value }))}
+              onValueChange={(value) => {
+                setSwap(prev => ({ ...prev, fromToken: value }));
+                // Recalculate when from token changes
+                if (swap.fromAmount) {
+                  const toAmount = calculateToAmount(swap.fromAmount, value, swap.toToken);
+                  const midPrice = getExchangeRate(value, swap.toToken);
+                  const executionPrice = getExecutionPrice(value, swap.toToken, swap.fromAmount);
+                  const priceImpact = calculatePriceImpact(midPrice, executionPrice);
+                  setSwap(prev => ({ ...prev, toAmount, midPrice, executionPrice, priceImpact }));
+                }
+              }}
             >
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="w-24" role="combobox">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -309,19 +335,30 @@ const SwapInterface = () => {
           <Label htmlFor="to-amount">To</Label>
           <div className="flex gap-2">
             <div className="flex-1">
-              <Input
-                id="to-amount"
-                type="number"
-                placeholder="0.00"
-                value={swap.toAmount}
-                onChange={(e) => handleToAmountChange(e.target.value)}
-              />
+          <Input
+            id="to-amount"
+            type="number"
+            placeholder="0.00"
+            value={swap.toAmount}
+            onChange={(e) => handleToAmountChange(e.target.value)}
+            aria-label="To"
+          />
             </div>
             <Select
               value={swap.toToken}
-              onValueChange={(value) => setSwap(prev => ({ ...prev, toToken: value }))}
+              onValueChange={(value) => {
+                setSwap(prev => ({ ...prev, toToken: value }));
+                // Recalculate when to token changes
+                if (swap.fromAmount) {
+                  const toAmount = calculateToAmount(swap.fromAmount, swap.fromToken, value);
+                  const midPrice = getExchangeRate(swap.fromToken, value);
+                  const executionPrice = getExecutionPrice(swap.fromToken, value, swap.fromAmount);
+                  const priceImpact = calculatePriceImpact(midPrice, executionPrice);
+                  setSwap(prev => ({ ...prev, toAmount, midPrice, executionPrice, priceImpact }));
+                }
+              }}
             >
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="w-24" role="combobox">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
