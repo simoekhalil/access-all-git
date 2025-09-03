@@ -72,23 +72,23 @@ export const useTestResults = () => {
         
         if (vitestResponse.ok) {
           const responseText = await vitestResponse.text();
+          console.log('Vitest response received, length:', responseText.length);
           
           // Check if response is actually JSON, not HTML
           if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
             const vitestData: VitestResult = JSON.parse(responseText);
-            
-            // Group tests by file/type
-            const unitTests: TestSuite['tests'] = [];
-            const integrationTests: TestSuite['tests'] = [];
-            const performanceTests: TestSuite['tests'] = [];
-            const securityTests: TestSuite['tests'] = [];
-            
             console.log('Raw Vitest data:', {
               totalTests: vitestData.numTotalTests,
               passedTests: vitestData.numPassedTests,
               failedTests: vitestData.numFailedTests,
               testResultsLength: vitestData.testResults.length
             });
+            
+            // Group tests by file/type
+            const unitTests: TestSuite['tests'] = [];
+            const integrationTests: TestSuite['tests'] = [];
+            const performanceTests: TestSuite['tests'] = [];
+            const securityTests: TestSuite['tests'] = [];
             
             vitestData.testResults.forEach(test => {
               let testType: 'unit' | 'integration' | 'performance' | 'security' = 'unit';
