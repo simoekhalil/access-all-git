@@ -70,95 +70,101 @@ export const useTestResults = () => {
       try {
         const vitestResponse = await fetch('/test-results/results.json');
         if (vitestResponse.ok) {
-          const vitestData: VitestResult = await vitestResponse.json();
-          
-          // Group tests by file/type
-          const unitTests: TestSuite['tests'] = [];
-          const integrationTests: TestSuite['tests'] = [];
-          const performanceTests: TestSuite['tests'] = [];
-          const securityTests: TestSuite['tests'] = [];
-          
-          vitestData.testResults.forEach(test => {
-            let testType: 'unit' | 'integration' | 'performance' | 'security' = 'unit';
+          const responseText = await vitestResponse.text();
+          // Check if response is actually JSON, not HTML
+          if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+            const vitestData: VitestResult = JSON.parse(responseText);
             
-            // Categorize based on test name patterns
-            if (test.name.toLowerCase().includes('integration')) {
-              testType = 'integration';
-            } else if (test.name.toLowerCase().includes('performance')) {
-              testType = 'performance';
-            } else if (test.name.toLowerCase().includes('security')) {
-              testType = 'security';
+            // Group tests by file/type
+            const unitTests: TestSuite['tests'] = [];
+            const integrationTests: TestSuite['tests'] = [];
+            const performanceTests: TestSuite['tests'] = [];
+            const securityTests: TestSuite['tests'] = [];
+            
+            vitestData.testResults.forEach(test => {
+              let testType: 'unit' | 'integration' | 'performance' | 'security' = 'unit';
+              
+              // Categorize based on test name patterns
+              if (test.name.toLowerCase().includes('integration')) {
+                testType = 'integration';
+              } else if (test.name.toLowerCase().includes('performance')) {
+                testType = 'performance';
+              } else if (test.name.toLowerCase().includes('security')) {
+                testType = 'security';
+              }
+              
+              const testItem = {
+                name: test.name,
+                status: test.status,
+                duration: test.duration,
+                error: test.failureMessages?.[0],
+                file: 'Unknown file',
+                type: testType
+              };
+              
+              // Add to appropriate array
+              if (testType === 'integration') {
+                integrationTests.push(testItem);
+              } else if (testType === 'performance') {
+                performanceTests.push(testItem);
+              } else if (testType === 'security') {
+                securityTests.push(testItem);
+              } else {
+                unitTests.push(testItem);
+              }
+            });
+            
+            // Create unit test suite
+            if (unitTests.length > 0) {
+              suites.push({
+                name: 'Unit Tests',
+                tests: unitTests,
+                totalTests: unitTests.length,
+                passedTests: unitTests.filter(t => t.status === 'passed').length,
+                failedTests: unitTests.filter(t => t.status === 'failed').length,
+                skippedTests: unitTests.filter(t => t.status === 'skipped').length,
+                duration: unitTests.reduce((sum, t) => sum + t.duration, 0)
+              });
             }
             
-            const testItem = {
-              name: test.name,
-              status: test.status,
-              duration: test.duration,
-              error: test.failureMessages?.[0],
-              file: 'Unknown file',
-              type: testType
-            };
-            
-            // Add to appropriate array
-            if (testType === 'integration') {
-              integrationTests.push(testItem);
-            } else if (testType === 'performance') {
-              performanceTests.push(testItem);
-            } else if (testType === 'security') {
-              securityTests.push(testItem);
-            } else {
-              unitTests.push(testItem);
+            // Create other suites
+            if (integrationTests.length > 0) {
+              suites.push({
+                name: 'Integration Tests',
+                tests: integrationTests,
+                totalTests: integrationTests.length,
+                passedTests: integrationTests.filter(t => t.status === 'passed').length,
+                failedTests: integrationTests.filter(t => t.status === 'failed').length,
+                skippedTests: integrationTests.filter(t => t.status === 'skipped').length,
+                duration: integrationTests.reduce((sum, t) => sum + t.duration, 0)
+              });
             }
-          });
-          
-          // Create unit test suite
-          if (unitTests.length > 0) {
-            suites.push({
-              name: 'Unit Tests',
-              tests: unitTests,
-              totalTests: unitTests.length,
-              passedTests: unitTests.filter(t => t.status === 'passed').length,
-              failedTests: unitTests.filter(t => t.status === 'failed').length,
-              skippedTests: unitTests.filter(t => t.status === 'skipped').length,
-              duration: unitTests.reduce((sum, t) => sum + t.duration, 0)
-            });
-          }
-          
-          // Create other suites
-          if (integrationTests.length > 0) {
-            suites.push({
-              name: 'Integration Tests',
-              tests: integrationTests,
-              totalTests: integrationTests.length,
-              passedTests: integrationTests.filter(t => t.status === 'passed').length,
-              failedTests: integrationTests.filter(t => t.status === 'failed').length,
-              skippedTests: integrationTests.filter(t => t.status === 'skipped').length,
-              duration: integrationTests.reduce((sum, t) => sum + t.duration, 0)
-            });
-          }
-          
-          if (performanceTests.length > 0) {
-            suites.push({
-              name: 'Performance Tests',
-              tests: performanceTests,
-              totalTests: performanceTests.length,
-              passedTests: performanceTests.filter(t => t.status === 'passed').length,
-              failedTests: performanceTests.filter(t => t.status === 'failed').length,
-              skippedTests: performanceTests.filter(t => t.status === 'skipped').length,
-              duration: performanceTests.reduce((sum, t) => sum + t.duration, 0)
-            });
-          }
-          
-          if (securityTests.length > 0) {
-            suites.push({
-              name: 'Security Tests',
-              tests: securityTests,
-              totalTests: securityTests.length,
-              passedTests: securityTests.filter(t => t.status === 'passed').length,
-              failedTests: securityTests.filter(t => t.status === 'failed').length,
-              skippedTests: securityTests.filter(t => t.status === 'skipped').length,
-              duration: securityTests.reduce((sum, t) => sum + t.duration, 0)
-            });
+            
+            if (performanceTests.length > 0) {
+              suites.push({
+                name: 'Performance Tests',
+                tests: performanceTests,
+                totalTests: performanceTests.length,
+                passedTests: performanceTests.filter(t => t.status === 'passed').length,
+                failedTests: performanceTests.filter(t => t.status === 'failed').length,
+                skippedTests: performanceTests.filter(t => t.status === 'skipped').length,
+                duration: performanceTests.reduce((sum, t) => sum + t.duration, 0)
+              });
+            }
+            
+            if (securityTests.length > 0) {
+              suites.push({
+                name: 'Security Tests',
+                tests: securityTests,
+                totalTests: securityTests.length,
+                passedTests: securityTests.filter(t => t.status === 'passed').length,
+                failedTests: securityTests.filter(t => t.status === 'failed').length,
+                skippedTests: securityTests.filter(t => t.status === 'skipped').length,
+                duration: securityTests.reduce((sum, t) => sum + t.duration, 0)
+              });
+            }
+          } else {
+            console.log('Vitest results file not found (received HTML response)');
           }
         }
       } catch (vitestError) {
@@ -169,33 +175,39 @@ export const useTestResults = () => {
       try {
         const playwrightResponse = await fetch('/test-results/playwright-results.json');
         if (playwrightResponse.ok) {
-          const playwrightData: PlaywrightResult = await playwrightResponse.json();
-          
-          const e2eTests: TestSuite['tests'] = [];
-          
-          playwrightData.suites.forEach(suite => {
-            suite.tests.forEach(test => {
-              e2eTests.push({
-                name: `${suite.title} - ${test.title}`,
-                status: test.outcome,
-                duration: test.duration,
-                error: test.errors?.[0]?.message,
-                file: test.errors?.[0]?.location?.file || 'Unknown file',
-                type: 'e2e'
+          const responseText = await playwrightResponse.text();
+          // Check if response is actually JSON, not HTML
+          if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+            const playwrightData: PlaywrightResult = JSON.parse(responseText);
+            
+            const e2eTests: TestSuite['tests'] = [];
+            
+            playwrightData.suites.forEach(suite => {
+              suite.tests.forEach(test => {
+                e2eTests.push({
+                  name: `${suite.title} - ${test.title}`,
+                  status: test.outcome,
+                  duration: test.duration,
+                  error: test.errors?.[0]?.message,
+                  file: test.errors?.[0]?.location?.file || 'Unknown file',
+                  type: 'e2e'
+                });
               });
             });
-          });
-          
-          if (e2eTests.length > 0) {
-            suites.push({
-              name: 'E2E Tests',
-              tests: e2eTests,
-              totalTests: playwrightData.stats.total,
-              passedTests: playwrightData.stats.passed,
-              failedTests: playwrightData.stats.failed,
-              skippedTests: playwrightData.stats.skipped,
-              duration: e2eTests.reduce((sum, t) => sum + t.duration, 0)
-            });
+            
+            if (e2eTests.length > 0) {
+              suites.push({
+                name: 'E2E Tests',
+                tests: e2eTests,
+                totalTests: playwrightData.stats.total,
+                passedTests: playwrightData.stats.passed,
+                failedTests: playwrightData.stats.failed,
+                skippedTests: playwrightData.stats.skipped,
+                duration: e2eTests.reduce((sum, t) => sum + t.duration, 0)
+              });
+            }
+          } else {
+            console.log('Playwright results file not found (received HTML response)');
           }
         }
       } catch (playwrightError) {
