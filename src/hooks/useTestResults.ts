@@ -70,8 +70,8 @@ export const useTestResults = () => {
       
       // Try to load Vitest results
       try {
-        console.log('Fetching Vitest results from /test-results/results.json');
-        const vitestResponse = await fetch('/test-results/results.json');
+        console.log('Fetching Vitest results from /results.json');
+        const vitestResponse = await fetch('/results.json');
         console.log('Vitest response status:', vitestResponse.status, vitestResponse.statusText);
         
         if (vitestResponse.ok) {
@@ -184,8 +184,8 @@ export const useTestResults = () => {
       
       // Try to load Playwright results
       try {
-        console.log('Fetching Playwright results from /test-results/playwright-results.json');
-        const playwrightResponse = await fetch('/test-results/playwright-results.json');
+        console.log('Fetching Playwright results from /playwright-results.json');
+        const playwrightResponse = await fetch('/playwright-results.json');
         console.log('Playwright response status:', playwrightResponse.status, playwrightResponse.statusText);
         
         if (playwrightResponse.ok) {

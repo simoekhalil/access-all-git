@@ -12,7 +12,7 @@ export default defineConfig({
   },
   reporter: [
     ['html', { outputFolder: './playwright-report' }],
-    ['json', { outputFile: './public/test-results/playwright-results.json' }],
+    ['json', { outputFile: './public/playwright-results.json' }],
     ['list']
   ],
   use: {

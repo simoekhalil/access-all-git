@@ -48,7 +48,7 @@ export default defineConfig({
     },
     reporter: ['verbose', 'json', 'html'],
     outputFile: {
-      json: './public/test-results/results.json',
+      json: './public/results.json',
       html: './public/test-results/index.html'
     }
   },
