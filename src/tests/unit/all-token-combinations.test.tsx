@@ -329,7 +329,7 @@ describe('All Token Combination Tests', () => {
         });
 
         // Swap direction
-        const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+        const swapArrow = screen.getByTestId('swap-tokens-button');
         fireEvent.click(swapArrow);
 
         // Verify amounts and tokens swapped correctly

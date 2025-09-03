@@ -258,14 +258,14 @@ describe('Price Impact Property-Based Tests', () => {
 
       for (const pair of tokenPairs) {
         // Set from token
-        const fromTokenButton = screen.getByDisplayValue(screen.getByDisplayValue(/GALA|USDC|WETH|USDT/).getAttribute('value') || 'GALA');
-        fireEvent.click(fromTokenButton);
+        const fromTokenSelect = screen.getAllByRole('combobox')[0];
+        fireEvent.click(fromTokenSelect);
         
         const fromOption = screen.getByText(pair.from);
         fireEvent.click(fromOption);
 
         await waitFor(() => {
-          expect(screen.getByDisplayValue(pair.from)).toBeInTheDocument();
+          expect(fromTokenSelect).toHaveValue(pair.from);
         });
 
         // Ensure to token is different
@@ -276,7 +276,7 @@ describe('Price Impact Property-Based Tests', () => {
         fireEvent.click(toOption);
 
         await waitFor(() => {
-          expect(screen.getByDisplayValue(pair.to)).toBeInTheDocument();
+          expect(toTokenButton).toHaveValue(pair.to);
         });
 
         // Enter amount

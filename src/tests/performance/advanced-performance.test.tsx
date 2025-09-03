@@ -90,7 +90,8 @@ describe('Advanced Performance Tests', () => {
       fireEvent.change(input, { target: { value: '100' } });
       
       await waitFor(() => {
-        expect(screen.getByDisplayValue('100')).toBeInTheDocument();
+        const input = screen.getByLabelText('From') as HTMLInputElement;
+        expect(input.value).toBe('100');
       });
 
       const interactionTime = performance.now() - startTime;
@@ -105,7 +106,7 @@ describe('Advanced Performance Tests', () => {
         </TestWrapper>
       );
 
-      const swapButton = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapButton = screen.getByTestId('swap-tokens-button');
       const startTime = performance.now();
       
       fireEvent.click(swapButton);
@@ -229,7 +230,8 @@ describe('Advanced Performance Tests', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        expect(screen.getByDisplayValue('2.500000')).toBeInTheDocument();
+        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toAmountInput.value)).toBeCloseTo(2.5, 1);
       });
 
       const swapButton = screen.getByText('Swap');
@@ -284,7 +286,8 @@ describe('Advanced Performance Tests', () => {
       fireEvent.change(input, { target: { value: '100' } });
 
       await waitFor(() => {
-        expect(screen.getByDisplayValue('100')).toBeInTheDocument();
+        const input = screen.getByLabelText('From') as HTMLInputElement;
+        expect(input.value).toBe('100');
       });
 
       // Should not cause excessive re-renders

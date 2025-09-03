@@ -85,9 +85,9 @@ describe('Price Impact Integration Tests', () => {
       const initialImpact = extractPriceImpact(screen.getByTestId('price-impact-badge'));
       expect(initialImpact).toBeGreaterThan(0);
 
-      // Step 2: Change token pair
-      const fromTokenButton = screen.getByDisplayValue('GALA');
-      fireEvent.click(fromTokenButton);
+      // Change token pair to GALA -> WETH
+      const fromTokenSelect = screen.getAllByRole('combobox')[0];
+      fireEvent.click(fromTokenSelect);
       const wethOption = screen.getByText('WETH');
       fireEvent.click(wethOption);
 
@@ -145,8 +145,8 @@ describe('Price Impact Integration Tests', () => {
             fireEvent.change(input, { target: { value: operation.value } });
             break;
           case 'changeToken':
-            const tokenButton = screen.getByDisplayValue(/GALA|USDC|WETH|USDT/);
-            fireEvent.click(tokenButton);
+            const tokenSelect = screen.getAllByRole('combobox')[operation.field === 'from' ? 0 : 1];
+            fireEvent.click(tokenSelect);
             const option = screen.getByText(operation.value!);
             fireEvent.click(option);
             break;
@@ -187,9 +187,9 @@ describe('Price Impact Integration Tests', () => {
 
       for (const testCase of testCases) {
         // Set tokens if needed
-        if (screen.getByDisplayValue(/GALA|USDC|WETH|USDT/).getAttribute('value') !== testCase.from) {
-          const fromTokenButton = screen.getByDisplayValue(/GALA|USDC|WETH|USDT/);
-          fireEvent.click(fromTokenButton);
+        const currentFromToken = screen.getAllByRole('combobox')[0];
+        if (currentFromToken.getAttribute('value') !== testCase.from) {
+          fireEvent.click(currentFromToken);
           const fromOption = screen.getByText(testCase.from);
           fireEvent.click(fromOption);
         }
@@ -273,9 +273,9 @@ describe('Price Impact Integration Tests', () => {
       const fromAmountInput = screen.getByLabelText('From');
       fireEvent.change(fromAmountInput, { target: { value: '1000' } });
 
-      // Immediately change token
-      const fromTokenButton = screen.getByDisplayValue('GALA');
-      fireEvent.click(fromTokenButton);
+      // Change from token to WETH
+      const fromTokenSelect = screen.getAllByRole('combobox')[0];
+      fireEvent.click(fromTokenSelect);
       const wethOption = screen.getByText('WETH');
       fireEvent.click(wethOption);
 

@@ -262,7 +262,7 @@ describe('Comprehensive Swap Calculations', () => {
       });
 
       // Click swap arrow
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByTestId('swap-tokens-button');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
@@ -296,7 +296,7 @@ describe('Comprehensive Swap Calculations', () => {
       });
 
       // Click swap arrow
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByTestId('swap-tokens-button');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
@@ -330,7 +330,7 @@ describe('Comprehensive Swap Calculations', () => {
       });
 
       // First swap
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByTestId('swap-tokens-button');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {
@@ -363,7 +363,7 @@ describe('Comprehensive Swap Calculations', () => {
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       // Swap direction
-      const swapArrow = screen.getByRole('button', { name: /ArrowUpDown/i });
+      const swapArrow = screen.getByTestId('swap-tokens-button');
       fireEvent.click(swapArrow);
 
       await waitFor(() => {

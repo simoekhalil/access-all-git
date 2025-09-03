@@ -208,9 +208,9 @@ describe('Price Impact Calculations', () => {
 
   describe('Token Pair Tests', () => {
     test('should calculate price impact for different token pairs', async () => {
-      // Test GALA to WETH
-      const fromTokenSelect = screen.getByDisplayValue('GALA');
-      fireEvent.click(fromTokenSelect);
+      // Test GALA to WETH by changing the to token
+      const toTokenSelect = screen.getAllByRole('combobox')[1];
+      fireEvent.click(toTokenSelect);
       
       const wethOption = screen.getByText('WETH');
       fireEvent.click(wethOption);

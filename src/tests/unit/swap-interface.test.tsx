@@ -38,8 +38,11 @@ describe('SwapInterface Component', () => {
 
       expect(screen.getByText('Swap Tokens')).toBeInTheDocument();
       expect(screen.getByText('Trade your tokens instantly')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('GALA')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('USDC')).toBeInTheDocument();
+      // Check token selectors show default values
+      const fromTokenSelect = screen.getAllByRole('combobox')[0];
+      const toTokenSelect = screen.getAllByRole('combobox')[1];
+      expect(fromTokenSelect).toHaveValue('GALA');
+      expect(toTokenSelect).toHaveValue('USDC');
       expect(screen.getByText('Swap')).toBeInTheDocument();
     });
 
@@ -72,7 +75,7 @@ describe('SwapInterface Component', () => {
         fireEvent.click(wethOption);
       });
 
-      expect(screen.getByDisplayValue('WETH')).toBeInTheDocument();
+      expect(fromTokenSelect).toHaveValue('WETH');
     });
 
     it('should allow changing to token', async () => {
@@ -91,7 +94,7 @@ describe('SwapInterface Component', () => {
         fireEvent.click(usdtOption);
       });
 
-      expect(screen.getByDisplayValue('USDT')).toBeInTheDocument();
+      expect(toTokenSelect).toHaveValue('USDT');
     });
 
     it('should exclude selected from token in to token options', async () => {
