@@ -95,14 +95,18 @@ export const useTestResults = () => {
               let testType: 'unit' | 'integration' | 'performance' | 'security' = 'unit';
               
               // Categorize based on exact test name patterns from your actual data
-              if (test.name.startsWith('Integration ›')) {
+              if (test.name.startsWith('Integration ›') || 
+                  test.name.includes('Integration ›') ||
+                  test.name.includes('Basic Integration Tests ›') ||
+                  test.name.includes('Full Swap Flow Integration ›') ||
+                  test.name.includes('Price Impact Integration ›') ||
+                  test.name.startsWith('API ›') || 
+                  test.name.startsWith('Database ›')) {
                 testType = 'integration';
               } else if (test.name.startsWith('Performance ›')) {
                 testType = 'performance';  
               } else if (test.name.startsWith('Security ›')) {
                 testType = 'security';
-              } else if (test.name.startsWith('API ›') || test.name.startsWith('Database ›')) {
-                testType = 'integration';
               }
               // All other tests (SwapInterface, WalletConnection, Price Impact, etc.) are unit tests
               
