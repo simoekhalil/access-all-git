@@ -248,6 +248,23 @@ export default function TestDashboard() {
   const totalSkipped = testSuites.reduce((sum, suite) => sum + suite.skippedTests, 0);
   const passRate = totalTests > 0 ? ((totalPassed / totalTests) * 100) : 0;
 
+  // Debug logging for UI calculations
+  console.log('TestDashboard calculations:', {
+    testSuites: testSuites.length,
+    totalTests,
+    totalPassed,
+    totalFailed,
+    totalSkipped,
+    passRate,
+    suiteBreakdown: testSuites.map(s => ({
+      name: s.name,
+      total: s.totalTests,
+      passed: s.passedTests,
+      failed: s.failedTests,
+      skipped: s.skippedTests
+    }))
+  });
+
   const toggleTestExpansion = (testName: string) => {
     setExpandedTests(prev => {
       const newSet = new Set(prev);
