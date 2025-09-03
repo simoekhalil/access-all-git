@@ -8,10 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Current GalaSwap tokens as per live data from https://swap.gala.com/explore (December 2024)
+// Current GalaSwap tokens as per live data from https://swap.gala.com/explore (January 2025)
 const TOKENS = [
-  { symbol: 'GALA', name: 'Gala', balance: '1,000.00' },
   { symbol: 'USDC', name: 'USD Coin', balance: '1,500.00' },
+  { symbol: 'GALA', name: 'Gala', balance: '1,000.00' },
   { symbol: 'USDT', name: 'Tether USD', balance: '1,200.00' },
   { symbol: 'WBTC', name: 'Wrapped Bitcoin', balance: '0.025' },
   { symbol: 'WETH', name: 'Wrapped Ethereum', balance: '0.75' },
@@ -35,8 +35,8 @@ interface SwapState {
 
 const SwapInterface = () => {
   const [swap, setSwap] = useState<SwapState>({
-    fromToken: 'GALA',
-    toToken: 'USDC',
+    fromToken: 'USDC',
+    toToken: 'GALA',
     fromAmount: '',
     toAmount: '',
     slippage: '0.5',
@@ -268,9 +268,9 @@ const SwapInterface = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* From Token */}
+        {/* Selling Token */}
         <div className="space-y-2">
-          <Label htmlFor="from-amount">From</Label>
+          <Label htmlFor="from-amount">Selling</Label>
           <div className="flex gap-2">
             <div className="flex-1">
           <Input
@@ -330,9 +330,9 @@ const SwapInterface = () => {
           </Button>
         </div>
 
-        {/* To Token */}
+        {/* Buying Token */}
         <div className="space-y-2">
-          <Label htmlFor="to-amount">To</Label>
+          <Label htmlFor="to-amount">Buying</Label>
           <div className="flex gap-2">
             <div className="flex-1">
           <Input

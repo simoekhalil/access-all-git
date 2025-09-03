@@ -137,7 +137,7 @@ describe('Comprehensive Accessibility Tests', () => {
       const fromLabel = container.querySelector('label[for="from-amount"]');
       const toLabel = container.querySelector('label[for="to-amount"]');
       
-      expect(fromLabel).toHaveTextContent('From');
+      expect(fromLabel).toHaveTextContent('Selling');
       expect(toLabel).toHaveTextContent('To');
 
       const fromInput = container.querySelector('#from-amount');

@@ -51,17 +51,17 @@ describe('All Token Combination Tests', () => {
     });
   };
 
-  describe('GALA Token Pair Tests', () => {
-    it('should calculate GALA to USDC conversion correctly', async () => {
+  describe('USDC Token Pair Tests', () => {
+    it('should calculate USDC to GALA conversion correctly', async () => {
       render(<TestWrapper><SwapInterface /></TestWrapper>);
       
-      // Default is GALA to USDC
-      const fromInput = screen.getByLabelText('From');
-      fireEvent.change(fromInput, { target: { value: '1000' } });
+      // Default is USDC to GALA
+      const fromInput = screen.getByLabelText('Selling');
+      fireEvent.change(fromInput, { target: { value: '25' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
-        expect(toInput).toHaveValue('25.000000'); // 1000 * 0.025
+        const toInput = screen.getByLabelText('Buying');
+        expect(toInput).toHaveValue('1000.000000'); // 25 * 40.0
       });
     });
 
@@ -71,11 +71,11 @@ describe('All Token Combination Tests', () => {
       // Change to WETH
       await selectToken(1, 'WETH');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '133333.33' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('1.000000'); // 133333.33 * 0.0000075 ≈ 1
       });
     });
@@ -86,11 +86,11 @@ describe('All Token Combination Tests', () => {
       // Change to USDT
       await selectToken(1, 'USDT');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '1000' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('25.000000'); // 1000 * 0.025
       });
     });
@@ -104,11 +104,11 @@ describe('All Token Combination Tests', () => {
       await selectToken(0, 'USDC');
       await selectToken(1, 'GALA');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('4000.000000'); // 100 * 40
       });
     });
@@ -120,11 +120,11 @@ describe('All Token Combination Tests', () => {
       await selectToken(0, 'USDC');
       await selectToken(1, 'WETH');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '3333.33' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('1.000000'); // 3333.33 * 0.0003 ≈ 1
       });
     });
@@ -136,11 +136,11 @@ describe('All Token Combination Tests', () => {
       await selectToken(0, 'USDC');
       await selectToken(1, 'USDT');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('100.000000'); // 100 * 1.0
       });
     });
@@ -154,11 +154,11 @@ describe('All Token Combination Tests', () => {
       await selectToken(0, 'WETH');
       await selectToken(1, 'GALA');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('133333.330000'); // 1 * 133333.33
       });
     });
@@ -170,11 +170,11 @@ describe('All Token Combination Tests', () => {
       await selectToken(0, 'WETH');
       await selectToken(1, 'USDC');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('3333.330000'); // 1 * 3333.33
       });
     });
@@ -186,11 +186,11 @@ describe('All Token Combination Tests', () => {
       await selectToken(0, 'WETH');
       await selectToken(1, 'USDT');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '1' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('3333.330000'); // 1 * 3333.33
       });
     });
@@ -204,11 +204,11 @@ describe('All Token Combination Tests', () => {
       await selectToken(0, 'USDT');
       await selectToken(1, 'GALA');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('4000.000000'); // 100 * 40
       });
     });
@@ -220,11 +220,11 @@ describe('All Token Combination Tests', () => {
       await selectToken(0, 'USDT');
       await selectToken(1, 'USDC');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('100.000000'); // 100 * 1.0
       });
     });
@@ -236,11 +236,11 @@ describe('All Token Combination Tests', () => {
       await selectToken(0, 'USDT');
       await selectToken(1, 'WETH');
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '3333.33' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         expect(toInput).toHaveValue('1.000000'); // 3333.33 * 0.0003 ≈ 1
       });
     });
@@ -275,11 +275,11 @@ describe('All Token Combination Tests', () => {
         }
 
         // Enter to amount
-        const toInput = screen.getByLabelText('To');
+        const toInput = screen.getByLabelText('Buying');
         fireEvent.change(toInput, { target: { value: testCase.toAmount } });
 
         await waitFor(() => {
-          const fromInput = screen.getByLabelText('From');
+          const fromInput = screen.getByLabelText('Selling');
           expect(fromInput).toHaveValue(testCase.expectedFrom);
         });
 
@@ -317,13 +317,13 @@ describe('All Token Combination Tests', () => {
         }
 
         // Enter initial amount
-        const fromInput = screen.getByLabelText('From');
+        const fromInput = screen.getByLabelText('Selling');
         fireEvent.change(fromInput, { target: { value: testCase.amount } });
 
         // Get calculated to amount
         let calculatedToAmount: string;
         await waitFor(() => {
-          const toInput = screen.getByLabelText('To') as HTMLInputElement;
+          const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
           calculatedToAmount = toInput.value;
           expect(parseFloat(calculatedToAmount)).toBeGreaterThan(0);
         });
@@ -334,8 +334,8 @@ describe('All Token Combination Tests', () => {
 
         // Verify amounts and tokens swapped correctly
         await waitFor(() => {
-          const newFromInput = screen.getByLabelText('From') as HTMLInputElement;
-          const newToInput = screen.getByLabelText('To') as HTMLInputElement;
+          const newFromInput = screen.getByLabelText('Selling') as HTMLInputElement;
+          const newToInput = screen.getByLabelText('Buying') as HTMLInputElement;
           
           expect(newFromInput.value).toBe(calculatedToAmount!);
           expect(newToInput.value).toBe(testCase.amount + '.000000');
@@ -380,7 +380,7 @@ describe('All Token Combination Tests', () => {
         }
 
         // Enter amount
-        const fromInput = screen.getByLabelText('From');
+        const fromInput = screen.getByLabelText('Selling');
         fireEvent.change(fromInput, { target: { value: testCase.amount } });
 
         // Check exchange rate display

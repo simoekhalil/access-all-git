@@ -88,7 +88,7 @@ describe('Full Swap Flow Integration', () => {
 
       await waitFor(() => {
         // Swap should complete and reset form
-        expect(screen.getByLabelText('From')).toHaveValue('');
+        expect(screen.getByLabelText('Selling')).toHaveValue('');
         expect(screen.getByLabelText('To')).toHaveValue('');
       }, { timeout: 3000 });
     });

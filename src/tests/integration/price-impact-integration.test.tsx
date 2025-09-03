@@ -26,11 +26,11 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 
 // Mock market data for validation
 const MOCK_MARKET_RATES = {
+  'USDC-GALA': 40.0,
   'GALA-USDC': 0.025,
   'GALA-USDT': 0.025,
   'GALA-WETH': 0.0000075,
   'GALA-WBTC': 0.00000025,
-  'USDC-GALA': 40,
   'USDC-USDT': 1.0,
   'USDC-WETH': 0.0003,
   'USDT-GALA': 40,
@@ -73,7 +73,7 @@ describe('Price Impact Integration Tests', () => {
   describe('End-to-End Price Impact Flow', () => {
     test('should calculate and display price impact throughout complete swap flow', async () => {
       // Step 1: Enter amount
-      const fromAmountInput = screen.getByLabelText('From');
+      const fromAmountInput = screen.getByLabelText('Selling');
       fireEvent.change(fromAmountInput, { target: { value: '1000' } });
 
       // Verify price impact appears
@@ -113,8 +113,8 @@ describe('Price Impact Integration Tests', () => {
       const swappedImpact = extractPriceImpact(screen.getByTestId('price-impact-badge'));
       expect(swappedImpact).toBeGreaterThanOrEqual(0);
 
-      // Step 4: Change amount via "To" field
-      const toAmountInput = screen.getByLabelText('To');
+      // Step 4: Change amount via "Buying" field
+      const toAmountInput = screen.getByLabelText('Buying');
       fireEvent.change(toAmountInput, { target: { value: '50' } });
 
       // Verify price impact updates
@@ -141,7 +141,7 @@ describe('Price Impact Integration Tests', () => {
       for (const operation of operations) {
         switch (operation.action) {
           case 'setAmount':
-            const input = screen.getByLabelText(operation.field === 'from' ? 'From' : 'To');
+            const input = screen.getByLabelText(operation.field === 'from' ? 'Selling' : 'Buying');
             fireEvent.change(input, { target: { value: operation.value } });
             break;
           case 'changeToken':
@@ -201,7 +201,7 @@ describe('Price Impact Integration Tests', () => {
         fireEvent.click(toOption);
 
         // Set amount
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: testCase.amount } });
 
         await waitFor(() => {
@@ -226,12 +226,12 @@ describe('Price Impact Integration Tests', () => {
 
     test('should validate price impact against manual calculations', () => {
       const testAmount = '5000';
-      const midPrice = 0.025; // GALA to USDC
+      const midPrice = 40.0; // USDC to GALA
       const impactFactor = Math.sqrt(Number(testAmount)) * 0.001;
       const expectedExecutionPrice = midPrice * (1 + impactFactor);
       const expectedPriceImpact = ((expectedExecutionPrice - midPrice) / midPrice) * 100;
 
-      const fromAmountInput = screen.getByLabelText('From');
+      const fromAmountInput = screen.getByLabelText('Selling');
       fireEvent.change(fromAmountInput, { target: { value: testAmount } });
 
       waitFor(() => {
@@ -250,7 +250,7 @@ describe('Price Impact Integration Tests', () => {
       const impacts: number[] = [];
 
       for (const input of rapidInputs) {
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: input } });
 
         // Don't wait between inputs to simulate rapid typing
@@ -263,14 +263,14 @@ describe('Price Impact Integration Tests', () => {
       });
 
       const finalImpact = extractPriceImpact(screen.getByTestId('price-impact-badge'));
-      const expectedFinalImpact = calculateExpectedPriceImpact('GALA', 'USDC', '500');
+      const expectedFinalImpact = calculateExpectedPriceImpact('USDC', 'GALA', '500');
 
       expect(finalImpact).toBeCloseTo(expectedFinalImpact, 1);
     });
 
     test('should handle concurrent token and amount changes gracefully', async () => {
       // Start with an amount
-      const fromAmountInput = screen.getByLabelText('From');
+      const fromAmountInput = screen.getByLabelText('Selling');
       fireEvent.change(fromAmountInput, { target: { value: '1000' } });
 
       // Change from token to WETH
@@ -298,7 +298,7 @@ describe('Price Impact Integration Tests', () => {
     test('should handle division by zero scenarios gracefully', async () => {
       // This tests internal robustness - our mock rates shouldn't have zero values
       // but the component should handle edge cases
-      const fromAmountInput = screen.getByLabelText('From');
+      const fromAmountInput = screen.getByLabelText('Selling');
       fireEvent.change(fromAmountInput, { target: { value: '0' } });
 
       // Should not show price impact for zero amount
@@ -307,7 +307,7 @@ describe('Price Impact Integration Tests', () => {
     });
 
     test('should maintain UI consistency during error states', async () => {
-      const fromAmountInput = screen.getByLabelText('From');
+      const fromAmountInput = screen.getByLabelText('Selling');
       
       // Test invalid inputs
       const invalidInputs = ['abc', '-100', 'Infinity', 'NaN'];
@@ -343,7 +343,7 @@ describe('Price Impact Integration Tests', () => {
       ];
 
       for (const scenario of scenarios) {
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: scenario.amount } });
 
         await waitFor(() => {
