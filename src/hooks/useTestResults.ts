@@ -83,6 +83,13 @@ export const useTestResults = () => {
             const performanceTests: TestSuite['tests'] = [];
             const securityTests: TestSuite['tests'] = [];
             
+            console.log('Raw Vitest data:', {
+              totalTests: vitestData.numTotalTests,
+              passedTests: vitestData.numPassedTests,
+              failedTests: vitestData.numFailedTests,
+              testResultsLength: vitestData.testResults.length
+            });
+            
             vitestData.testResults.forEach(test => {
               let testType: 'unit' | 'integration' | 'performance' | 'security' = 'unit';
               
@@ -97,6 +104,8 @@ export const useTestResults = () => {
                 testType = 'integration';
               }
               // All other tests (SwapInterface, WalletConnection, Price Impact, etc.) are unit tests
+              
+              console.log('Categorizing test:', test.name, '-> type:', testType);
               
               const testItem = {
                 name: test.name,
