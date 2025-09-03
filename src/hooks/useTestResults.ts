@@ -177,6 +177,16 @@ export const useTestResults = () => {
                 duration: securityTests.reduce((sum, t) => sum + t.duration, 0)
               });
             }
+            
+            console.log('Vitest categorization complete:', {
+              totalProcessed: unitTests.length + integrationTests.length + performanceTests.length + securityTests.length,
+              expectedTotal: vitestData.numTotalTests,
+              actualTestResults: vitestData.testResults.length,
+              unitCount: unitTests.length,
+              integrationCount: integrationTests.length,
+              performanceCount: performanceTests.length,
+              securityCount: securityTests.length
+            });
           }
         }
       } catch (vitestError) {
