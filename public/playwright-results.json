@@ -1,9 +1,9 @@
 {
   "stats": {
-    "total": 126,
-    "passed": 118,
-    "failed": 6,
-    "skipped": 2
+    "total": 155,
+    "passed": 60,
+    "failed": 95,
+    "skipped": 0
   },
   "suites": [
     {
