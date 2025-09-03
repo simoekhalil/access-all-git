@@ -1,35 +1,68 @@
 {
   "testResults": [
     {
-      "name": "SwapInterface component renders correctly",
+      "name": "SwapInterface › should render swap interface correctly",
       "status": "passed",
-      "duration": 150,
+      "duration": 145,
       "failureMessages": []
     },
     {
-      "name": "Token selection works properly", 
-      "status": "passed",
-      "duration": 89
+      "name": "SwapInterface › should handle token selection",
+      "status": "passed", 
+      "duration": 89,
+      "failureMessages": []
     },
     {
-      "name": "Price calculation integration test",
-      "status": "failed", 
+      "name": "SwapInterface › should calculate swap amounts correctly",
+      "status": "passed",
       "duration": 234,
-      "failureMessages": ["Expected calculation to match but got different result"]
+      "failureMessages": []
     },
     {
-      "name": "Wallet connection security test",
-      "status": "passed",
-      "duration": 445
+      "name": "WalletConnection › should connect wallet successfully",
+      "status": "failed",
+      "duration": 445,
+      "failureMessages": ["TypeError: Cannot read properties of undefined (reading 'request')\n    at WalletConnection.connectWallet (src/components/WalletConnection.tsx:45:23)"]
     },
     {
-      "name": "Performance test - swap calculation speed",
+      "name": "Price Impact Calculations › should calculate price impact for large trades",
       "status": "passed",
-      "duration": 67
+      "duration": 67,
+      "failureMessages": []
+    },
+    {
+      "name": "Gala Swap Price Impact Formula › should handle edge cases",
+      "status": "failed",
+      "duration": 123,
+      "failureMessages": ["AssertionError: Expected price impact to be within bounds\n    at src/tests/unit/gala-swap-price-impact-formula.test.tsx:78:12"]
+    },
+    {
+      "name": "Token Combinations › should support all token pairs",
+      "status": "passed",
+      "duration": 189,
+      "failureMessages": []
+    },
+    {
+      "name": "Security Tests › should prevent malicious input",
+      "status": "passed",
+      "duration": 234,
+      "failureMessages": []
+    },
+    {
+      "name": "Performance Tests › swap calculations should be fast",
+      "status": "passed",
+      "duration": 45,
+      "failureMessages": []
+    },
+    {
+      "name": "Integration Tests › full swap flow integration",
+      "status": "passed",
+      "duration": 567,
+      "failureMessages": []
     }
   ],
-  "numTotalTests": 5,
-  "numPassedTests": 4,
-  "numFailedTests": 1,
-  "numPendingTests": 0
+  "numTotalTests": 10,
+  "numPassedTests": 7,
+  "numFailedTests": 2,
+  "numPendingTests": 1
 }

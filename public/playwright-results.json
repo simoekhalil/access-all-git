@@ -1,30 +1,78 @@
 {
   "stats": {
-    "total": 3,
-    "passed": 2, 
-    "failed": 1,
+    "total": 8,
+    "passed": 6,
+    "failed": 2,
     "skipped": 0
   },
   "suites": [
     {
-      "title": "Swap Workflow",
+      "title": "Complete Swap Workflow",
       "tests": [
         {
-          "title": "should complete full swap flow",
+          "title": "should complete full swap from GALA to USDC",
           "outcome": "passed",
-          "duration": 2340,
+          "duration": 3240,
           "errors": []
         },
         {
-          "title": "should handle wallet connection errors",
+          "title": "should handle wallet connection errors gracefully",
           "outcome": "failed",
           "duration": 1890,
           "errors": [
             {
-              "message": "Timeout waiting for wallet connection dialog",
+              "message": "Timeout 30000ms exceeded. Locator.click: Timeout 30000ms exceeded waiting for element to be stable and receive pointer events",
               "location": {
                 "file": "src/tests/e2e/complete-swap-workflow.spec.ts",
                 "line": 45
+              }
+            }
+          ]
+        },
+        {
+          "title": "should validate input amounts correctly",
+          "outcome": "passed",
+          "duration": 2100,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "title": "Cross-browser Compatibility",
+      "tests": [
+        {
+          "title": "should work consistently across Chrome and Firefox",
+          "outcome": "passed",
+          "duration": 4200,
+          "errors": []
+        },
+        {
+          "title": "should handle mobile viewport correctly",
+          "outcome": "passed",
+          "duration": 3100,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "title": "Visual Regression Tests",
+      "tests": [
+        {
+          "title": "should match homepage screenshot",
+          "outcome": "passed",
+          "duration": 1500,
+          "errors": []
+        },
+        {
+          "title": "should match swap interface in dark mode",
+          "outcome": "failed",
+          "duration": 1200,
+          "errors": [
+            {
+              "message": "Screenshot comparison failed: 15 pixels differ",
+              "location": {
+                "file": "src/tests/e2e/visual-regression.spec.ts",
+                "line": 67
               }
             }
           ]
@@ -32,12 +80,12 @@
       ]
     },
     {
-      "title": "Cross-browser Compatibility", 
+      "title": "Wallet Integration",
       "tests": [
         {
-          "title": "should work in Chrome and Firefox",
+          "title": "should connect MetaMask successfully",
           "outcome": "passed",
-          "duration": 3200,
+          "duration": 2800,
           "errors": []
         }
       ]
