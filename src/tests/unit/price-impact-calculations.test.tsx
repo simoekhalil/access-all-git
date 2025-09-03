@@ -165,7 +165,7 @@ describe('Price Impact Calculations', () => {
       const impactValue = parseFloat(impactText.replace('%', '').replace('+', ''));
       
       if (Math.abs(impactValue) > 5) {
-        expect(priceImpactBadge).toHaveClass('destructive');
+        expect(priceImpactBadge).toHaveClass('bg-destructive');
       }
     });
 
@@ -183,7 +183,7 @@ describe('Price Impact Calculations', () => {
       const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
       
       if (impactValue > 1 && impactValue <= 5) {
-        expect(priceImpactBadge).toHaveClass('secondary');
+        expect(priceImpactBadge).toHaveClass('bg-secondary');
       }
     });
 
@@ -201,7 +201,7 @@ describe('Price Impact Calculations', () => {
       const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
       
       if (impactValue <= 1) {
-        expect(priceImpactBadge).toHaveClass('outline');
+        expect(priceImpactBadge).toHaveClass('text-foreground');
       }
     });
   });
