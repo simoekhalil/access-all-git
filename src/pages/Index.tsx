@@ -1,10 +1,23 @@
 import WalletConnection from '@/components/WalletConnection';
 import SwapInterface from '@/components/SwapInterface';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { TestTube } from 'lucide-react';
 
 const Index = () => {
   return (
     <main className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4">
       <div className="max-w-6xl mx-auto">
+        {/* Navigation */}
+        <div className="flex justify-end mb-6">
+          <Button asChild variant="outline" className="bg-background/50 backdrop-blur-sm">
+            <Link to="/test-dashboard" className="flex items-center gap-2">
+              <TestTube className="h-4 w-4" />
+              Test Dashboard
+            </Link>
+          </Button>
+        </div>
+
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             Gala DEX
