@@ -480,8 +480,16 @@ export default function TestDashboard() {
             </div>
           </TabsContent>
 
-          {testSuites.map((suite) => (
-            <TabsContent key={suite.name.toLowerCase().replace(' ', '')} value={suite.name.toLowerCase().replace(' ', '')}>
+          {testSuites.map((suite) => {
+            // Map suite names to correct tab values
+            let tabValue = 'unit';
+            if (suite.name === 'Integration Tests') tabValue = 'integration';
+            else if (suite.name === 'E2E Tests') tabValue = 'e2e';
+            else if (suite.name === 'Performance Tests') tabValue = 'performance';
+            else if (suite.name === 'Security Tests') tabValue = 'security';
+            
+            return (
+            <TabsContent key={suite.name} value={tabValue}>
               <Card>
                 <CardHeader>
                   <CardTitle>{suite.name} Details</CardTitle>
@@ -537,7 +545,8 @@ export default function TestDashboard() {
                 </CardContent>
               </Card>
             </TabsContent>
-          ))}
+            );
+          })}
         </Tabs>
         </>
         )}
