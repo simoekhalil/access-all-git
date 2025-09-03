@@ -7,12 +7,18 @@ import { toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
 
 // Mock Web3 and wallet connections
-global.ethereum = {
-  request: vi.fn(),
-  on: vi.fn(),
-  removeListener: vi.fn(),
-  isMetaMask: true,
-};
+Object.defineProperty(window, 'ethereum', {
+  value: {
+    request: vi.fn(),
+    on: vi.fn(),
+    removeListener: vi.fn(),
+    isMetaMask: true,
+  },
+  writable: true,
+});
+
+// Also set global.ethereum for compatibility
+global.ethereum = window.ethereum;
 
 // Mock window.location for routing tests
 Object.defineProperty(window, 'location', {
@@ -35,8 +41,27 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// Mock IntersectionObserver
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
 // Mock scrollIntoView for radix-ui components
 Element.prototype.scrollIntoView = vi.fn();
+
+// Mock HTMLElement.prototype.hasPointerCapture
+HTMLElement.prototype.hasPointerCapture = vi.fn();
+HTMLElement.prototype.setPointerCapture = vi.fn();
+HTMLElement.prototype.releasePointerCapture = vi.fn();
 
 // Mock services
 vi.mock('@/services/swapService', () => ({
@@ -63,6 +88,11 @@ vi.mock('@/components/PoolComponent', () => ({
 beforeEach(() => {
   // Reset all mocks before each test
   vi.clearAllMocks();
+  
+  // Reset window.ethereum to default mock state
+  (window.ethereum.request as any).mockReset?.();
+  (window.ethereum.on as any).mockReset?.();
+  (window.ethereum.removeListener as any).mockReset?.();
 });
 
 afterEach(() => {

@@ -194,15 +194,6 @@ export const useTestResults = () => {
           });
           
           if (e2eTests.length > 0) {
-            console.log('E2E Test breakdown:');
-            console.log('Total individual tests loaded:', e2eTests.length);
-            console.log('Tests by status:', {
-              passed: e2eTests.filter(t => t.status === 'passed').length,
-              failed: e2eTests.filter(t => t.status === 'failed').length,
-              skipped: e2eTests.filter(t => t.status === 'skipped').length
-            });
-            console.log('Using Playwright stats:', playwrightData.stats);
-            
             suites.push({
               name: 'E2E Tests',
               tests: e2eTests,

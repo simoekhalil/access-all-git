@@ -188,7 +188,9 @@ describe('Full Swap Flow Integration', () => {
       fireEvent.click(swapButton);
 
       // Swap should execute (in demo mode) even without wallet
-      expect(screen.getByText('Swapping...')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Swapping...')).toBeInTheDocument();
+      }, { timeout: 1000 });
     });
   });
 });

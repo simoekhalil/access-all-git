@@ -82,18 +82,23 @@ describe('Price Impact Calculations', () => {
       expect(impactValue).toBeLessThan(1); // Less than 1% impact
     });
 
-    test('should not show price impact for zero amounts', () => {
+    test('should not show price impact for zero amounts', async () => {
       const fromAmountInput = screen.getByLabelText('From');
       fireEvent.change(fromAmountInput, { target: { value: '0' } });
 
-      const priceImpactBadge = screen.queryByTestId('price-impact-badge');
-      expect(priceImpactBadge).not.toBeInTheDocument();
+      await waitFor(() => {
+        const priceImpactBadge = screen.queryByTestId('price-impact-badge');
+        expect(priceImpactBadge).not.toBeInTheDocument();
+      }, { timeout: 1000 });
     });
 
-    test('should not show price impact for empty amounts', () => {
+    test('should not show price impact for empty amounts', async () => {
       const fromAmountInput = screen.getByLabelText('From');
       fireEvent.change(fromAmountInput, { target: { value: '' } });
 
+      // Wait a bit to ensure no badge appears
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const priceImpactBadge = screen.queryByTestId('price-impact-badge');
       expect(priceImpactBadge).not.toBeInTheDocument();
     });
@@ -133,17 +138,23 @@ describe('Price Impact Calculations', () => {
       expect(impactValue).toBeGreaterThan(10); // Significant impact for large trades
     });
 
-    test('should handle invalid input gracefully', () => {
+    test('should handle invalid input gracefully', async () => {
       const fromAmountInput = screen.getByLabelText('From');
       fireEvent.change(fromAmountInput, { target: { value: 'invalid' } });
+
+      // Wait a bit to ensure no badge appears  
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const priceImpactBadge = screen.queryByTestId('price-impact-badge');
       expect(priceImpactBadge).not.toBeInTheDocument();
     });
 
-    test('should handle negative amounts gracefully', () => {
+    test('should handle negative amounts gracefully', async () => {
       const fromAmountInput = screen.getByLabelText('From');
       fireEvent.change(fromAmountInput, { target: { value: '-100' } });
+
+      // Wait a bit to ensure no badge appears
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const priceImpactBadge = screen.queryByTestId('price-impact-badge');
       expect(priceImpactBadge).not.toBeInTheDocument();

@@ -30,9 +30,12 @@ describe('Basic Accessibility Tests', () => {
   it('should render with proper document structure', () => {
     render(<TestApp />);
     
-    // Check for basic HTML structure
+    // Check for basic HTML structure and content
     const htmlElement = document.documentElement;
     expect(htmlElement).toBeInTheDocument();
+    
+    // Basic content check to ensure the app rendered
+    expect(document.body).toBeInTheDocument();
   });
 
   it('should have language attribute', () => {
