@@ -63,25 +63,19 @@ export const useTestResults = () => {
     setIsLoading(true);
     setError(null);
     
-    console.log('Loading test results...');
-    
     try {
       const suites: TestSuite[] = [];
       
       // Try to load Vitest results
       try {
-        console.log('Fetching Vitest results from /results.json');
         const vitestResponse = await fetch('/results.json');
-        console.log('Vitest response status:', vitestResponse.status, vitestResponse.statusText);
         
         if (vitestResponse.ok) {
           const responseText = await vitestResponse.text();
-          console.log('Vitest response text (first 200 chars):', responseText.substring(0, 200));
           
           // Check if response is actually JSON, not HTML
           if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
             const vitestData: VitestResult = JSON.parse(responseText);
-            console.log('Successfully parsed Vitest data:', vitestData);
             
             // Group tests by file/type
             const unitTests: TestSuite['tests'] = [];
@@ -171,80 +165,54 @@ export const useTestResults = () => {
                 duration: securityTests.reduce((sum, t) => sum + t.duration, 0)
               });
             }
-          } else {
-            console.log('Vitest results file not found (received HTML response)');
-            console.log('Response content:', responseText.substring(0, 500));
           }
-        } else {
-          console.log('Vitest fetch failed with status:', vitestResponse.status);
         }
       } catch (vitestError) {
-        console.log('Vitest error:', vitestError);
+        console.error('Error loading Vitest results:', vitestError);
       }
       
       // Try to load Playwright results
       try {
-        console.log('Fetching Playwright results from /playwright-results.json');
         const playwrightResponse = await fetch('/playwright-results.json');
-        console.log('Playwright response status:', playwrightResponse.status, playwrightResponse.statusText);
         
         if (playwrightResponse.ok) {
-          const responseText = await playwrightResponse.text();
-          console.log('Playwright response text (first 200 chars):', responseText.substring(0, 200));
+          const playwrightData: PlaywrightResult = await playwrightResponse.json();
           
-          // Check if response is actually JSON, not HTML
-          if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
-            const playwrightData: PlaywrightResult = JSON.parse(responseText);
-            console.log('Successfully parsed Playwright data:', playwrightData);
-            
-            const e2eTests: TestSuite['tests'] = [];
-            
-            playwrightData.suites.forEach(suite => {
-              suite.tests.forEach(test => {
-                e2eTests.push({
-                  name: `${suite.title} - ${test.title}`,
-                  status: test.outcome,
-                  duration: test.duration,
-                  error: test.errors?.[0]?.message,
-                  file: test.errors?.[0]?.location?.file || 'Unknown file',
-                  type: 'e2e'
-                });
+          const e2eTests: TestSuite['tests'] = [];
+          
+          playwrightData.suites.forEach(suite => {
+            suite.tests.forEach(test => {
+              e2eTests.push({
+                name: `${suite.title} - ${test.title}`,
+                status: test.outcome,
+                duration: test.duration,
+                error: test.errors?.[0]?.message,
+                file: test.errors?.[0]?.location?.file || 'Unknown file',
+                type: 'e2e'
               });
             });
-            
-            if (e2eTests.length > 0) {
-              console.log('Creating E2E suite with stats:', playwrightData.stats);
-              console.log('Individual E2E tests found:', e2eTests.length);
-              console.log('Passed tests by counting:', e2eTests.filter(t => t.status === 'passed').length);
-              
-              suites.push({
-                name: 'E2E Tests',
-                tests: e2eTests,
-                totalTests: playwrightData.stats.total,
-                passedTests: playwrightData.stats.passed,
-                failedTests: playwrightData.stats.failed,
-                skippedTests: playwrightData.stats.skipped,
-                duration: e2eTests.reduce((sum, t) => sum + t.duration, 0)
-              });
-            }
-          } else {
-            console.log('Playwright results file not found (received HTML response)');
-            console.log('Response content:', responseText.substring(0, 500));
+          });
+          
+          if (e2eTests.length > 0) {
+            suites.push({
+              name: 'E2E Tests',
+              tests: e2eTests,
+              totalTests: playwrightData.stats.total,
+              passedTests: playwrightData.stats.passed,
+              failedTests: playwrightData.stats.failed,
+              skippedTests: playwrightData.stats.skipped,
+              duration: e2eTests.reduce((sum, t) => sum + t.duration, 0)
+            });
           }
-        } else {
-          console.log('Playwright fetch failed with status:', playwrightResponse.status);
         }
       } catch (playwrightError) {
-        console.log('Playwright error:', playwrightError);
+        console.error('Error loading Playwright results:', playwrightError);
       }
       
-      console.log('Total suites found:', suites.length);
-      console.log('Suites:', suites.map(s => ({ name: s.name, totalTests: s.totalTests })));
       if (suites.length === 0) {
         setError('No test results found. Please run tests first using "npm run test" or "npm run test:e2e"');
       }
       
-      console.log('Setting test suites:', suites);
       setTestSuites(suites);
     } catch (err) {
       console.error('Error in loadTestResults:', err);
