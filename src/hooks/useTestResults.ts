@@ -86,13 +86,16 @@ export const useTestResults = () => {
             vitestData.testResults.forEach(test => {
               let testType: 'unit' | 'integration' | 'performance' | 'security' = 'unit';
               
-              // Categorize based on test name patterns
-              if (test.name.toLowerCase().includes('integration')) {
+              // Categorize based on test name patterns (check the prefix before the "›")
+              const testName = test.name.toLowerCase();
+              if (testName.startsWith('integration ›') || testName.includes('integration ›')) {
                 testType = 'integration';
-              } else if (test.name.toLowerCase().includes('performance')) {
+              } else if (testName.startsWith('performance ›') || testName.includes('performance ›')) {
                 testType = 'performance';
-              } else if (test.name.toLowerCase().includes('security')) {
+              } else if (testName.startsWith('security ›') || testName.includes('security ›')) {
                 testType = 'security';
+              } else if (testName.startsWith('api ›') || testName.startsWith('database ›')) {
+                testType = 'integration';
               }
               
               const testItem = {
