@@ -11,7 +11,9 @@ import { describe, test, expect } from 'vitest';
 // Helper function to calculate price impact using the exact formula
 const calculatePriceImpact = (midPrice: number, executionPrice: number): number => {
   if (midPrice === 0) return 0;
-  return ((executionPrice - midPrice) / midPrice) * 100;
+  const impact = ((executionPrice - midPrice) / midPrice) * 100;
+  // Round to 6 decimal places to eliminate floating point precision errors
+  return Math.round(impact * 1000000) / 1000000;
 };
 
 // Mock exchange rates for current GalaSwap tokens (same as in SwapInterface)

@@ -120,7 +120,9 @@ const SwapInterface = () => {
 
   const calculatePriceImpact = (midPrice: number, executionPrice: number): number => {
     if (midPrice === 0) return 0;
-    return ((executionPrice - midPrice) / midPrice) * 100;
+    const impact = ((executionPrice - midPrice) / midPrice) * 100;
+    // Round to 6 decimal places to eliminate floating point precision errors
+    return Math.round(impact * 1000000) / 1000000;
   };
 
   const calculateToAmount = (fromAmount: string, fromToken: string, toToken: string) => {
