@@ -108,7 +108,7 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
         fireEvent.change(fromInput, { target: { value: '100' } });
 
         await waitFor(() => {
-          const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+          const toInput = screen.getByLabelText('To') as HTMLInputElement;
           const expectedAmount = 100 * expectedRatio;
           const actualAmount = parseFloat(toInput.value);
           
@@ -133,11 +133,11 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
       );
 
       // Default is USDC->GALA
-      const toInput = screen.getByLabelLabel('To');
+      const toInput = screen.getByLabelText('To');
       fireEvent.change(toInput, { target: { value: '4000' } });
 
       await waitFor(() => {
-        const fromInput = screen.getByLabelLabel('From') as HTMLInputElement;
+        const fromInput = screen.getByLabelText('From') as HTMLInputElement;
         // 4000 GALA requires ~100 USDC (allowing for price impact)
         expect(parseFloat(fromInput.value)).toBeCloseTo(100, 1);
       });
@@ -154,11 +154,11 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
       const toSelect = screen.getByRole('combobox', { name: /to/i });
       await selectToken(toSelect, 'WETH');
 
-      const toInput = screen.getByLabelLabel('To');
+      const toInput = screen.getByLabelText('To');
       fireEvent.change(toInput, { target: { value: '0.3' } });
 
       await waitFor(() => {
-        const fromInput = screen.getByLabelLabel('From') as HTMLInputElement;
+        const fromInput = screen.getByLabelText('From') as HTMLInputElement;
         // 0.3 WETH requires ~1000 USDC (allowing for price impact)
         expect(parseFloat(fromInput.value)).toBeCloseTo(1000, 1);
       });
@@ -194,11 +194,11 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
         }
 
         // Enter amount
-        const fromInput = screen.getByLabelLabel('From');
+        const fromInput = screen.getByLabelText('From');
         fireEvent.change(fromInput, { target: { value: amount } });
 
         await waitFor(() => {
-          const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+          const toInput = screen.getByLabelText('To') as HTMLInputElement;
           const calculatedAmount = parseFloat(toInput.value);
           
           // Verify the calculated amount is reasonable
@@ -224,8 +224,8 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
           expect(newToSelect).toHaveTextContent(from);
 
           // Amounts should be swapped
-          const newFromInput = screen.getByLabelLabel('From') as HTMLInputElement;
-          const newToInput = screen.getByLabelLabel('To') as HTMLInputElement;
+          const newFromInput = screen.getByLabelText('From') as HTMLInputElement;
+          const newToInput = screen.getByLabelText('To') as HTMLInputElement;
           
           expect(parseFloat(newFromInput.value)).toBeGreaterThan(0);
           expect(parseFloat(newToInput.value)).toBeCloseTo(parseFloat(amount), 1);
@@ -264,7 +264,7 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
         }
 
         // Enter amount to trigger rate display
-        const fromInput = screen.getByLabelLabel('From');
+        const fromInput = screen.getByLabelText('From');
         fireEvent.change(fromInput, { target: { value: testAmount } });
 
         await waitFor(() => {
@@ -302,7 +302,7 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
           await selectToken(toSelect, pair.to);
         }
 
-        const fromInput = screen.getByLabelLabel('From');
+        const fromInput = screen.getByLabelText('From');
         fireEvent.change(fromInput, { target: { value: '100' } });
 
         await waitFor(() => {
@@ -318,7 +318,7 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -334,7 +334,7 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -350,7 +350,7 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
       );
 
       // Large trade should show price impact
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '10000' } });
 
       await waitFor(() => {
@@ -371,11 +371,11 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '0.001' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
         const result = parseFloat(toInput.value);
         // Should either calculate small amount or show 0
         expect(result).toBeGreaterThanOrEqual(0);
@@ -389,11 +389,11 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: 'invalid' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
         expect(toInput.value).toBe('');
       });
     });
@@ -405,7 +405,7 @@ describe('All Real swap.gala.com Token Combination Tests', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '0' } });
 
       await waitFor(() => {

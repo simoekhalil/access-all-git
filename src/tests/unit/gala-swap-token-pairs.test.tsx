@@ -317,7 +317,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Large trade should show price impact
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '5000' } });
 
       await waitFor(() => {
@@ -337,7 +337,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Test USDC/WBTC (highest TVL pair)
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '1000' } });
 
       const toSelect = screen.getByRole('combobox', { name: /to/i });
@@ -349,7 +349,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
         // Should calculate reasonable WBTC amount
         expect(parseFloat(toInput.value)).toBeGreaterThan(0);
         expect(parseFloat(toInput.value)).toBeLessThan(1); // WBTC is expensive
@@ -374,7 +374,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(wbtcOption);
       });
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -390,7 +390,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Test GALA/USDC (1% fee pair) - this is the default
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -416,11 +416,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(usdtOption);
       });
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
         // Should be close to 1:1 ratio
         expect(parseFloat(toInput.value)).toBeCloseTo(100, 1);
       });
@@ -451,11 +451,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(wethOption);
       });
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '0.01' } }); // Small amount of WBTC
 
       await waitFor(() => {
-        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
         // Should get reasonable amount of WETH
         expect(parseFloat(toInput.value)).toBeGreaterThan(0);
       });
@@ -486,11 +486,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(wenOption);
       });
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
         // Should get many WEN tokens for GALA
         expect(parseFloat(toInput.value)).toBeGreaterThan(1000);
       });
@@ -521,11 +521,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(filmOption);
       });
 
-      const fromInput = screen.getByLabelLabel('From');
+      const fromInput = screen.getByLabelText('From');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
         // Should calculate reasonable FILM amount
         expect(parseFloat(toInput.value)).toBeGreaterThan(0);
       });
