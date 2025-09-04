@@ -151,14 +151,13 @@ const SwapInterface = () => {
     
     if (!pair) return 0;
     
-    // Consistent price impact model: percentage of pool liquidity affected
-    // Use AMM-style calculation where impact is proportional to trade size vs pool size
-    const poolLiquidity = pair.tvl / 2; // Half of TVL represents one side of the pool
-    const tradeRatio = amount / poolLiquidity;
+    // Simple price impact model: larger trades relative to TVL have more impact
+    const tradeValue = amount * (from === 'USDC' || from === 'USDT' ? 1 : 
+                               from === 'GALA' ? 0.025 : 
+                               from === 'WBTC' ? 100000 : 
+                               from === 'WETH' ? 3333 : 1);
     
-    // Apply square root price impact model (similar to Uniswap V2)
-    // Impact = sqrt(tradeRatio) * base_impact_factor
-    const impactFactor = Math.sqrt(tradeRatio) * 0.01;
+    const impactFactor = Math.sqrt(tradeValue / (pair.tvl / 2)) * 0.01;
     return Math.round(impactFactor * 1000000) / 1000000; // Round to 6 decimal places
   };
 
