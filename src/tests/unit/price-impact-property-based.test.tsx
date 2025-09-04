@@ -54,7 +54,7 @@ describe('Price Impact Property-Based Tests', () => {
       const impacts: number[] = [];
 
       for (const amount of amounts) {
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: amount } });
 
         await waitFor(() => {
@@ -87,7 +87,7 @@ describe('Price Impact Property-Based Tests', () => {
       const impacts: number[] = [];
 
       for (const amount of amounts) {
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: amount.toString() } });
 
         await waitFor(() => {
@@ -121,7 +121,7 @@ describe('Price Impact Property-Based Tests', () => {
       const impacts: number[] = [];
 
       for (const amount of equivalentAmounts) {
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: amount } });
 
         await waitFor(() => {
@@ -151,7 +151,7 @@ describe('Price Impact Property-Based Tests', () => {
       const randomAmounts = Array.from({ length: 20 }, () => getRandomAmount(0.001, 100000));
 
       for (const amount of randomAmounts) {
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: amount } });
 
         await waitFor(() => {
@@ -180,7 +180,7 @@ describe('Price Impact Property-Based Tests', () => {
       const impacts: number[] = [];
 
       for (const amount of smallAmounts) {
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: amount } });
 
         await waitFor(() => {
@@ -214,7 +214,7 @@ describe('Price Impact Property-Based Tests', () => {
       const impacts: number[] = [];
 
       for (const amount of largeAmounts) {
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: amount } });
 
         await waitFor(() => {
@@ -282,7 +282,7 @@ describe('Price Impact Property-Based Tests', () => {
         });
 
         // Enter amount
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: testAmount } });
 
         await waitFor(() => {
@@ -333,7 +333,7 @@ describe('Price Impact Property-Based Tests', () => {
       ];
 
       for (const amount of testCases) {
-        const fromAmountInput = screen.getByLabelText('From');
+        const fromAmountInput = screen.getByLabelText('Selling');
         fireEvent.change(fromAmountInput, { target: { value: amount } });
 
         await waitFor(() => {

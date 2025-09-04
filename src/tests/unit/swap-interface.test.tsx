@@ -88,11 +88,17 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       fireEvent.click(toSelect);
 
       await waitFor(() => {
-        // USDC should not be available in to options
-        expect(screen.queryByText('USDC')).not.toBeInTheDocument();
-        // But other tokens should be available
-        expect(screen.getByText('WETH')).toBeInTheDocument();
-        expect(screen.getByText('GALA')).toBeInTheDocument();
+        // USDC should not be available in to dropdown options (check within dropdown content)
+        const dropdownOptions = screen.getByRole('listbox');
+        expect(dropdownOptions).toBeInTheDocument();
+        
+        // Check that USDC is not in the dropdown options
+        const usdcOption = screen.queryByRole('option', { name: 'USDC' });
+        expect(usdcOption).not.toBeInTheDocument();
+        
+        // But other tokens should be available as options
+        expect(screen.getByRole('option', { name: 'WETH' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'GALA' })).toBeInTheDocument();
       });
     });
 
@@ -107,16 +113,16 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       fireEvent.click(fromSelect);
 
       await waitFor(() => {
-        // All real tokens from swap.gala.com should be available
-        expect(screen.getByText('GALA')).toBeInTheDocument();
-        expect(screen.getByText('USDC')).toBeInTheDocument();
-        expect(screen.getByText('USDT')).toBeInTheDocument();
-        expect(screen.getByText('WBTC')).toBeInTheDocument();
-        expect(screen.getByText('WETH')).toBeInTheDocument();
-        expect(screen.getByText('WEN')).toBeInTheDocument();
-        expect(screen.getByText('$GMUSIC')).toBeInTheDocument();
-        expect(screen.getByText('FILM')).toBeInTheDocument();
-        expect(screen.getByText('WXRP')).toBeInTheDocument();
+        // All real tokens from swap.gala.com should be available as options
+        expect(screen.getByRole('option', { name: 'GALA' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'USDC' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'USDT' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'WBTC' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'WETH' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'WEN' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: '$GMUSIC' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'FILM' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'WXRP' })).toBeInTheDocument();
       });
     });
   });
