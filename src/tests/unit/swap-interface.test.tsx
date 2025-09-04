@@ -129,11 +129,11 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelText('From');
+    const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+      const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         // 100 USDC -> GALA at rate 40 = ~4000 GALA (minus price impact)
         const actualValue = parseFloat(toInput.value);
         expect(actualValue).toBeGreaterThan(3900); // Should be close to 4000 minus small price impact
@@ -148,11 +148,11 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const toInput = screen.getByLabelText('To');
+      const toInput = screen.getByLabelText('Buying');
       fireEvent.change(toInput, { target: { value: '4000' } });
 
       await waitFor(() => {
-        const fromInput = screen.getByLabelText('From') as HTMLInputElement;
+        const fromInput = screen.getByLabelText('Selling') as HTMLInputElement;
         // 4000 GALA requires ~100 USDC (plus adjustment for price impact)
         const actualValue = parseFloat(fromInput.value);
         expect(actualValue).toBeGreaterThan(99);
@@ -167,8 +167,8 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      // Change to WETH as to token
-      const toSelect = screen.getByRole('combobox', { name: /to/i });
+        // Change to WETH as to token
+        const toSelect = screen.getByRole('combobox', { name: /buying/i });
       fireEvent.click(toSelect);
       
       await waitFor(() => {
@@ -176,11 +176,11 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         fireEvent.click(wethOption);
       });
 
-      const fromInput = screen.getByLabelText('From');
+    const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '1000' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+      const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         // 1000 USDC -> WETH at rate 0.0003 = 0.3 WETH (minus price impact)
         const actualValue = parseFloat(toInput.value);
         expect(actualValue).toBeGreaterThan(0.25);
@@ -195,7 +195,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -212,7 +212,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -221,7 +221,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       });
 
       // Test a different pair with different fee
-      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      const fromSelect = screen.getByRole('combobox', { name: /selling/i });
       fireEvent.click(fromSelect);
       
       await waitFor(() => {
@@ -243,7 +243,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       );
 
       // Large trade should have higher price impact
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '10000' } });
 
       await waitFor(() => {
@@ -263,7 +263,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -280,7 +280,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -296,7 +296,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -309,8 +309,8 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
 
       // After success, form should reset
       await waitFor(() => {
-        const fromInput = screen.getByLabelText('From') as HTMLInputElement;
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        const fromInput = screen.getByLabelText('Selling') as HTMLInputElement;
+        const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         expect(fromInput.value).toBe('');
         expect(toInput.value).toBe('');
       }, { timeout: 3000 });
@@ -340,11 +340,11 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       );
 
       // Enter amounts first
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         expect(parseFloat(toInput.value)).toBeGreaterThan(0);
       });
 
@@ -354,15 +354,15 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
 
       await waitFor(() => {
         // Tokens should be swapped
-        const fromSelect = screen.getByRole('combobox', { name: /from/i });
-        const toSelect = screen.getByRole('combobox', { name: /to/i });
+    const fromSelect = screen.getByRole('combobox', { name: /selling/i });
+    const toSelect = screen.getByRole('combobox', { name: /buying/i });
         
         expect(fromSelect).toHaveTextContent('GALA');
         expect(toSelect).toHaveTextContent('USDC');
 
         // Amounts should be swapped too
-        const newFromInput = screen.getByLabelText('From') as HTMLInputElement;
-        const newToInput = screen.getByLabelText('To') as HTMLInputElement;
+        const newFromInput = screen.getByLabelText('Selling') as HTMLInputElement;
+        const newToInput = screen.getByLabelText('Buying') as HTMLInputElement;
         
         expect(parseFloat(newFromInput.value)).toBeGreaterThan(0);
         expect(parseFloat(newToInput.value)).toBeCloseTo(100, 0);
@@ -378,11 +378,11 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: 'invalid' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         expect(toInput.value).toBe('');
       });
     });
@@ -394,7 +394,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '0' } });
 
       await waitFor(() => {

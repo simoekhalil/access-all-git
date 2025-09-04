@@ -303,7 +303,7 @@ const SwapInterface = () => {
             placeholder="0.00"
             value={swap.fromAmount}
             onChange={(e) => handleFromAmountChange(e.target.value)}
-            aria-label="From"
+            aria-label="Selling"
           />
             </div>
             <Select
@@ -364,7 +364,7 @@ const SwapInterface = () => {
             placeholder="0.00"
             value={swap.toAmount}
             onChange={(e) => handleToAmountChange(e.target.value)}
-            aria-label="To"
+            aria-label="Buying"
           />
             </div>
             <Select

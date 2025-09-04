@@ -122,8 +122,8 @@ describe('Real swap.gala.com Token Pair Tests', () => {
           );
 
           // Set up the token pair (token1 -> token2)
-          const fromSelect = screen.getByRole('combobox', { name: /from/i });
-          const toSelect = screen.getByRole('combobox', { name: /to/i });
+          const fromSelect = screen.getByRole('combobox', { name: /selling/i });
+          const toSelect = screen.getByRole('combobox', { name: /buying/i });
 
           if (token1 !== 'USDC') {
             fireEvent.click(fromSelect);
@@ -142,11 +142,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
           }
 
           // Enter test amount
-          const fromInput = screen.getByLabelText('From');
+          const fromInput = screen.getByLabelText('Selling');
           fireEvent.change(fromInput, { target: { value: TEST_AMOUNTS.small } });
 
           await waitFor(() => {
-            const toInput = screen.getByLabelText('To') as HTMLInputElement;
+            const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
             // Should calculate some reasonable amount (AMM will adjust based on price impact)
             expect(parseFloat(toInput.value)).toBeGreaterThan(0);
           });
@@ -160,8 +160,8 @@ describe('Real swap.gala.com Token Pair Tests', () => {
           );
 
           // Set up the token pair
-          const fromSelect = screen.getByRole('combobox', { name: /from/i });
-          const toSelect = screen.getByRole('combobox', { name: /to/i });
+          const fromSelect = screen.getByRole('combobox', { name: /selling/i });
+          const toSelect = screen.getByRole('combobox', { name: /buying/i });
 
           if (token1 !== 'USDC') {
             fireEvent.click(fromSelect);
@@ -180,11 +180,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
           }
 
           // Enter test amount
-          const fromInput = screen.getByLabelText('From');
+          const fromInput = screen.getByLabelText('Selling');
           fireEvent.change(fromInput, { target: { value: TEST_AMOUNTS.medium } });
 
           await waitFor(() => {
-            const toInput = screen.getByLabelText('To') as HTMLInputElement;
+            const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
             expect(parseFloat(toInput.value)).toBeGreaterThan(0);
           });
         });
@@ -197,8 +197,8 @@ describe('Real swap.gala.com Token Pair Tests', () => {
           );
 
           // Set up the token pair
-          const fromSelect = screen.getByRole('combobox', { name: /from/i });
-          const toSelect = screen.getByRole('combobox', { name: /to/i });
+          const fromSelect = screen.getByRole('combobox', { name: /selling/i });
+          const toSelect = screen.getByRole('combobox', { name: /buying/i });
 
           if (token1 !== 'USDC') {
             fireEvent.click(fromSelect);
@@ -217,7 +217,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
           }
 
           // Enter amount to trigger fee display
-          const fromInput = screen.getByLabelText('From');
+          const fromInput = screen.getByLabelText('Selling');
           fireEvent.change(fromInput, { target: { value: '100' } });
 
           await waitFor(() => {
@@ -233,8 +233,8 @@ describe('Real swap.gala.com Token Pair Tests', () => {
           );
 
           // Set up the token pair
-          const fromSelect = screen.getByRole('combobox', { name: /from/i });
-          const toSelect = screen.getByRole('combobox', { name: /to/i });
+          const fromSelect = screen.getByRole('combobox', { name: /selling/i });
+          const toSelect = screen.getByRole('combobox', { name: /buying/i });
 
           if (token1 !== 'USDC') {
             fireEvent.click(fromSelect);
@@ -253,7 +253,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
           }
 
           // Enter large amount to generate price impact
-          const fromInput = screen.getByLabelText('From');
+          const fromInput = screen.getByLabelText('Selling');
           fireEvent.change(fromInput, { target: { value: TEST_AMOUNTS.large } });
 
           await waitFor(() => {
@@ -276,7 +276,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         </TestWrapper>
       );
 
-      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      const fromSelect = screen.getByRole('combobox', { name: /selling/i });
       fireEvent.click(fromSelect);
 
       await waitFor(() => {
@@ -317,7 +317,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Large trade should show price impact
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '5000' } });
 
       await waitFor(() => {
@@ -337,10 +337,10 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Test USDC/WBTC (highest TVL pair)
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '1000' } });
 
-      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      const toSelect = screen.getByRole('combobox', { name: /buying/i });
       fireEvent.click(toSelect);
       
       await waitFor(() => {
@@ -349,7 +349,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         // Should calculate reasonable WBTC amount
         expect(parseFloat(toInput.value)).toBeGreaterThan(0);
         expect(parseFloat(toInput.value)).toBeLessThan(1); // WBTC is expensive
@@ -366,7 +366,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Test USDC/WBTC (0.3% fee pair)
-      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      const toSelect = screen.getByRole('combobox', { name: /buying/i });
       fireEvent.click(toSelect);
       
       await waitFor(() => {
@@ -374,7 +374,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(wbtcOption);
       });
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -390,7 +390,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Test GALA/USDC (1% fee pair) - this is the default
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
@@ -408,7 +408,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // USDC to USDT should have ~1:1 ratio
-      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      const toSelect = screen.getByRole('combobox', { name: /buying/i });
       fireEvent.click(toSelect);
       
       await waitFor(() => {
@@ -416,11 +416,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(usdtOption);
       });
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         // Should be close to 1:1 ratio
         expect(parseFloat(toInput.value)).toBeCloseTo(100, 1);
       });
@@ -434,7 +434,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Change from USDC to WBTC
-      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      const fromSelect = screen.getByRole('combobox', { name: /selling/i });
       fireEvent.click(fromSelect);
       
       await waitFor(() => {
@@ -443,7 +443,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       });
 
       // Change to WETH
-      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      const toSelect = screen.getByRole('combobox', { name: /buying/i });
       fireEvent.click(toSelect);
       
       await waitFor(() => {
@@ -451,11 +451,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(wethOption);
       });
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '0.01' } }); // Small amount of WBTC
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         // Should get reasonable amount of WETH
         expect(parseFloat(toInput.value)).toBeGreaterThan(0);
       });
@@ -469,7 +469,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Change from USDC to GALA
-      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      const fromSelect = screen.getByRole('combobox', { name: /selling/i });
       fireEvent.click(fromSelect);
       
       await waitFor(() => {
@@ -478,7 +478,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       });
 
       // Change to WEN
-      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      const toSelect = screen.getByRole('combobox', { name: /buying/i });
       fireEvent.click(toSelect);
       
       await waitFor(() => {
@@ -486,11 +486,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(wenOption);
       });
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         // Should get many WEN tokens for GALA
         expect(parseFloat(toInput.value)).toBeGreaterThan(1000);
       });
@@ -504,7 +504,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       );
 
       // Change from USDC to $GMUSIC
-      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      const fromSelect = screen.getByRole('combobox', { name: /selling/i });
       fireEvent.click(fromSelect);
       
       await waitFor(() => {
@@ -513,7 +513,7 @@ describe('Real swap.gala.com Token Pair Tests', () => {
       });
 
       // Change to FILM
-      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      const toSelect = screen.getByRole('combobox', { name: /buying/i });
       fireEvent.click(toSelect);
       
       await waitFor(() => {
@@ -521,11 +521,11 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         fireEvent.click(filmOption);
       });
 
-      const fromInput = screen.getByLabelText('From');
+      const fromInput = screen.getByLabelText('Selling');
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        const toInput = screen.getByLabelText('Buying') as HTMLInputElement;
         // Should calculate reasonable FILM amount
         expect(parseFloat(toInput.value)).toBeGreaterThan(0);
       });
