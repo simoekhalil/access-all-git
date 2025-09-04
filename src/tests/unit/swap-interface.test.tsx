@@ -220,9 +220,9 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         expect(screen.getByText('1%')).toBeInTheDocument();
       });
 
-      // Test a different pair with different fee
-      const fromSelect = screen.getByRole('combobox', { name: /selling/i });
-      fireEvent.click(fromSelect);
+      // Test a different pair with different fee (USDC/WBTC)
+      const toSelect = screen.getByRole('combobox', { name: /buying/i });
+      fireEvent.click(toSelect);
       
       await waitFor(() => {
         const wbtcOption = screen.getByText('WBTC');
