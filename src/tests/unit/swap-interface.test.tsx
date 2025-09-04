@@ -52,7 +52,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByText('1,500.00 GUSDC')).toBeInTheDocument(); // USDC balance
+      expect(screen.getByText('1,500.00 GUSDC')).toBeInTheDocument(); // USDC balance  
       expect(screen.getByText('1,000.00 GALA')).toBeInTheDocument(); // GALA balance
     });
   });
@@ -290,7 +290,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const swapButton = screen.getByRole('button', { name: 'Swap' });
+        const swapButton = screen.getByRole('button', { name: 'Connect Wallet' });
         expect(swapButton).not.toBeDisabled();
       });
     });
@@ -306,7 +306,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const swapButton = screen.getByRole('button', { name: 'Swap' });
+        const swapButton = screen.getByRole('button', { name: 'Connect Wallet' });
         fireEvent.click(swapButton);
       });
 
@@ -329,7 +329,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const swapButton = screen.getByRole('button', { name: 'Swap' });
+      const swapButton = screen.getByRole('button', { name: 'Connect Wallet' });
       fireEvent.click(swapButton);
 
       // Button should be disabled for empty amounts
@@ -404,7 +404,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       fireEvent.change(fromInput, { target: { value: '0' } });
 
       await waitFor(() => {
-        const swapButton = screen.getByRole('button', { name: 'Swap' });
+        const swapButton = screen.getByRole('button', { name: 'Connect Wallet' });
         expect(swapButton).toBeDisabled();
       });
     });

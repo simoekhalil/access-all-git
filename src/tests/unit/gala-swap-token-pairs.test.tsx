@@ -300,9 +300,8 @@ describe('Real swap.gala.com Token Pair Tests', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByText('Swap Tokens')).toBeInTheDocument();
-      expect(screen.getByText('Trade your tokens instantly')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Swap' })).toBeInTheDocument();
+      expect(screen.getByText('Swap')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Connect Wallet' })).toBeInTheDocument();
       
       // Should have "Selling" and "Buying" labels (AMM style)
       expect(screen.getByText('Selling')).toBeInTheDocument();

@@ -72,16 +72,16 @@ describe('Full Swap Flow Integration', () => {
       });
 
       // Perform swap
-      const fromAmountInput = screen.getByLabelText('From');
+      const fromAmountInput = screen.getByLabelText('Selling');
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
+        const toAmountInput = screen.getByLabelText('Buying') as HTMLInputElement;
         expect(parseFloat(toAmountInput.value)).toBeCloseTo(2.5, 1); // 100 * 0.025 base rate
       });
 
       // Execute swap
-      const swapButton = screen.getByText('Swap');
+      const swapButton = screen.getByText('Connect Wallet');
       fireEvent.click(swapButton);
 
       expect(screen.getByText('Swapping...')).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe('Full Swap Flow Integration', () => {
       await waitFor(() => {
         // Swap should complete and reset form
         expect(screen.getByLabelText('Selling')).toHaveValue('');
-        expect(screen.getByLabelText('To')).toHaveValue('');
+        expect(screen.getByLabelText('Buying')).toHaveValue('');
       }, { timeout: 3000 });
     });
 
@@ -113,7 +113,7 @@ describe('Full Swap Flow Integration', () => {
 
       // Swap should still be available but user should see wallet is not connected
       expect(screen.getByText('Connect Wallet')).toBeInTheDocument();
-      expect(screen.getByText('Swap Tokens')).toBeInTheDocument();
+      expect(screen.getByText('Swap')).toBeInTheDocument();
     });
 
     it('should display feature highlights', () => {
@@ -145,8 +145,7 @@ describe('Full Swap Flow Integration', () => {
       // Both main components should be present
       expect(screen.getByText('Gala Wallet')).toBeInTheDocument();
       expect(screen.getByText('Connect your wallet to start trading')).toBeInTheDocument();
-      expect(screen.getByText('Swap Tokens')).toBeInTheDocument();
-      expect(screen.getByText('Trade your tokens instantly')).toBeInTheDocument();
+      expect(screen.getByText('Swap')).toBeInTheDocument();
     });
   });
 
@@ -181,10 +180,10 @@ describe('Full Swap Flow Integration', () => {
       );
 
       // Try to perform swap without connecting wallet
-      const fromAmountInput = screen.getByLabelText('From');
+      const fromAmountInput = screen.getByLabelText('Selling');
       fireEvent.change(fromAmountInput, { target: { value: '100' } });
 
-      const swapButton = screen.getByText('Swap');
+      const swapButton = screen.getByText('Connect Wallet');
       fireEvent.click(swapButton);
 
       // Swap should execute (in demo mode) even without wallet

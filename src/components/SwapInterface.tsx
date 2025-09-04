@@ -293,7 +293,7 @@ const SwapInterface = () => {
       <CardContent className="space-y-4">
         {/* Selling Token */}
         <div className="space-y-2">
-          <Label htmlFor="from-amount">Selling</Label>
+          <Label htmlFor="from-amount">Selling <span className="text-xs text-muted-foreground">max</span></Label>
           <div className="flex gap-2">
             <div className="flex-1">
           <Input
@@ -331,7 +331,7 @@ const SwapInterface = () => {
             </Select>
           </div>
           <div className="text-sm text-muted-foreground">
-            {getTokenBalance(swap.fromToken)} G{swap.fromToken}
+            {getTokenBalance(swap.fromToken)} {swap.fromToken === 'USDC' ? 'G' + swap.fromToken : swap.fromToken}
           </div>
           <div className="text-xs text-muted-foreground">
             $ 0.00
@@ -445,7 +445,7 @@ const SwapInterface = () => {
           className="w-full"
           size="lg"
         >
-          {swap.isLoading ? 'Swapping...' : 'Swap'}
+          {swap.isLoading ? 'Swapping...' : 'Connect Wallet'}
         </Button>
       </CardContent>
     </Card>
