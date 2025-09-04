@@ -143,9 +143,9 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
-        // Calculate the expected value with price impact
-        const baseRate = 0.025; // GALA to USDC base rate
-        const expectedValue = 100 * baseRate; // 2.5
+        // Default is USDC → GALA, so 100 USDC should yield ~4000 GALA (100 * 40 = 4000)
+        const baseRate = 40; // USDC to GALA base rate
+        const expectedValue = 100 * baseRate; // 4000
         const actualValue = parseFloat(toAmountInput.value);
         
         // Should be higher than base due to price impact
@@ -166,7 +166,8 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const fromAmountInput = screen.getByLabelText('From') as HTMLInputElement;
-        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(99.01, 1); // Iterative solution for 2.5 USDC
+        // Default is USDC → GALA, so 2.5 GALA should require ~0.0625 USDC (2.5 ÷ 40 = 0.0625)
+        expect(parseFloat(fromAmountInput.value)).toBeCloseTo(0.0625, 2);
       });
     });
 
@@ -183,7 +184,7 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
-        const expectedValue = 123.456789 * 0.025; // Base GALA->USDC rate
+        const expectedValue = 123.456789 * 40; // Base USDC->GALA rate
         expect(parseFloat(toAmountInput.value)).toBeGreaterThan(expectedValue); // Should be higher due to price impact
       });
     });
@@ -203,7 +204,7 @@ describe('SwapInterface Component', () => {
         const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
         // Should handle tiny amounts (might round to 0 due to precision)
         const actualValue = parseFloat(toAmountInput.value);
-        const expectedValue = 0.000001 * 0.025;
+        const expectedValue = 0.000001 * 40; // Base USDC->GALA rate
         
         // Either should be close to expected value or 0 due to precision limits
         expect(actualValue === 0 || actualValue >= expectedValue * 0.9).toBe(true);
@@ -223,7 +224,7 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const toAmountInput = screen.getByLabelText('To') as HTMLInputElement;
-        const expectedValue = 999999.999999 * 0.025; // Base rate
+        const expectedValue = 999999.999999 * 40; // Base USDC->GALA rate
         expect(parseFloat(toAmountInput.value)).toBeGreaterThan(expectedValue); // Should be higher due to price impact
       });
     });
@@ -241,12 +242,12 @@ describe('SwapInterface Component', () => {
 
       await waitFor(() => {
         const fromAmountInput = screen.getByLabelText('From') as HTMLInputElement;
-        // Reverse calculation uses base rate (no price impact in reverse)
-        const expectedValue = 3.141592653589793 / 0.025; // Base rate
+        // Reverse calculation: 3.14159 GALA requires ~0.0785 USDC (3.14159 ÷ 40 = 0.0785)
+        const expectedValue = 3.141592653589793 / 40; // Base USDC->GALA rate
         const actualValue = parseFloat(fromAmountInput.value);
         
         // Should be close to expected (iterative solver accounts for price impact)
-        expect(actualValue).toBeCloseTo(124.28, 1);
+        expect(actualValue).toBeCloseTo(0.0785, 2);
       });
     });
 
