@@ -37,11 +37,11 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       );
 
       // Default from token should be USDC
-      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      const fromSelect = screen.getByRole('combobox', { name: /selling/i });
       expect(fromSelect).toHaveTextContent('USDC');
 
       // Default to token should be GALA  
-      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      const toSelect = screen.getByRole('combobox', { name: /buying/i });
       expect(toSelect).toHaveTextContent('GALA');
     });
 
@@ -65,7 +65,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      const fromSelect = screen.getByRole('combobox', { name: /selling/i });
       fireEvent.click(fromSelect);
       
       await waitFor(() => {
@@ -84,7 +84,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
       );
 
       // USDC is the default from token
-      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      const toSelect = screen.getByRole('combobox', { name: /buying/i });
       fireEvent.click(toSelect);
 
       await waitFor(() => {
@@ -103,7 +103,7 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      const fromSelect = screen.getByRole('combobox', { name: /selling/i });
       fireEvent.click(fromSelect);
 
       await waitFor(() => {

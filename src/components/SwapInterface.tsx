@@ -319,7 +319,7 @@ const SwapInterface = () => {
                 }
               }}
             >
-              <SelectTrigger className="w-24" role="combobox">
+              <SelectTrigger className="w-24" role="combobox" aria-label="Select selling token">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -380,7 +380,7 @@ const SwapInterface = () => {
                 }
               }}
             >
-              <SelectTrigger className="w-24" role="combobox">
+              <SelectTrigger className="w-24" role="combobox" aria-label="Select buying token">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
