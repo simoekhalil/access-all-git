@@ -16,7 +16,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   </QueryClientProvider>
 );
 
-describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
+describe('SwapInterface Component - Real swap.gala.com AMM', () => {
   describe('Initial Render', () => {
     it('should render with correct title and description', () => {
       render(
@@ -25,24 +25,24 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByText('Create Offer')).toBeInTheDocument();
-      expect(screen.getByText('Create a P2P token swap offer')).toBeInTheDocument();
+      expect(screen.getByText('Swap Tokens')).toBeInTheDocument();
+      expect(screen.getByText('Trade your tokens instantly')).toBeInTheDocument();
     });
 
-    it('should render with default tokens (GALA and GUSDC)', () => {
+    it('should render with default tokens (USDC and GALA)', () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      // Default offering token should be GALA
-      const offeringSelect = screen.getByRole('combobox', { name: /offering/i });
-      expect(offeringSelect).toHaveTextContent('GALA');
+      // Default from token should be USDC
+      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      expect(fromSelect).toHaveTextContent('USDC');
 
-      // Default wanted token should be GUSDC  
-      const wantedSelect = screen.getByRole('combobox', { name: /wanted/i });
-      expect(wantedSelect).toHaveTextContent('GUSDC');
+      // Default to token should be GALA  
+      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      expect(toSelect).toHaveTextContent('GALA');
     });
 
     it('should display token balances', () => {
@@ -52,109 +52,139 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
         </TestWrapper>
       );
 
+      expect(screen.getByText('Balance: 1,500.00')).toBeInTheDocument(); // USDC balance
       expect(screen.getByText('Balance: 1,000.00')).toBeInTheDocument(); // GALA balance
-      expect(screen.getByText('Balance: 1,500.00')).toBeInTheDocument(); // GUSDC balance
     });
   });
 
   describe('Token Selection', () => {
-    it('should allow changing offering token', async () => {
+    it('should allow changing from token', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      const offeringSelect = screen.getByRole('combobox', { name: /offering/i });
-      fireEvent.click(offeringSelect);
+      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      fireEvent.click(fromSelect);
       
       await waitFor(() => {
-        const etimeOption = screen.getByText('ETIME');
-        fireEvent.click(etimeOption);
+        const wethOption = screen.getByText('WETH');
+        fireEvent.click(wethOption);
       });
 
-      expect(offeringSelect).toHaveTextContent('ETIME');
+      expect(fromSelect).toHaveTextContent('WETH');
     });
 
-    it('should exclude selected offering token from wanted options', async () => {
+    it('should exclude selected from token from to options', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      // GALA is the default offering token
-      const wantedSelect = screen.getByRole('combobox', { name: /wanted/i });
-      fireEvent.click(wantedSelect);
+      // USDC is the default from token
+      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      fireEvent.click(toSelect);
 
       await waitFor(() => {
-        // GALA should not be available in wanted options
-        expect(screen.queryByText('GALA')).not.toBeInTheDocument();
+        // USDC should not be available in to options
+        expect(screen.queryByText('USDC')).not.toBeInTheDocument();
         // But other tokens should be available
-        expect(screen.getByText('ETIME')).toBeInTheDocument();
-        expect(screen.getByText('GUSDC')).toBeInTheDocument();
+        expect(screen.getByText('WETH')).toBeInTheDocument();
+        expect(screen.getByText('GALA')).toBeInTheDocument();
+      });
+    });
+
+    it('should support all real swap.gala.com tokens', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      fireEvent.click(fromSelect);
+
+      await waitFor(() => {
+        // All real tokens from swap.gala.com should be available
+        expect(screen.getByText('GALA')).toBeInTheDocument();
+        expect(screen.getByText('USDC')).toBeInTheDocument();
+        expect(screen.getByText('USDT')).toBeInTheDocument();
+        expect(screen.getByText('WBTC')).toBeInTheDocument();
+        expect(screen.getByText('WETH')).toBeInTheDocument();
+        expect(screen.getByText('WEN')).toBeInTheDocument();
+        expect(screen.getByText('$GMUSIC')).toBeInTheDocument();
+        expect(screen.getByText('FILM')).toBeInTheDocument();
+        expect(screen.getByText('WXRP')).toBeInTheDocument();
       });
     });
   });
 
   describe('Amount Calculation', () => {
-    it('should calculate wanted amount when offering amount is entered', async () => {
+    it('should calculate to amount when from amount is entered', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: '100' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const wantedInput = screen.getByLabelText('Wanted') as HTMLInputElement;
-        // 100 GALA -> GUSDC at rate 0.025 = 2.5 GUSDC
-        expect(parseFloat(wantedInput.value)).toBeCloseTo(2.5, 2);
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        // 100 USDC -> GALA at rate 40 = ~4000 GALA (minus price impact)
+        const actualValue = parseFloat(toInput.value);
+        expect(actualValue).toBeGreaterThan(3900); // Should be close to 4000 minus small price impact
+        expect(actualValue).toBeLessThan(4000);
       });
     });
 
-    it('should calculate offering amount when wanted amount is entered', async () => {
+    it('should calculate from amount when to amount is entered', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      const wantedInput = screen.getByLabelText('Wanted');
-      fireEvent.change(wantedInput, { target: { value: '2.5' } });
+      const toInput = screen.getByLabelText('To');
+      fireEvent.change(toInput, { target: { value: '4000' } });
 
       await waitFor(() => {
-        const offeringInput = screen.getByLabelText('Offering') as HTMLInputElement;
-        // 2.5 GUSDC -> GALA at rate 1/0.025 = 100 GALA  
-        expect(parseFloat(offeringInput.value)).toBeCloseTo(100, 2);
+        const fromInput = screen.getByLabelText('From') as HTMLInputElement;
+        // 4000 GALA requires ~100 USDC (plus adjustment for price impact)
+        const actualValue = parseFloat(fromInput.value);
+        expect(actualValue).toBeGreaterThan(99);
+        expect(actualValue).toBeLessThan(105);
       });
     });
 
-    it('should handle GALA-based pairs correctly', async () => {
+    it('should handle different token pairs correctly', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      // Change to ETIME as wanted token
-      const wantedSelect = screen.getByRole('combobox', { name: /wanted/i });
-      fireEvent.click(wantedSelect);
+      // Change to WETH as to token
+      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      fireEvent.click(toSelect);
       
       await waitFor(() => {
-        const etimeOption = screen.getByText('ETIME');
-        fireEvent.click(etimeOption);
+        const wethOption = screen.getByText('WETH');
+        fireEvent.click(wethOption);
       });
 
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: '100' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '1000' } });
 
       await waitFor(() => {
-        const wantedInput = screen.getByLabelText('Wanted') as HTMLInputElement;
-        // 100 GALA -> ETIME at rate 0.05 = 5 ETIME
-        expect(parseFloat(wantedInput.value)).toBeCloseTo(5, 2);
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        // 1000 USDC -> WETH at rate 0.0003 = 0.3 WETH (minus price impact)
+        const actualValue = parseFloat(toInput.value);
+        expect(actualValue).toBeGreaterThan(0.25);
+        expect(actualValue).toBeLessThan(0.3);
       });
     });
 
@@ -165,27 +195,64 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
         </TestWrapper>
       );
 
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: '100' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        // Should show exchange rate: 1 GALA = 0.025 GUSDC
-        expect(screen.getByText(/1 GALA = 0.025000 GUSDC/)).toBeInTheDocument();
+        // Should show exchange rate between USDC and GALA
+        const rateText = screen.getByText(/1 USDC = .* GALA/);
+        expect(rateText).toBeInTheDocument();
       });
     });
 
-    it('should display fixed gas fee', async () => {
+    it('should display real swap fees from pools', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: '100' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        expect(screen.getByText('1 GALA')).toBeInTheDocument(); // Gas fee
+        // GALA/USDC pair has 1% fee according to real data
+        expect(screen.getByText('1%')).toBeInTheDocument();
+      });
+
+      // Test a different pair with different fee
+      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      fireEvent.click(fromSelect);
+      
+      await waitFor(() => {
+        const wbtcOption = screen.getByText('WBTC');
+        fireEvent.click(wbtcOption);
+      });
+
+      await waitFor(() => {
+        // USDC/WBTC pair has 0.3% fee according to real data
+        expect(screen.getByText('0.3%')).toBeInTheDocument();
+      });
+    });
+
+    it('should calculate price impact based on pool TVL', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      // Large trade should have higher price impact
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '10000' } });
+
+      await waitFor(() => {
+        const priceImpactBadge = screen.getByTestId('price-impact-badge');
+        expect(priceImpactBadge).toBeInTheDocument();
+        
+        // Should show some price impact for large trade
+        const impactText = priceImpactBadge.textContent;
+        expect(impactText).toMatch(/[0-9]+\.[0-9]+%/);
       });
     });
 
@@ -196,8 +263,8 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
         </TestWrapper>
       );
 
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: '100' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
         expect(screen.getByText('0.5%')).toBeInTheDocument(); // Default slippage
@@ -205,47 +272,47 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
     });
   });
 
-  describe('Offer Creation', () => {
-    it('should enable create offer button when amounts are entered', async () => {
+  describe('Swap Execution', () => {
+    it('should enable swap button when amounts are entered', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: '100' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const createButton = screen.getByRole('button', { name: 'Create Offer' });
-        expect(createButton).not.toBeDisabled();
+        const swapButton = screen.getByRole('button', { name: 'Swap' });
+        expect(swapButton).not.toBeDisabled();
       });
     });
 
-    it('should create offer and show success message', async () => {
+    it('should execute swap and show success message', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: '100' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const createButton = screen.getByRole('button', { name: 'Create Offer' });
-        fireEvent.click(createButton);
+        const swapButton = screen.getByRole('button', { name: 'Swap' });
+        fireEvent.click(swapButton);
       });
 
       // Button should show processing state
-      expect(screen.getByText('Creating Offer...')).toBeInTheDocument();
+      expect(screen.getByText('Swapping...')).toBeInTheDocument();
 
       // After success, form should reset
       await waitFor(() => {
-        const offeringInput = screen.getByLabelText('Offering') as HTMLInputElement;
-        const wantedInput = screen.getByLabelText('Wanted') as HTMLInputElement;
-        expect(offeringInput.value).toBe('');
-        expect(wantedInput.value).toBe('');
+        const fromInput = screen.getByLabelText('From') as HTMLInputElement;
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(fromInput.value).toBe('');
+        expect(toInput.value).toBe('');
       }, { timeout: 3000 });
     });
 
@@ -256,16 +323,16 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
         </TestWrapper>
       );
 
-      const createButton = screen.getByRole('button', { name: 'Create Offer' });
-      fireEvent.click(createButton);
+      const swapButton = screen.getByRole('button', { name: 'Swap' });
+      fireEvent.click(swapButton);
 
       // Button should be disabled for empty amounts
-      expect(createButton).toBeDisabled();
+      expect(swapButton).toBeDisabled();
     });
   });
 
   describe('Token Swap Feature', () => {
-    it('should swap offering and wanted tokens', async () => {
+    it('should swap from and to tokens', async () => {
       render(
         <TestWrapper>
           <SwapInterface />
@@ -273,12 +340,12 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
       );
 
       // Enter amounts first
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: '100' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
 
       await waitFor(() => {
-        const wantedInput = screen.getByLabelText('Wanted') as HTMLInputElement;
-        expect(parseFloat(wantedInput.value)).toBeCloseTo(2.5, 2);
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(parseFloat(toInput.value)).toBeGreaterThan(0);
       });
 
       // Click swap button
@@ -287,18 +354,18 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
 
       await waitFor(() => {
         // Tokens should be swapped
-        const offeringSelect = screen.getByRole('combobox', { name: /offering/i });
-        const wantedSelect = screen.getByRole('combobox', { name: /wanted/i });
+        const fromSelect = screen.getByRole('combobox', { name: /from/i });
+        const toSelect = screen.getByRole('combobox', { name: /to/i });
         
-        expect(offeringSelect).toHaveTextContent('GUSDC');
-        expect(wantedSelect).toHaveTextContent('GALA');
+        expect(fromSelect).toHaveTextContent('GALA');
+        expect(toSelect).toHaveTextContent('USDC');
 
-        // Amounts should be swapped
-        const offeringInput = screen.getByLabelText('Offering') as HTMLInputElement;
-        const wantedInput = screen.getByLabelText('Wanted') as HTMLInputElement;
+        // Amounts should be swapped too
+        const newFromInput = screen.getByLabelText('From') as HTMLInputElement;
+        const newToInput = screen.getByLabelText('To') as HTMLInputElement;
         
-        expect(parseFloat(offeringInput.value)).toBeCloseTo(2.5, 2);
-        expect(parseFloat(wantedInput.value)).toBeCloseTo(100, 2);
+        expect(parseFloat(newFromInput.value)).toBeGreaterThan(0);
+        expect(parseFloat(newToInput.value)).toBeCloseTo(100, 0);
       });
     });
   });
@@ -311,12 +378,12 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
         </TestWrapper>
       );
 
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: 'invalid' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: 'invalid' } });
 
       await waitFor(() => {
-        const wantedInput = screen.getByLabelText('Wanted') as HTMLInputElement;
-        expect(wantedInput.value).toBe('');
+        const toInput = screen.getByLabelText('To') as HTMLInputElement;
+        expect(toInput.value).toBe('');
       });
     });
 
@@ -327,12 +394,12 @@ describe('SwapInterface Component - Real GalaSwap P2P Orderbook', () => {
         </TestWrapper>
       );
 
-      const offeringInput = screen.getByLabelText('Offering');
-      fireEvent.change(offeringInput, { target: { value: '0' } });
+      const fromInput = screen.getByLabelText('From');
+      fireEvent.change(fromInput, { target: { value: '0' } });
 
       await waitFor(() => {
-        const createButton = screen.getByRole('button', { name: 'Create Offer' });
-        expect(createButton).toBeDisabled();
+        const swapButton = screen.getByRole('button', { name: 'Swap' });
+        expect(swapButton).toBeDisabled();
       });
     });
   });

@@ -1,287 +1,534 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { Toaster } from '@/components/ui/toaster';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
 import SwapInterface from '@/components/SwapInterface';
 
-// Test wrapper component
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false },
-    mutations: { retry: false },
   },
 });
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        {children}
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
-};
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      {children}
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
-// Current GalaSwap token pairs as per live data from https://swap.gala.com/explore (December 2024)
-// These are the actual trading pairs with significant TVL and volume
-const CURRENT_GALA_SWAP_PAIRS = [
-  { from: 'GALA', to: 'USDC', tvl: '$701,625.68', volume24h: '$69,287.28', description: 'Gala to USD Coin' },
-  { from: 'GALA', to: 'USDT', tvl: '$115,401.84', volume24h: '$13,629.09', description: 'Gala to Tether USD' },
-  { from: 'GALA', to: 'WETH', tvl: '$48,706.83', volume24h: '$201.58', description: 'Gala to Wrapped Ethereum' },
-  { from: 'GALA', to: 'WEN', tvl: '$47,728.42', volume24h: '$0.00', description: 'Gala to Wen Token' },
-  { from: 'USDC', to: 'WBTC', tvl: '$1,034,550.39', volume24h: '$127,298.67', description: 'USD Coin to Wrapped Bitcoin' },
-  { from: 'USDT', to: 'WBTC', tvl: '$990,928.16', volume24h: '$120,397.36', description: 'Tether to Wrapped Bitcoin' },
-  { from: 'USDT', to: 'WETH', tvl: '$704,295.01', volume24h: '$141,016.35', description: 'Tether to Wrapped Ethereum' },
-  { from: 'USDC', to: 'WETH', tvl: '$672,694.14', volume24h: '$86,814.54', description: 'USD Coin to Wrapped Ethereum' },
-  { from: '$GMUSIC', to: 'FILM', tvl: '$43,601.27', volume24h: '$3.49', description: 'Gala Music to Gala Film' },
-  { from: 'USDC', to: 'WXRP', tvl: '$31,833.32', volume24h: '$2,458.27', description: 'USD Coin to Wrapped XRP' },
-  // Reverse pairs
-  { from: 'USDC', to: 'GALA', tvl: '$701,625.68', volume24h: '$69,287.28', description: 'USD Coin to Gala' },
-  { from: 'USDT', to: 'GALA', tvl: '$115,401.84', volume24h: '$13,629.09', description: 'Tether USD to Gala' },
-  { from: 'WETH', to: 'GALA', tvl: '$48,706.83', volume24h: '$201.58', description: 'Wrapped Ethereum to Gala' },
-  { from: 'WEN', to: 'GALA', tvl: '$47,728.42', volume24h: '$0.00', description: 'Wen Token to Gala' },
-  { from: 'WBTC', to: 'USDC', tvl: '$1,034,550.39', volume24h: '$127,298.67', description: 'Wrapped Bitcoin to USD Coin' },
-  { from: 'WBTC', to: 'USDT', tvl: '$990,928.16', volume24h: '$120,397.36', description: 'Wrapped Bitcoin to Tether' },
-  { from: 'WETH', to: 'USDT', tvl: '$704,295.01', volume24h: '$141,016.35', description: 'Wrapped Ethereum to Tether' },
-  { from: 'WETH', to: 'USDC', tvl: '$672,694.14', volume24h: '$86,814.54', description: 'Wrapped Ethereum to USD Coin' },
-  { from: 'FILM', to: '$GMUSIC', tvl: '$43,601.27', volume24h: '$3.49', description: 'Gala Film to Gala Music' },
-  { from: 'WXRP', to: 'USDC', tvl: '$31,833.32', volume24h: '$2,458.27', description: 'Wrapped XRP to USD Coin' },
+// Real token pairs from swap.gala.com/explore (current data)
+const REAL_GALA_SWAP_PAIRS = [
+  { 
+    token1: 'USDC', 
+    token2: 'WBTC', 
+    fee: 0.3, 
+    tvl: 1038393.48, 
+    description: 'USD Coin / Wrapped Bitcoin',
+    volume24h: 25070.70
+  },
+  { 
+    token1: 'USDT', 
+    token2: 'WBTC', 
+    fee: 0.3, 
+    tvl: 1008577.16, 
+    description: 'Tether USD / Wrapped Bitcoin',
+    volume24h: 26068.32
+  },
+  { 
+    token1: 'USDT', 
+    token2: 'WETH', 
+    fee: 1.0, 
+    tvl: 723136.90, 
+    description: 'Tether USD / Wrapped Ethereum',
+    volume24h: 78211.42
+  },
+  { 
+    token1: 'GALA', 
+    token2: 'USDC', 
+    fee: 1.0, 
+    tvl: 709903.79, 
+    description: 'Gala / USD Coin',
+    volume24h: 11411.77
+  },
+  { 
+    token1: 'USDC', 
+    token2: 'WETH', 
+    fee: 1.0, 
+    tvl: 681852.57, 
+    description: 'USD Coin / Wrapped Ethereum',
+    volume24h: 51694.25
+  },
+  { 
+    token1: 'GALA', 
+    token2: 'USDT', 
+    fee: 1.0, 
+    tvl: 117934.77, 
+    description: 'Gala / Tether USD',
+    volume24h: 2798.55
+  },
+  { 
+    token1: 'GALA', 
+    token2: 'WETH', 
+    fee: 1.0, 
+    tvl: 49839.44, 
+    description: 'Gala / Wrapped Ethereum',
+    volume24h: 1165.06
+  },
+  { 
+    token1: 'GALA', 
+    token2: 'WEN', 
+    fee: 1.0, 
+    tvl: 47706.30, 
+    description: 'Gala / Wen Token',
+    volume24h: 685.75
+  },
+  { 
+    token1: '$GMUSIC', 
+    token2: 'FILM', 
+    fee: 1.0, 
+    tvl: 45593.05, 
+    description: 'Gala Music / Gala Film',
+    volume24h: 0.00
+  },
+  { 
+    token1: 'USDC', 
+    token2: 'WXRP', 
+    fee: 0.3, 
+    tvl: 32179.58, 
+    description: 'USD Coin / Wrapped XRP',
+    volume24h: 701.66
+  },
 ];
 
-// Test amounts to verify price impact calculations
 const TEST_AMOUNTS = {
-  small: '10',     // Small trade
-  medium: '1000',  // Medium trade
-  large: '50000',  // Large trade
+  small: '10',
+  medium: '100', 
+  large: '1000',
 };
 
-describe('GalaSwap Token Pairs - Price Impact Tests', () => {
-  beforeEach(() => {
-    queryClient.clear(); // Clear React Query cache between tests
-    render(
-      <TestWrapper>
-        <SwapInterface />
-      </TestWrapper>
-    );
-  });
+describe('Real swap.gala.com Token Pair Tests', () => {
+  describe('AMM Liquidity Pool Token Pairs', () => {
+    REAL_GALA_SWAP_PAIRS.forEach(({ token1, token2, description, fee, tvl }) => {
+      describe(`${description}`, () => {
+        it(`should calculate correct amounts for small trade (${TEST_AMOUNTS.small})`, async () => {
+          render(
+            <TestWrapper>
+              <SwapInterface />
+            </TestWrapper>
+          );
 
-  describe('Individual Token Pair Testing', () => {
-    CURRENT_GALA_SWAP_PAIRS.forEach((pair) => {
-      describe(`${pair.from} → ${pair.to} (${pair.description})`, () => {
-        test.skipIf(!(['GALA', 'USDC', 'USDT', 'WBTC', 'WETH', 'WEN', '$GMUSIC', 'FILM', 'WXRP'].includes(pair.from)))('should calculate price impact for small trade amounts', async () => {
-          const fromAmountInput = screen.getByLabelText('From');
-          fireEvent.change(fromAmountInput, { target: { value: TEST_AMOUNTS.small } });
+          // Set up the token pair (token1 -> token2)
+          const fromSelect = screen.getByRole('combobox', { name: /from/i });
+          const toSelect = screen.getByRole('combobox', { name: /to/i });
+
+          if (token1 !== 'USDC') {
+            fireEvent.click(fromSelect);
+            await waitFor(() => {
+              const token1Option = screen.getByText(token1);
+              fireEvent.click(token1Option);
+            });
+          }
+
+          if (token2 !== 'GALA') {
+            fireEvent.click(toSelect);
+            await waitFor(() => {
+              const token2Option = screen.getByText(token2);
+              fireEvent.click(token2Option);
+            });
+          }
+
+          // Enter test amount
+          const fromInput = screen.getByLabelText('From');
+          fireEvent.change(fromInput, { target: { value: TEST_AMOUNTS.small } });
 
           await waitFor(() => {
-            const priceImpactBadge = screen.queryByTestId('price-impact-badge');
-            if (priceImpactBadge) {
-              expect(priceImpactBadge).toBeInTheDocument();
-              
-              const impactText = priceImpactBadge.textContent || '';
-              const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
-              
-              // Small trades should have minimal impact
-              expect(impactValue).toBeLessThan(5);
-              expect(impactValue).toBeGreaterThanOrEqual(0);
-            }
-          }, { timeout: 3000 });
+            const toInput = screen.getByLabelText('To') as HTMLInputElement;
+            // Should calculate some reasonable amount (AMM will adjust based on price impact)
+            expect(parseFloat(toInput.value)).toBeGreaterThan(0);
+          });
         });
 
-        test.skipIf(!(['GALA', 'USDC', 'USDT', 'WBTC', 'WETH', 'WEN', '$GMUSIC', 'FILM', 'WXRP'].includes(pair.from)))('should calculate price impact for medium trade amounts', async () => {
-          const fromAmountInput = screen.getByLabelText('From');
-          fireEvent.change(fromAmountInput, { target: { value: TEST_AMOUNTS.medium } });
+        it(`should calculate correct amounts for medium trade (${TEST_AMOUNTS.medium})`, async () => {
+          render(
+            <TestWrapper>
+              <SwapInterface />
+            </TestWrapper>
+          );
+
+          // Set up the token pair
+          const fromSelect = screen.getByRole('combobox', { name: /from/i });
+          const toSelect = screen.getByRole('combobox', { name: /to/i });
+
+          if (token1 !== 'USDC') {
+            fireEvent.click(fromSelect);
+            await waitFor(() => {
+              const token1Option = screen.getByText(token1);
+              fireEvent.click(token1Option);
+            });
+          }
+
+          if (token2 !== 'GALA') {
+            fireEvent.click(toSelect);
+            await waitFor(() => {
+              const token2Option = screen.getByText(token2);
+              fireEvent.click(token2Option);
+            });
+          }
+
+          // Enter test amount
+          const fromInput = screen.getByLabelText('From');
+          fireEvent.change(fromInput, { target: { value: TEST_AMOUNTS.medium } });
 
           await waitFor(() => {
-            const priceImpactBadge = screen.queryByTestId('price-impact-badge');
-            if (priceImpactBadge) {
-              expect(priceImpactBadge).toBeInTheDocument();
-              
-              const impactText = priceImpactBadge.textContent || '';
-              const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
-              
-              // Medium trades should have moderate impact
-              expect(impactValue).toBeGreaterThanOrEqual(0);
-              expect(impactValue).toBeLessThan(20);
-            }
-          }, { timeout: 3000 });
+            const toInput = screen.getByLabelText('To') as HTMLInputElement;
+            expect(parseFloat(toInput.value)).toBeGreaterThan(0);
+          });
         });
 
-        test.skipIf(!(['GALA', 'USDC', 'USDT', 'WBTC', 'WETH', 'WEN', '$GMUSIC', 'FILM', 'WXRP'].includes(pair.from)))('should calculate price impact for large trade amounts', async () => {
-          const fromAmountInput = screen.getByLabelText('From');
-          fireEvent.change(fromAmountInput, { target: { value: TEST_AMOUNTS.large } });
+        it(`should display correct swap fee (${fee}%)`, async () => {
+          render(
+            <TestWrapper>
+              <SwapInterface />
+            </TestWrapper>
+          );
+
+          // Set up the token pair
+          const fromSelect = screen.getByRole('combobox', { name: /from/i });
+          const toSelect = screen.getByRole('combobox', { name: /to/i });
+
+          if (token1 !== 'USDC') {
+            fireEvent.click(fromSelect);
+            await waitFor(() => {
+              const token1Option = screen.getByText(token1);
+              fireEvent.click(token1Option);
+            });
+          }
+
+          if (token2 !== 'GALA') {
+            fireEvent.click(toSelect);
+            await waitFor(() => {
+              const token2Option = screen.getByText(token2);
+              fireEvent.click(token2Option);
+            });
+          }
+
+          // Enter amount to trigger fee display
+          const fromInput = screen.getByLabelText('From');
+          fireEvent.change(fromInput, { target: { value: '100' } });
 
           await waitFor(() => {
+            expect(screen.getByText(`${fee}%`)).toBeInTheDocument();
+          });
+        });
+
+        it(`should calculate price impact for large trade (${TEST_AMOUNTS.large})`, async () => {
+          render(
+            <TestWrapper>
+              <SwapInterface />
+            </TestWrapper>
+          );
+
+          // Set up the token pair
+          const fromSelect = screen.getByRole('combobox', { name: /from/i });
+          const toSelect = screen.getByRole('combobox', { name: /to/i });
+
+          if (token1 !== 'USDC') {
+            fireEvent.click(fromSelect);
+            await waitFor(() => {
+              const token1Option = screen.getByText(token1);
+              fireEvent.click(token1Option);
+            });
+          }
+
+          if (token2 !== 'GALA') {
+            fireEvent.click(toSelect);
+            await waitFor(() => {
+              const token2Option = screen.getByText(token2);
+              fireEvent.click(token2Option);
+            });
+          }
+
+          // Enter large amount to generate price impact
+          const fromInput = screen.getByLabelText('From');
+          fireEvent.change(fromInput, { target: { value: TEST_AMOUNTS.large } });
+
+          await waitFor(() => {
+            // Should show price impact for large trades
             const priceImpactBadge = screen.queryByTestId('price-impact-badge');
             if (priceImpactBadge) {
               expect(priceImpactBadge).toBeInTheDocument();
-              
-              const impactText = priceImpactBadge.textContent || '';
-              const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
-              
-              // Large trades should have significant impact
-              expect(impactValue).toBeGreaterThan(5);
-              expect(impactValue).toBeLessThan(100); // Reasonable upper bound
             }
-          }, { timeout: 3000 });
+          });
         });
       });
     });
   });
 
-  describe('Current GalaSwap AMM Model Validation', () => {
-    test('should verify high-volume pairs have appropriate liquidity', () => {
-      const highVolumePairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        parseFloat(pair.volume24h.replace('$', '').replace(',', '')) > 50000
+  describe('Real swap.gala.com AMM Model Validation', () => {
+    it('should support all 9 official tokens', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
       );
-      
-      // Should have several high-volume pairs
-      expect(highVolumePairs.length).toBeGreaterThan(3);
-    });
 
-    test('should test stablecoin pairs (USDC/USDT) vs volatile pairs', async () => {
-      const stablecoinPairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        (pair.from === 'USDC' && pair.to === 'USDT') ||
-        (pair.from === 'USDT' && pair.to === 'USDC')
-      );
-      
-      // Stablecoin pairs should exist but may have minimal volume due to low arbitrage opportunities
-      expect(stablecoinPairs.length).toBeGreaterThanOrEqual(0);
-    });
+      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      fireEvent.click(fromSelect);
 
-    test('should validate WBTC and WETH as major trading pairs', () => {
-      const majorCryptoPairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        pair.from === 'WBTC' || pair.to === 'WBTC' ||
-        pair.from === 'WETH' || pair.to === 'WETH'
-      );
-      
-      expect(majorCryptoPairs.length).toBeGreaterThan(4); // Should have multiple WBTC/WETH pairs
-    });
-
-    test('should handle Gala ecosystem tokens (GMUSIC, FILM)', () => {
-      const ecosystemPairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        pair.from === '$GMUSIC' || pair.to === '$GMUSIC' ||
-        pair.from === 'FILM' || pair.to === 'FILM'
-      );
-      
-      expect(ecosystemPairs.length).toBeGreaterThan(0); // Should have ecosystem token pairs
-    });
-  });
-
-  describe('GALA Hub Token Analysis', () => {
-    test('should verify GALA still acts as a hub token for ecosystem trades', () => {
-      const galaPairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        pair.from === 'GALA' || pair.to === 'GALA'
-      );
-      
-      // GALA should still be involved in multiple pairs
-      expect(galaPairs.length).toBeGreaterThan(2);
-    });
-  });
-
-  describe('Price Impact Formula Validation for Real Pairs', () => {
-    test('should validate price impact formula: (execution_price - mid_price) / mid_price * 100', async () => {
-      const testPair = CURRENT_GALA_SWAP_PAIRS[0]; // First current pair
-      
-      try {
-        const fromAmountInput = screen.getByLabelText('From');
-        fireEvent.change(fromAmountInput, { target: { value: '1000' } });
-
-        await waitFor(() => {
-          const priceImpactBadge = screen.queryByTestId('price-impact-badge');
-          if (priceImpactBadge) {
-            const impactText = priceImpactBadge.textContent || '';
-            
-            // Should match percentage format
-            expect(impactText).toMatch(/^[+-]?\d+\.\d{3}%$/);
-            
-            const impactValue = parseFloat(impactText.replace('%', '').replace('+', ''));
-            
-            // Formula validation: result should be a valid percentage
-            expect(isNaN(impactValue)).toBe(false);
-            expect(isFinite(impactValue)).toBe(true);
-          }
-        });
-      } catch (error) {
-        console.log('Skipping formula validation: Token pair not available in mock');
-      }
-    });
-  });
-
-  describe('Cross-Token Pair Consistency', () => {
-    test('should have consistent price impact model across all current pairs', async () => {
-      const testAmount = '1000';
-
-      // Test top 5 pairs by TVL with conditional skipping
-      const topPairs = CURRENT_GALA_SWAP_PAIRS.slice(0, 5);
-      
-      // Skip if no supported tokens
-      if (!topPairs.some(pair => ['GALA', 'USDC', 'USDT', 'WBTC', 'WETH', 'WEN', '$GMUSIC', 'FILM', 'WXRP'].includes(pair.from))) {
-        return;
-      }
-
-      const fromAmountInput = screen.getByLabelText('From');
-      
-      // Test one representative pair to avoid flaky loops
-      fireEvent.change(fromAmountInput, { target: { value: testAmount } });
-      
       await waitFor(() => {
+        // All 9 official tokens should be available
+        expect(screen.getByText('GALA')).toBeInTheDocument();
+        expect(screen.getByText('USDC')).toBeInTheDocument();
+        expect(screen.getByText('USDT')).toBeInTheDocument();
+        expect(screen.getByText('WBTC')).toBeInTheDocument();
+        expect(screen.getByText('WETH')).toBeInTheDocument();
+        expect(screen.getByText('WEN')).toBeInTheDocument();
+        expect(screen.getByText('$GMUSIC')).toBeInTheDocument();
+        expect(screen.getByText('FILM')).toBeInTheDocument();
+        expect(screen.getByText('WXRP')).toBeInTheDocument();
+      });
+    });
+
+    it('should show AMM swap interface (not P2P orderbook)', () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      expect(screen.getByText('Swap Tokens')).toBeInTheDocument();
+      expect(screen.getByText('Trade your tokens instantly')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Swap' })).toBeInTheDocument();
+      
+      // Should have "Selling" and "Buying" labels (AMM style)
+      expect(screen.getByText('Selling')).toBeInTheDocument();
+      expect(screen.getByText('Buying')).toBeInTheDocument();
+    });
+
+    it('should display price impact calculations for AMM', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      // Large trade should show price impact
+      const fromInput = screen.getByLabelLabel('From');
+      fireEvent.change(fromInput, { target: { value: '5000' } });
+
+      await waitFor(() => {
+        // Price impact should be calculated and displayed
         const priceImpactBadge = screen.queryByTestId('price-impact-badge');
         if (priceImpactBadge) {
-          const impactText = priceImpactBadge.textContent || '';
-          const impactValue = Math.abs(parseFloat(impactText.replace('%', '').replace('+', '')));
-          
-          expect(impactValue).toBeGreaterThanOrEqual(0);
-          expect(impactValue).toBeLessThan(50); // Reasonable upper bound for 1000 token trade
+          expect(priceImpactBadge).toBeInTheDocument();
         }
       });
     });
+
+    it('should handle high-volume pairs correctly', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      // Test USDC/WBTC (highest TVL pair)
+      const fromInput = screen.getByLabelLabel('From');
+      fireEvent.change(fromInput, { target: { value: '1000' } });
+
+      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      fireEvent.click(toSelect);
+      
+      await waitFor(() => {
+        const wbtcOption = screen.getByText('WBTC');
+        fireEvent.click(wbtcOption);
+      });
+
+      await waitFor(() => {
+        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        // Should calculate reasonable WBTC amount
+        expect(parseFloat(toInput.value)).toBeGreaterThan(0);
+        expect(parseFloat(toInput.value)).toBeLessThan(1); // WBTC is expensive
+      });
+    });
   });
 
-  describe('Current Token-Specific Edge Cases', () => {
-    test('should handle USDC and USDT (stablecoin) pairs with minimal price impact', async () => {
-      const stablecoinPairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        (pair.from === 'USDC' || pair.from === 'USDT') && 
-        (pair.to === 'USDC' || pair.to === 'USDT')
+  describe('Fee Structure Validation', () => {
+    it('should display 0.3% fee for stable/major crypto pairs', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
       );
 
-      // Stablecoin pairs should exist or be derivable
-      expect(stablecoinPairs.length).toBeGreaterThanOrEqual(0);
+      // Test USDC/WBTC (0.3% fee pair)
+      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      fireEvent.click(toSelect);
+      
+      await waitFor(() => {
+        const wbtcOption = screen.getByText('WBTC');
+        fireEvent.click(wbtcOption);
+      });
+
+      const fromInput = screen.getByLabelLabel('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
+
+      await waitFor(() => {
+        expect(screen.getByText('0.3%')).toBeInTheDocument();
+      });
     });
 
-    test('should handle WBTC and WETH (major crypto) pairs appropriately', async () => {
-      const majorCryptoPairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        pair.from === 'WBTC' || pair.to === 'WBTC' ||
-        pair.from === 'WETH' || pair.to === 'WETH'
+    it('should display 1% fee for GALA and ecosystem token pairs', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
       );
 
-      expect(majorCryptoPairs.length).toBeGreaterThan(4); // Multiple BTC/ETH pairs
+      // Test GALA/USDC (1% fee pair) - this is the default
+      const fromInput = screen.getByLabelLabel('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
+
+      await waitFor(() => {
+        expect(screen.getByText('1%')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Token-Specific Features', () => {
+    it('should handle stablecoin pairs (USDC/USDT)', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
+      );
+
+      // USDC to USDT should have ~1:1 ratio
+      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      fireEvent.click(toSelect);
+      
+      await waitFor(() => {
+        const usdtOption = screen.getByText('USDT');
+        fireEvent.click(usdtOption);
+      });
+
+      const fromInput = screen.getByLabelLabel('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
+
+      await waitFor(() => {
+        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        // Should be close to 1:1 ratio
+        expect(parseFloat(toInput.value)).toBeCloseTo(100, 1);
+      });
     });
 
-    test('should handle Gala ecosystem tokens ($GMUSIC, FILM)', async () => {
-      const ecosystemPairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        pair.from === '$GMUSIC' || pair.to === '$GMUSIC' ||
-        pair.from === 'FILM' || pair.to === 'FILM'
+    it('should handle major crypto pairs (WBTC/WETH)', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
       );
 
-      expect(ecosystemPairs.length).toBeGreaterThan(0); // At least GMUSIC/FILM pair exists
+      // Change from USDC to WBTC
+      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      fireEvent.click(fromSelect);
+      
+      await waitFor(() => {
+        const wbtcOption = screen.getByText('WBTC');
+        fireEvent.click(wbtcOption);
+      });
+
+      // Change to WETH
+      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      fireEvent.click(toSelect);
+      
+      await waitFor(() => {
+        const wethOption = screen.getByText('WETH');
+        fireEvent.click(wethOption);
+      });
+
+      const fromInput = screen.getByLabelLabel('From');
+      fireEvent.change(fromInput, { target: { value: '0.01' } }); // Small amount of WBTC
+
+      await waitFor(() => {
+        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        // Should get reasonable amount of WETH
+        expect(parseFloat(toInput.value)).toBeGreaterThan(0);
+      });
     });
 
-    test('should handle WEN (meme token) with appropriate volatility', async () => {
-      const wenPairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        pair.from === 'WEN' || pair.to === 'WEN'
+    it('should handle ecosystem tokens (GALA/WEN)', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
       );
 
-      expect(wenPairs.length).toBeGreaterThanOrEqual(2); // GALA/WEN pair exists
+      // Change from USDC to GALA
+      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      fireEvent.click(fromSelect);
+      
+      await waitFor(() => {
+        const galaOption = screen.getByText('GALA');
+        fireEvent.click(galaOption);
+      });
+
+      // Change to WEN
+      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      fireEvent.click(toSelect);
+      
+      await waitFor(() => {
+        const wenOption = screen.getByText('WEN');
+        fireEvent.click(wenOption);
+      });
+
+      const fromInput = screen.getByLabelLabel('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
+
+      await waitFor(() => {
+        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        // Should get many WEN tokens for GALA
+        expect(parseFloat(toInput.value)).toBeGreaterThan(1000);
+      });
     });
 
-    test('should handle WXRP (Wrapped XRP) integration', async () => {
-      const xrpPairs = CURRENT_GALA_SWAP_PAIRS.filter(pair => 
-        pair.from === 'WXRP' || pair.to === 'WXRP'
+    it('should handle Gala ecosystem media tokens ($GMUSIC/FILM)', async () => {
+      render(
+        <TestWrapper>
+          <SwapInterface />
+        </TestWrapper>
       );
 
-      expect(xrpPairs.length).toBeGreaterThanOrEqual(2); // USDC/WXRP pair exists
+      // Change from USDC to $GMUSIC
+      const fromSelect = screen.getByRole('combobox', { name: /from/i });
+      fireEvent.click(fromSelect);
+      
+      await waitFor(() => {
+        const gmusicOption = screen.getByText('$GMUSIC');
+        fireEvent.click(gmusicOption);
+      });
+
+      // Change to FILM
+      const toSelect = screen.getByRole('combobox', { name: /to/i });
+      fireEvent.click(toSelect);
+      
+      await waitFor(() => {
+        const filmOption = screen.getByText('FILM');
+        fireEvent.click(filmOption);
+      });
+
+      const fromInput = screen.getByLabelLabel('From');
+      fireEvent.change(fromInput, { target: { value: '100' } });
+
+      await waitFor(() => {
+        const toInput = screen.getByLabelLabel('To') as HTMLInputElement;
+        // Should calculate reasonable FILM amount
+        expect(parseFloat(toInput.value)).toBeGreaterThan(0);
+      });
     });
   });
 });

@@ -8,108 +8,237 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Real GalaSwap tokens as per official documentation
+// Real swap.gala.com tokens from current pools
 const TOKENS = [
   { symbol: 'GALA', name: 'Gala', balance: '1,000.00' },
-  { symbol: 'ETIME', name: 'Eternal Time', balance: '500.00' },
-  { symbol: 'SILK', name: 'Silk', balance: '250.00' },
-  { symbol: 'MTRM', name: 'Materium', balance: '100.00' },
-  { symbol: 'GUSDT', name: 'Gala USD Tether', balance: '1,200.00' },
-  { symbol: 'GUSDC', name: 'Gala USD Coin', balance: '1,500.00' },
-  { symbol: 'GWETH', name: 'Gala Wrapped Ethereum', balance: '0.75' },
+  { symbol: 'USDC', name: 'USD Coin', balance: '1,500.00' },
+  { symbol: 'USDT', name: 'Tether USD', balance: '1,200.00' },
+  { symbol: 'WBTC', name: 'Wrapped Bitcoin', balance: '0.025' },
+  { symbol: 'WETH', name: 'Wrapped Ethereum', balance: '0.75' },
+  { symbol: 'WEN', name: 'Wen Token', balance: '50,000.00' },
+  { symbol: '$GMUSIC', name: 'Gala Music', balance: '500.00' },
+  { symbol: 'FILM', name: 'Gala Film', balance: '250.00' },
+  { symbol: 'WXRP', name: 'Wrapped XRP', balance: '2,000.00' },
+];
+
+// Real token pairs from swap.gala.com/explore
+const TOKEN_PAIRS = [
+  { pair: 'USDC/WBTC', fee: 0.3, tvl: 1038393.48 },
+  { pair: 'USDT/WBTC', fee: 0.3, tvl: 1008577.16 },
+  { pair: 'USDT/WETH', fee: 1.0, tvl: 723136.90 },
+  { pair: 'GALA/USDC', fee: 1.0, tvl: 709903.79 },
+  { pair: 'USDC/WETH', fee: 1.0, tvl: 681852.57 },
+  { pair: 'GALA/USDT', fee: 1.0, tvl: 117934.77 },
+  { pair: 'GALA/WETH', fee: 1.0, tvl: 49839.44 },
+  { pair: 'GALA/WEN', fee: 1.0, tvl: 47706.30 },
+  { pair: '$GMUSIC/FILM', fee: 1.0, tvl: 45593.05 },
+  { pair: 'USDC/WXRP', fee: 0.3, tvl: 32179.58 },
 ];
 
 interface SwapState {
-  offeringToken: string;
-  wantedToken: string;
-  offeringAmount: string;
-  wantedAmount: string;
+  fromToken: string;
+  toToken: string;
+  fromAmount: string;
+  toAmount: string;
   slippage: string;
   isLoading: boolean;
-  gasFeeCost: number; // Fixed 1 GALA per transaction
+  priceImpact: number | null;
+  swapFee: number | null;
 }
 
 const SwapInterface = () => {
   const [swap, setSwap] = useState<SwapState>({
-    offeringToken: 'GALA',
-    wantedToken: 'GUSDC',
-    offeringAmount: '',
-    wantedAmount: '',
+    fromToken: 'USDC',
+    toToken: 'GALA',
+    fromAmount: '',
+    toAmount: '',
     slippage: '0.5',
     isLoading: false,
-    gasFeeCost: 1, // 1 GALA gas fee
+    priceImpact: null,
+    swapFee: null,
   });
   const { toast } = useToast();
 
   const handleSwapTokens = () => {
-    setSwap(prev => ({
-      ...prev,
-      offeringToken: prev.wantedToken,
-      wantedToken: prev.offeringToken,
-      offeringAmount: prev.wantedAmount,
-      wantedAmount: prev.offeringAmount,
-    }));
+    setSwap(prev => {
+      const newState = {
+        ...prev,
+        fromToken: prev.toToken,
+        toToken: prev.fromToken,
+        fromAmount: prev.toAmount,
+        toAmount: prev.fromAmount,
+      };
+      
+      // Recalculate fees and price impact after swap
+      if (newState.fromAmount && !isNaN(Number(newState.fromAmount)) && Number(newState.fromAmount) > 0) {
+        const swapFee = getSwapFee(newState.fromToken, newState.toToken);
+        const priceImpact = calculatePriceImpact(newState.fromToken, newState.toToken, newState.fromAmount);
+        return { ...newState, swapFee, priceImpact };
+      }
+      
+      return { ...newState, priceImpact: null, swapFee: null };
+    });
   };
 
-  // In real GalaSwap, all pairs trade through GALA as base
-  const getExchangeRate = (offering: string, wanted: string) => {
-    // Mock exchange rates for P2P offers (these would come from actual orders)
-    const galaRates: Record<string, number> = {
-      ETIME: 0.05,    // 1 GALA = 0.05 ETIME
-      SILK: 0.08,     // 1 GALA = 0.08 SILK  
-      MTRM: 0.12,     // 1 GALA = 0.12 MTRM
-      GUSDT: 0.025,   // 1 GALA = 0.025 GUSDT
-      GUSDC: 0.025,   // 1 GALA = 0.025 GUSDC
-      GWETH: 0.000008, // 1 GALA = 0.000008 GWETH
+  const getExchangeRate = (from: string, to: string) => {
+    // Mock exchange rates based on current market data patterns
+    const rates: Record<string, Record<string, number>> = {
+      GALA: { 
+        USDC: 0.025,        // 1 GALA ≈ $0.025
+        USDT: 0.025,        // 1 GALA ≈ $0.025  
+        WBTC: 0.00000025,   // 1 GALA ≈ 0.00000025 WBTC
+        WETH: 0.0000075,    // 1 GALA ≈ 0.0000075 WETH
+        WEN: 250.0,         // 1 GALA ≈ 250 WEN
+        '$GMUSIC': 0.8,     // 1 GALA ≈ 0.8 $GMUSIC
+        FILM: 1.2,          // 1 GALA ≈ 1.2 FILM
+        WXRP: 0.04          // 1 GALA ≈ 0.04 WXRP
+      },
+      USDC: { 
+        GALA: 40.0, USDT: 1.0, WBTC: 0.00001, WETH: 0.0003, 
+        WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
+      },
+      USDT: { 
+        GALA: 40.0, USDC: 1.0, WBTC: 0.00001, WETH: 0.0003,
+        WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
+      },
+      WBTC: { 
+        GALA: 4000000.0, USDC: 100000.0, USDT: 100000.0, WETH: 30.0,
+        WEN: 1000000000.0, '$GMUSIC': 128000.0, FILM: 192000.0, WXRP: 160000.0
+      },
+      WETH: { 
+        GALA: 133333.0, USDC: 3333.0, USDT: 3333.0, WBTC: 0.033,
+        WEN: 33333333.0, '$GMUSIC': 4266.0, FILM: 6400.0, WXRP: 5333.0
+      },
+      WEN: { 
+        GALA: 0.004, USDC: 0.0001, USDT: 0.0001, WBTC: 0.000000001, WETH: 0.00000003,
+        '$GMUSIC': 0.0032, FILM: 0.0048, WXRP: 0.00016
+      },
+      '$GMUSIC': { 
+        GALA: 1.25, USDC: 0.03125, USDT: 0.03125, WBTC: 0.0000000078, WETH: 0.0000234,
+        WEN: 312.5, FILM: 1.5, WXRP: 0.05
+      },
+      FILM: { 
+        GALA: 0.833, USDC: 0.02083, USDT: 0.02083, WBTC: 0.0000000052, WETH: 0.000156,
+        WEN: 208.3, '$GMUSIC': 0.667, WXRP: 0.033
+      },
+      WXRP: { 
+        GALA: 25.0, USDC: 0.625, USDT: 0.625, WBTC: 0.00000625, WETH: 0.0001875,
+        WEN: 6250.0, '$GMUSIC': 20.0, FILM: 30.0
+      }
     };
+    return rates[from]?.[to] || 1;
+  };
 
-    if (offering === 'GALA') return galaRates[wanted] || 1;
-    if (wanted === 'GALA') return 1 / (galaRates[offering] || 1);
+  const getSwapFee = (from: string, to: string) => {
+    // Find the pair in TOKEN_PAIRS and return the fee
+    const pairKey1 = `${from}/${to}`;
+    const pairKey2 = `${to}/${from}`;
     
-    // For non-GALA pairs, calculate through GALA (real GalaSwap requires 2 transactions)
-    return (galaRates[wanted] || 1) / (galaRates[offering] || 1);
+    const pair = TOKEN_PAIRS.find(p => p.pair === pairKey1 || p.pair === pairKey2);
+    return pair ? pair.fee : 1.0; // Default to 1% if pair not found
   };
 
-  const calculateWantedAmount = (offeringAmount: string, offeringToken: string, wantedToken: string) => {
-    if (!offeringAmount || isNaN(Number(offeringAmount))) return '';
-    const rate = getExchangeRate(offeringToken, wantedToken);
-    const amount = Number(offeringAmount) * rate;
-    return amount.toFixed(6);
+  const calculatePriceImpact = (from: string, to: string, fromAmount: string): number => {
+    if (!fromAmount || isNaN(Number(fromAmount))) return 0;
+    
+    const amount = Number(fromAmount);
+    if (amount === 0) return 0;
+    
+    // Find the pair's TVL to calculate price impact
+    const pairKey1 = `${from}/${to}`;
+    const pairKey2 = `${to}/${from}`;
+    const pair = TOKEN_PAIRS.find(p => p.pair === pairKey1 || p.pair === pairKey2);
+    
+    if (!pair) return 0;
+    
+    // Simple price impact model: larger trades relative to TVL have more impact
+    const tradeValue = amount * (from === 'USDC' || from === 'USDT' ? 1 : 
+                               from === 'GALA' ? 0.025 : 
+                               from === 'WBTC' ? 100000 : 
+                               from === 'WETH' ? 3333 : 1);
+    
+    const impactFactor = Math.sqrt(tradeValue / (pair.tvl / 2)) * 0.01;
+    return Math.round(impactFactor * 1000000) / 1000000; // Round to 6 decimal places
   };
 
-  const calculateOfferingAmount = (wantedAmount: string, offeringToken: string, wantedToken: string) => {
-    if (!wantedAmount || isNaN(Number(wantedAmount))) return '';
-    const rate = getExchangeRate(offeringToken, wantedToken);
-    const amount = Number(wantedAmount) / rate;
-    return amount.toFixed(6);
+  const calculateToAmount = (fromAmount: string, fromToken: string, toToken: string) => {
+    if (!fromAmount || isNaN(Number(fromAmount))) return '';
+    const rate = getExchangeRate(fromToken, toToken);
+    const amount = Number(fromAmount) * rate;
+    
+    // Apply price impact reduction
+    const priceImpact = calculatePriceImpact(fromToken, toToken, fromAmount);
+    const impactAdjustedAmount = amount * (1 - priceImpact);
+    
+    return impactAdjustedAmount === 0 ? '0' : impactAdjustedAmount.toFixed(6);
   };
 
-  const handleOfferingAmountChange = (value: string) => {
-    const wantedAmount = calculateWantedAmount(value, swap.offeringToken, swap.wantedToken);
+  const calculateFromAmount = (toAmount: string, fromToken: string, toToken: string) => {
+    if (!toAmount || isNaN(Number(toAmount))) return '';
+    
+    const targetAmount = Number(toAmount);
+    const rate = getExchangeRate(fromToken, toToken);
+    
+    // Start with mid-price estimate
+    let estimate = targetAmount / rate;
+    
+    // Use iterative approach to find the fromAmount that yields the desired toAmount
+    // accounting for price impact
+    for (let i = 0; i < 5; i++) {
+      const priceImpact = calculatePriceImpact(fromToken, toToken, estimate.toString());
+      const calculatedTo = estimate * rate * (1 - priceImpact);
+      const error = calculatedTo - targetAmount;
+      
+      if (Math.abs(error) < 0.000001) break;
+      
+      // Adjust estimate
+      estimate = estimate - (error / (rate * (1 - priceImpact)));
+      estimate = Math.max(0, estimate); // Ensure non-negative
+    }
+    
+    return estimate.toFixed(6);
+  };
+
+  const handleFromAmountChange = (value: string) => {
+    const toAmount = calculateToAmount(value, swap.fromToken, swap.toToken);
+    const swapFee = getSwapFee(swap.fromToken, swap.toToken);
+    const priceImpact = value && !isNaN(Number(value)) && Number(value) > 0 
+      ? calculatePriceImpact(swap.fromToken, swap.toToken, value) 
+      : null;
+
     setSwap(prev => ({
       ...prev,
-      offeringAmount: value,
-      wantedAmount,
+      fromAmount: value,
+      toAmount,
+      swapFee,
+      priceImpact,
     }));
   };
 
-  const handleWantedAmountChange = (value: string) => {
-    const offeringAmount = calculateOfferingAmount(value, swap.offeringToken, swap.wantedToken);
+  const handleToAmountChange = (value: string) => {
+    const fromAmount = calculateFromAmount(value, swap.fromToken, swap.toToken);
+    const swapFee = getSwapFee(swap.fromToken, swap.toToken);
+    const priceImpact = fromAmount && !isNaN(Number(fromAmount)) && Number(fromAmount) > 0 
+      ? calculatePriceImpact(swap.fromToken, swap.toToken, fromAmount) 
+      : null;
+
     setSwap(prev => ({
       ...prev,
-      wantedAmount: value,
-      offeringAmount,
+      toAmount: value,
+      fromAmount,
+      swapFee,
+      priceImpact,
     }));
   };
 
-  const createOffer = async () => {
-    const offeringAmountNum = Number(swap.offeringAmount);
-    const wantedAmountNum = Number(swap.wantedAmount);
+  const executeSwap = async () => {
+    const fromAmountNum = Number(swap.fromAmount);
+    const toAmountNum = Number(swap.toAmount);
 
-    if (!swap.offeringAmount || !swap.wantedAmount || offeringAmountNum <= 0 || wantedAmountNum <= 0 || isNaN(offeringAmountNum) || isNaN(wantedAmountNum)) {
+    if (!swap.fromAmount || !swap.toAmount || fromAmountNum <= 0 || toAmountNum <= 0 || isNaN(fromAmountNum) || isNaN(toAmountNum)) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter valid amounts for your offer.",
+        description: "Please enter a valid amount to swap.",
         variant: "destructive",
       });
       return;
@@ -118,25 +247,27 @@ const SwapInterface = () => {
     setSwap(prev => ({ ...prev, isLoading: true }));
 
     try {
-      // Simulate P2P offer creation
+      // Simulate swap execution
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast({
-        title: "Offer Created",
-        description: `Created offer: ${swap.offeringAmount} ${swap.offeringToken} for ${swap.wantedAmount} ${swap.wantedToken}`,
+        title: "Swap Successful",
+        description: `Swapped ${swap.fromAmount} ${swap.fromToken} for ${swap.toAmount} ${swap.toToken}`,
       });
 
-      // Reset form
+      // Reset form with proper state cleanup
       setSwap(prev => ({
         ...prev,
-        offeringAmount: '',
-        wantedAmount: '',
+        fromAmount: '',
+        toAmount: '',
+        priceImpact: null,
+        swapFee: null,
         isLoading: false,
       }));
     } catch (error) {
       toast({
-        title: "Offer Failed",
-        description: "There was an error creating your offer. Please try again.",
+        title: "Swap Failed",
+        description: "There was an error executing your swap. Please try again.",
         variant: "destructive",
       });
       setSwap(prev => ({ ...prev, isLoading: false }));
@@ -152,8 +283,8 @@ const SwapInterface = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Create Offer</CardTitle>
-            <CardDescription>Create a P2P token swap offer</CardDescription>
+            <CardTitle>Swap Tokens</CardTitle>
+            <CardDescription>Trade your tokens instantly</CardDescription>
           </div>
           <Button variant="ghost" size="sm">
             <Settings className="h-4 w-4" />
@@ -161,31 +292,34 @@ const SwapInterface = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Offering Token */}
+        {/* Selling Token */}
         <div className="space-y-2">
-          <Label htmlFor="offering-amount">Offering</Label>
+          <Label htmlFor="from-amount">Selling</Label>
           <div className="flex gap-2">
             <div className="flex-1">
-              <Input
-                id="offering-amount"
-                type="number"
-                placeholder="0.00"
-                value={swap.offeringAmount}
-                onChange={(e) => handleOfferingAmountChange(e.target.value)}
-                aria-label="Offering"
-              />
+          <Input
+            id="from-amount"
+            type="number"
+            placeholder="0.00"
+            value={swap.fromAmount}
+            onChange={(e) => handleFromAmountChange(e.target.value)}
+            aria-label="From"
+          />
             </div>
             <Select
-              value={swap.offeringToken}
+              value={swap.fromToken}
               onValueChange={(value) => {
-                setSwap(prev => ({ ...prev, offeringToken: value }));
-                if (swap.offeringAmount) {
-                  const wantedAmount = calculateWantedAmount(swap.offeringAmount, value, swap.wantedToken);
-                  setSwap(prev => ({ ...prev, wantedAmount }));
+                setSwap(prev => ({ ...prev, fromToken: value }));
+                // Recalculate when from token changes
+                if (swap.fromAmount) {
+                  const toAmount = calculateToAmount(swap.fromAmount, value, swap.toToken);
+                  const swapFee = getSwapFee(value, swap.toToken);
+                  const priceImpact = calculatePriceImpact(value, swap.toToken, swap.fromAmount);
+                  setSwap(prev => ({ ...prev, toAmount, swapFee, priceImpact }));
                 }
               }}
             >
-              <SelectTrigger className="w-32" role="combobox">
+              <SelectTrigger className="w-24" role="combobox">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -198,7 +332,7 @@ const SwapInterface = () => {
             </Select>
           </div>
           <div className="flex justify-between text-sm text-muted-foreground">
-            <span>Balance: {getTokenBalance(swap.offeringToken)}</span>
+            <span>Balance: {getTokenBalance(swap.fromToken)}</span>
             <Button variant="link" className="h-auto p-0 text-xs">
               MAX
             </Button>
@@ -219,35 +353,38 @@ const SwapInterface = () => {
           </Button>
         </div>
 
-        {/* Wanted Token */}
+        {/* Buying Token */}
         <div className="space-y-2">
-          <Label htmlFor="wanted-amount">Wanted</Label>
+          <Label htmlFor="to-amount">Buying</Label>
           <div className="flex gap-2">
             <div className="flex-1">
-              <Input
-                id="wanted-amount"
-                type="number"
-                placeholder="0.00"
-                value={swap.wantedAmount}
-                onChange={(e) => handleWantedAmountChange(e.target.value)}
-                aria-label="Wanted"
-              />
+          <Input
+            id="to-amount"
+            type="number"
+            placeholder="0.00"
+            value={swap.toAmount}
+            onChange={(e) => handleToAmountChange(e.target.value)}
+            aria-label="To"
+          />
             </div>
             <Select
-              value={swap.wantedToken}
+              value={swap.toToken}
               onValueChange={(value) => {
-                setSwap(prev => ({ ...prev, wantedToken: value }));
-                if (swap.offeringAmount) {
-                  const wantedAmount = calculateWantedAmount(swap.offeringAmount, swap.offeringToken, value);
-                  setSwap(prev => ({ ...prev, wantedAmount }));
+                setSwap(prev => ({ ...prev, toToken: value }));
+                // Recalculate when to token changes
+                if (swap.fromAmount) {
+                  const toAmount = calculateToAmount(swap.fromAmount, swap.fromToken, value);
+                  const swapFee = getSwapFee(swap.fromToken, value);
+                  const priceImpact = calculatePriceImpact(swap.fromToken, value, swap.fromAmount);
+                  setSwap(prev => ({ ...prev, toAmount, swapFee, priceImpact }));
                 }
               }}
             >
-              <SelectTrigger className="w-32" role="combobox">
+              <SelectTrigger className="w-24" role="combobox">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {TOKENS.filter(token => token.symbol !== swap.offeringToken).map((token) => (
+                {TOKENS.filter(token => token.symbol !== swap.fromToken).map((token) => (
                   <SelectItem key={token.symbol} value={token.symbol}>
                     {token.symbol}
                   </SelectItem>
@@ -256,44 +393,57 @@ const SwapInterface = () => {
             </Select>
           </div>
           <div className="text-sm text-muted-foreground">
-            Balance: {getTokenBalance(swap.wantedToken)}
+            Balance: {getTokenBalance(swap.toToken)}
           </div>
         </div>
 
-        {/* Offer Details */}
-        {swap.offeringAmount && swap.wantedAmount && (
+        {/* Swap Details */}
+        {swap.fromAmount && swap.toAmount && (
           <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
             <div className="flex justify-between text-sm">
               <span>Exchange Rate:</span>
-              <span>1 {swap.offeringToken} = {(Number(swap.wantedAmount) / Number(swap.offeringAmount)).toFixed(6)} {swap.wantedToken}</span>
+              <span>1 {swap.fromToken} = {(Number(swap.toAmount) / Number(swap.fromAmount)).toFixed(6)} {swap.toToken}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>Slippage Tolerance:</span>
               <Badge variant="secondary">{swap.slippage}%</Badge>
             </div>
-            <div className="flex justify-between text-sm">
-              <span>Gas Fee:</span>
-              <Badge variant="outline">{swap.gasFeeCost} GALA</Badge>
-            </div>
+            {swap.swapFee !== null && (
+              <div className="flex justify-between text-sm">
+                <span>Swap Fee:</span>
+                <Badge variant="outline">{swap.swapFee}%</Badge>
+              </div>
+            )}
+            {swap.priceImpact !== null && (
+              <div className="flex justify-between text-sm">
+                <span>Price Impact:</span>
+                <Badge 
+                  variant={Math.abs(swap.priceImpact) > 0.05 ? "destructive" : Math.abs(swap.priceImpact) > 0.01 ? "secondary" : "outline"}
+                  data-testid="price-impact-badge"
+                >
+                  {swap.priceImpact > 0 ? '+' : ''}{(swap.priceImpact * 100).toFixed(3)}%
+                </Badge>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Create Offer Button */}
+        {/* Swap Button */}
         <Button 
-          onClick={createOffer} 
+          onClick={executeSwap} 
           disabled={
-            !swap.offeringAmount || 
-            !swap.wantedAmount || 
-            Number(swap.offeringAmount) <= 0 || 
-            Number(swap.wantedAmount) <= 0 || 
-            isNaN(Number(swap.offeringAmount)) || 
-            isNaN(Number(swap.wantedAmount)) || 
+            !swap.fromAmount || 
+            !swap.toAmount || 
+            Number(swap.fromAmount) <= 0 || 
+            Number(swap.toAmount) <= 0 || 
+            isNaN(Number(swap.fromAmount)) || 
+            isNaN(Number(swap.toAmount)) || 
             swap.isLoading
           }
           className="w-full"
           size="lg"
         >
-          {swap.isLoading ? 'Creating Offer...' : 'Create Offer'}
+          {swap.isLoading ? 'Swapping...' : 'Swap'}
         </Button>
       </CardContent>
     </Card>
