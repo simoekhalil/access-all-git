@@ -293,18 +293,11 @@ const SwapInterface = () => {
       <CardContent className="space-y-4">
         {/* Selling Token */}
         <div className="space-y-2">
-          <Label htmlFor="from-amount">Selling <span className="text-xs text-muted-foreground">max</span></Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="from-amount">Selling</Label>
+            <span className="text-xs text-muted-foreground uppercase">max</span>
+          </div>
           <div className="flex gap-2">
-            <div className="flex-1">
-          <Input
-            id="from-amount"
-            type="number"
-            placeholder="0.00"
-            value={swap.fromAmount}
-            onChange={(e) => handleFromAmountChange(e.target.value)}
-            aria-label="Selling"
-          />
-            </div>
             <Select
               value={swap.fromToken}
               onValueChange={(value) => {
@@ -329,6 +322,17 @@ const SwapInterface = () => {
                 ))}
               </SelectContent>
             </Select>
+            <div className="flex-1">
+              <Input
+                id="from-amount"
+                type="number"
+                placeholder="0.00"
+                value={swap.fromAmount}
+                onChange={(e) => handleFromAmountChange(e.target.value)}
+                aria-label="Selling"
+                className="text-right"
+              />
+            </div>
           </div>
           <div className="text-sm text-muted-foreground">
             {getTokenBalance(swap.fromToken)} {swap.fromToken === 'USDC' ? 'G' + swap.fromToken : swap.fromToken}
@@ -356,16 +360,6 @@ const SwapInterface = () => {
         <div className="space-y-2">
           <Label htmlFor="to-amount">Buying</Label>
           <div className="flex gap-2">
-            <div className="flex-1">
-          <Input
-            id="to-amount"
-            type="number"
-            placeholder="0.00"
-            value={swap.toAmount}
-            onChange={(e) => handleToAmountChange(e.target.value)}
-            aria-label="Buying"
-          />
-            </div>
             <Select
               value={swap.toToken}
               onValueChange={(value) => {
@@ -390,6 +384,17 @@ const SwapInterface = () => {
                 ))}
               </SelectContent>
             </Select>
+            <div className="flex-1">
+              <Input
+                id="to-amount"
+                type="number"
+                placeholder="0.00"
+                value={swap.toAmount}
+                onChange={(e) => handleToAmountChange(e.target.value)}
+                aria-label="Buying"
+                className="text-right"
+              />
+            </div>
           </div>
           <div className="text-sm text-muted-foreground">
             {getTokenBalance(swap.toToken)} {swap.toToken}
