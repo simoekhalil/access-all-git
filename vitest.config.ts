@@ -46,9 +46,10 @@ export default defineConfig({
         maxThreads: 4
       }
     },
-    reporter: ['verbose', 'json'],
+    reporter: ['verbose', 'json', 'html'],
     outputFile: {
-      json: './public/results.json'
+      json: './public/results.json',
+      html: './test-results/index.html'
     }
   },
   resolve: {
