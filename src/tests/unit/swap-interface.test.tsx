@@ -18,15 +18,15 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('SwapInterface Component - Real swap.gala.com AMM', () => {
   describe('Initial Render', () => {
-    it('should render with correct title and description', () => {
+    it('should render with correct title', () => {
       render(
         <TestWrapper>
           <SwapInterface />
         </TestWrapper>
       );
 
-      expect(screen.getByText('Swap Tokens')).toBeInTheDocument();
-      expect(screen.getByText('Trade your tokens instantly')).toBeInTheDocument();
+      expect(screen.getByText('Swap')).toBeInTheDocument();
+      
     });
 
     it('should render with default tokens (USDC and GALA)', () => {
@@ -52,8 +52,8 @@ describe('SwapInterface Component - Real swap.gala.com AMM', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByText('Balance: 1,500.00')).toBeInTheDocument(); // USDC balance
-      expect(screen.getByText('Balance: 1,000.00')).toBeInTheDocument(); // GALA balance
+      expect(screen.getByText('1,500.00 GUSDC')).toBeInTheDocument(); // USDC balance
+      expect(screen.getByText('1,000.00 GALA')).toBeInTheDocument(); // GALA balance
     });
   });
 

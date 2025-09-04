@@ -283,8 +283,7 @@ const SwapInterface = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Swap Tokens</CardTitle>
-            <CardDescription>Trade your tokens instantly</CardDescription>
+            <CardTitle>Swap</CardTitle>
           </div>
           <Button variant="ghost" size="sm">
             <Settings className="h-4 w-4" />
@@ -331,11 +330,11 @@ const SwapInterface = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>Balance: {getTokenBalance(swap.fromToken)}</span>
-            <Button variant="link" className="h-auto p-0 text-xs">
-              MAX
-            </Button>
+          <div className="text-sm text-muted-foreground">
+            {getTokenBalance(swap.fromToken)} G{swap.fromToken}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            $ 0.00
           </div>
         </div>
 
@@ -393,7 +392,10 @@ const SwapInterface = () => {
             </Select>
           </div>
           <div className="text-sm text-muted-foreground">
-            Balance: {getTokenBalance(swap.toToken)}
+            {getTokenBalance(swap.toToken)} {swap.toToken}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            $ 0.00
           </div>
         </div>
 
