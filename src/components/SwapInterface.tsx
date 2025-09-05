@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,32 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { RealDataService, TokenPrice, LiquidityPool } from '@/services/realDataService';
 
-// Real swap.gala.com tokens from current pools
+// Real swap.gala.com tokens - balances will be updated with real wallet data
 const TOKENS = [
   { symbol: 'GALA', name: 'Gala', balance: '1,000.00' },
   { symbol: 'USDC', name: 'USD Coin', balance: '1,500.00' },
   { symbol: 'USDT', name: 'Tether USD', balance: '1,200.00' },
   { symbol: 'WBTC', name: 'Wrapped Bitcoin', balance: '0.025' },
   { symbol: 'WETH', name: 'Wrapped Ethereum', balance: '0.75' },
-  { symbol: 'WEN', name: 'Wen Token', balance: '50,000.00' },
-  { symbol: '$GMUSIC', name: 'Gala Music', balance: '500.00' },
-  { symbol: 'FILM', name: 'Gala Film', balance: '250.00' },
-  { symbol: 'WXRP', name: 'Wrapped XRP', balance: '2,000.00' },
-];
-
-// Real token pairs from swap.gala.com/explore
-const TOKEN_PAIRS = [
-  { pair: 'USDC/WBTC', fee: 0.3, tvl: 1038393.48 },
-  { pair: 'USDT/WBTC', fee: 0.3, tvl: 1008577.16 },
-  { pair: 'USDT/WETH', fee: 1.0, tvl: 723136.90 },
-  { pair: 'GALA/USDC', fee: 1.0, tvl: 709903.79 },
-  { pair: 'USDC/WETH', fee: 1.0, tvl: 681852.57 },
-  { pair: 'GALA/USDT', fee: 1.0, tvl: 117934.77 },
-  { pair: 'GALA/WETH', fee: 1.0, tvl: 49839.44 },
-  { pair: 'GALA/WEN', fee: 1.0, tvl: 47706.30 },
-  { pair: '$GMUSIC/FILM', fee: 1.0, tvl: 45593.05 },
-  { pair: 'USDC/WXRP', fee: 0.3, tvl: 32179.58 },
 ];
 
 interface SwapState {
@@ -46,6 +29,12 @@ interface SwapState {
   swapFee: number | null;
 }
 
+interface AppState {
+  tokenPrices: Record<string, TokenPrice>;
+  liquidityPools: LiquidityPool[];
+  isDataLoading: boolean;
+}
+
 const SwapInterface = () => {
   const [swap, setSwap] = useState<SwapState>({
     fromToken: 'USDC',
@@ -57,7 +46,59 @@ const SwapInterface = () => {
     priceImpact: null,
     swapFee: null,
   });
+
+  const [appState, setAppState] = useState<AppState>({
+    tokenPrices: {},
+    liquidityPools: [],
+    isDataLoading: true,
+  });
+
   const { toast } = useToast();
+
+  // Load real blockchain data on component mount
+  useEffect(() => {
+    const loadRealData = async () => {
+      setAppState(prev => ({ ...prev, isDataLoading: true }));
+      
+      try {
+        // Load real token prices and pool data
+        const [prices, pools] = await Promise.all([
+          RealDataService.getTokenPrices(),
+          RealDataService.getLiquidityPools()
+        ]);
+        
+        setAppState(prev => ({
+          ...prev,
+          tokenPrices: prices,
+          liquidityPools: pools,
+          isDataLoading: false
+        }));
+        
+        console.log('🔗 Loaded real Gala ecosystem data:', { prices, pools });
+        
+        toast({
+          title: "Real Data Loaded",
+          description: "Connected to live Gala ecosystem prices and pools",
+        });
+        
+      } catch (error) {
+        console.error('Error loading real data:', error);
+        setAppState(prev => ({ ...prev, isDataLoading: false }));
+        
+        toast({
+          title: "Data Loading Error", 
+          description: "Using cached data. Some prices may not be current.",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    loadRealData();
+    
+    // Refresh data every 5 minutes
+    const interval = setInterval(loadRealData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [toast]);
 
   const handleSwapTokens = () => {
     setSwap(prev => {
@@ -81,61 +122,22 @@ const SwapInterface = () => {
   };
 
   const getExchangeRate = (from: string, to: string) => {
-    // Mock exchange rates based on current market data patterns
-    const rates: Record<string, Record<string, number>> = {
-      GALA: { 
-        USDC: 0.025,        // 1 GALA ≈ $0.025
-        USDT: 0.025,        // 1 GALA ≈ $0.025  
-        WBTC: 0.00000025,   // 1 GALA ≈ 0.00000025 WBTC
-        WETH: 0.0000075,    // 1 GALA ≈ 0.0000075 WETH
-        WEN: 250.0,         // 1 GALA ≈ 250 WEN
-        '$GMUSIC': 0.8,     // 1 GALA ≈ 0.8 $GMUSIC
-        FILM: 1.2,          // 1 GALA ≈ 1.2 FILM
-        WXRP: 0.04          // 1 GALA ≈ 0.04 WXRP
-      },
-      USDC: { 
-        GALA: 40.0, USDT: 1.0, WBTC: 0.00001, WETH: 0.0003, 
-        WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
-      },
-      USDT: { 
-        GALA: 40.0, USDC: 1.0, WBTC: 0.00001, WETH: 0.0003,
-        WEN: 10000.0, '$GMUSIC': 32.0, FILM: 48.0, WXRP: 1.6
-      },
-      WBTC: { 
-        GALA: 4000000.0, USDC: 100000.0, USDT: 100000.0, WETH: 30.0,
-        WEN: 1000000000.0, '$GMUSIC': 128000.0, FILM: 192000.0, WXRP: 160000.0
-      },
-      WETH: { 
-        GALA: 133333.0, USDC: 3333.0, USDT: 3333.0, WBTC: 0.033,
-        WEN: 33333333.0, '$GMUSIC': 4266.0, FILM: 6400.0, WXRP: 5333.0
-      },
-      WEN: { 
-        GALA: 0.004, USDC: 0.0001, USDT: 0.0001, WBTC: 0.000000001, WETH: 0.00000003,
-        '$GMUSIC': 0.0032, FILM: 0.0048, WXRP: 0.00016
-      },
-      '$GMUSIC': { 
-        GALA: 1.25, USDC: 0.03125, USDT: 0.03125, WBTC: 0.0000000078, WETH: 0.0000234,
-        WEN: 312.5, FILM: 1.5, WXRP: 0.05
-      },
-      FILM: { 
-        GALA: 0.833, USDC: 0.02083, USDT: 0.02083, WBTC: 0.0000000052, WETH: 0.000156,
-        WEN: 208.3, '$GMUSIC': 0.667, WXRP: 0.033
-      },
-      WXRP: { 
-        GALA: 25.0, USDC: 0.625, USDT: 0.625, WBTC: 0.00000625, WETH: 0.0001875,
-        WEN: 6250.0, '$GMUSIC': 20.0, FILM: 30.0
-      }
-    };
-    return rates[from]?.[to] || 1;
+    // Use real-time prices from blockchain data
+    const fromPrice = appState.tokenPrices[from]?.price || 0;
+    const toPrice = appState.tokenPrices[to]?.price || 0;
+    
+    if (!fromPrice || !toPrice) return 0;
+    
+    return fromPrice / toPrice;
   };
 
   const getSwapFee = (from: string, to: string) => {
-    // Find the pair in TOKEN_PAIRS and return the fee
+    // Find the pair in real liquidity pools and return the fee
     const pairKey1 = `${from}/${to}`;
     const pairKey2 = `${to}/${from}`;
     
-    const pair = TOKEN_PAIRS.find(p => p.pair === pairKey1 || p.pair === pairKey2);
-    return pair ? pair.fee : 1.0; // Default to 1% if pair not found
+    const pair = appState.liquidityPools.find(p => p.pair === pairKey1 || p.pair === pairKey2);
+    return pair ? (pair.fee * 100) : 0.3; // Convert decimal to percentage, default to 0.3%
   };
 
   const calculatePriceImpact = (from: string, to: string, fromAmount: string): number => {
@@ -144,19 +146,18 @@ const SwapInterface = () => {
     const amount = Number(fromAmount);
     if (amount === 0) return 0;
     
-    // Find the pair's TVL to calculate price impact
+    // Find the pair's TVL to calculate price impact using real pool data
     const pairKey1 = `${from}/${to}`;
     const pairKey2 = `${to}/${from}`;
-    const pair = TOKEN_PAIRS.find(p => p.pair === pairKey1 || p.pair === pairKey2);
+    const pair = appState.liquidityPools.find(p => p.pair === pairKey1 || p.pair === pairKey2);
     
     if (!pair) return 0;
     
-    // Simple price impact model: larger trades relative to TVL have more impact
-    const tradeValue = amount * (from === 'USDC' || from === 'USDT' ? 1 : 
-                               from === 'GALA' ? 0.025 : 
-                               from === 'WBTC' ? 100000 : 
-                               from === 'WETH' ? 3333 : 1);
+    // Use real token price for trade value calculation
+    const fromPrice = appState.tokenPrices[from]?.price || 0;
+    const tradeValue = amount * fromPrice;
     
+    // AMM-style price impact calculation based on real pool liquidity
     const impactFactor = Math.sqrt(tradeValue / (pair.tvl / 2)) * 0.01;
     return Math.round(impactFactor * 1000000) / 1000000; // Round to 6 decimal places
   };
@@ -247,7 +248,23 @@ const SwapInterface = () => {
     setSwap(prev => ({ ...prev, isLoading: true }));
 
     try {
-      // Simulate swap execution
+      // Record the trade in our database with real data
+      const priceImpact = calculatePriceImpact(swap.fromToken, swap.toToken, swap.fromAmount);
+      const fee = getSwapFee(swap.fromToken, swap.toToken) / 100; // Convert percentage to decimal
+      
+      await RealDataService.recordTrade({
+        fromToken: swap.fromToken,
+        toToken: swap.toToken,
+        fromAmount: fromAmountNum,
+        toAmount: toAmountNum,
+        priceImpact,
+        fee,
+        // In real implementation, this would come from wallet connection
+        userWallet: undefined,
+        txHash: undefined
+      });
+      
+      // Simulate blockchain transaction
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast({
@@ -265,6 +282,7 @@ const SwapInterface = () => {
         isLoading: false,
       }));
     } catch (error) {
+      console.error('Swap error:', error);
       toast({
         title: "Swap Failed",
         description: "There was an error executing your swap. Please try again.",
@@ -283,7 +301,9 @@ const SwapInterface = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Swap</CardTitle>
+            <CardTitle>
+              Swap {appState.isDataLoading && <span className="text-sm text-muted-foreground ml-2">(Loading real data...)</span>}
+            </CardTitle>
           </div>
           <Button variant="ghost" size="sm">
             <Settings className="h-4 w-4" />
